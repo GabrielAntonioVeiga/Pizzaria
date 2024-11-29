@@ -1,6 +1,7 @@
 package view;
 
 import controller.ClienteController;
+import controller.PedidoController;
 import model.Cliente;
 
 import javax.swing.*;
@@ -15,7 +16,10 @@ public class PedidoView extends JFrame {
     private JPanel tela;
     private JScrollPane itensPedidos;
     private JButton adicionarButton;
+    private JButton procurarButton;
+    private JLabel response;
     private ClienteController clienteController;
+    private PedidoController pedidoController;
 
     public PedidoView() {
         setContentPane(tela);
@@ -33,14 +37,18 @@ public class PedidoView extends JFrame {
 
         pack();
         setVisible(true);
-        clienteField.addActionListener(new ActionListener() {
+
+        procurarButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 Cliente cliente = clienteController.buscarClientePorTelefone(clienteField.getText());
 
-                if(cliente != null) {
-
+                if(cliente == null) {
+                    response.setText("Cliente com o número " + clienteField.getText() + " não encontrado.");
+                    return;
                 }
+
+                pedidoController.carregarItensPedido(cliente);
             }
         });
     }

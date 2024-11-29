@@ -3,7 +3,6 @@ package model;
 import java.util.ArrayList;
 
 public class Pedido {
-    private Cliente cliente;
     private ArrayList<Pizza> itens = new ArrayList();
 
     public Cliente getCliente() {

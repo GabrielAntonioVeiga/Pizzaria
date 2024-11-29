@@ -1,6 +1,7 @@
 package controller;
 
 import model.Cliente;
+import model.Pedido;
 import view.ClienteView;
 
 import javax.swing.*;
@@ -75,5 +76,9 @@ public class ClienteController {
             }
         }
         return null;
+    }
+
+    public void adicionarPedido(Cliente cliente, Pedido pedido) {
+        cliente.setPedido(pedido);
     }
 }
