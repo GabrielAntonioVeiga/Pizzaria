@@ -15,6 +15,10 @@ public class PedidoController {
     private PedidoView pedidoView;
     private List<Pizza> itensPedido = new ArrayList<>();
 
+    public PedidoController(DefaultTableModel tableModel) {
+        this.tableModel = tableModel;
+    }
+
     public void carregarItensPedido(Cliente cliente) {
         Pedido pedido = cliente.getPedido();
         itensPedido = pedido.getItens();

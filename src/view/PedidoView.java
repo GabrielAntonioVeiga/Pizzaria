@@ -34,6 +34,7 @@ public class PedidoView extends JFrame {
         tableItensPedido.setModel(tableModel);
 
         clienteController = new ClienteController(tableModel);
+        pedidoController = new PedidoController(tableModel);
 
         pack();
         setVisible(true);
