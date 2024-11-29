@@ -34,7 +34,7 @@
         <children>
           <component id="96d6f" class="javax.swing.JLabel">
             <constraints>
-              <grid row="1" column="0" row-span="2" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <text value="Sobrenome"/>
@@ -42,7 +42,7 @@
           </component>
           <component id="278a" class="javax.swing.JLabel">
             <constraints>
-              <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <text value="Telefone"/>
@@ -58,7 +58,7 @@
           </component>
           <component id="9303" class="javax.swing.JTextField" binding="tfTelefone">
             <constraints>
-              <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+              <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                 <preferred-size width="192" height="30"/>
               </grid>
             </constraints>
@@ -66,7 +66,7 @@
           </component>
           <component id="4813f" class="javax.swing.JButton" binding="btnCriar">
             <constraints>
-              <grid row="4" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+              <grid row="3" column="0" row-span="2" col-span="2" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <icon value="icon/botao-adicionar.png"/>
@@ -88,6 +88,17 @@
               </grid>
             </constraints>
             <properties/>
+          </component>
+          <component id="1ec90" class="javax.swing.JButton" binding="btnIrParaPedido">
+            <constraints>
+              <grid row="4" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <actionCommand value=""/>
+              <icon value="icon/nextPage.png"/>
+              <label value="Ir para pedidos"/>
+              <text value="Ir para pedidos"/>
+            </properties>
           </component>
         </children>
       </grid>

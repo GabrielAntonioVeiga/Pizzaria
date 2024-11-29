@@ -9,6 +9,7 @@ import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ClienteController {
     private DefaultTableModel tableModel;
@@ -57,5 +58,15 @@ public class ClienteController {
             tableModel.setValueAt(sobrenome, rowIndex, 1);
             tableModel.setValueAt(telefone, rowIndex, 2);
         }
+    }
+
+    private void tfPesquisarClientePorTelefone(String telefone) {
+        if (!telefone.isEmpty()) {
+            filtrarTabela(telefone);
+        }
+    }
+
+    private List<Cliente> filtrarTabela(String telefone) {
+        return  clientes.stream().filter(cliente -> cliente.getTelefone().contains(telefone)).collect(Collectors.toList());
     }
 }

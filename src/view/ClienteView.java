@@ -20,6 +20,7 @@ public class ClienteView extends JFrame {
     private JButton btnEditar;
     private JButton btnCarregar;
     private JTextField tfFiltro;
+    private JButton btnIrParaPedido;
 
     private ClienteController clienteController;
 
@@ -41,6 +42,7 @@ public class ClienteView extends JFrame {
         btnDeletar.addActionListener(this::btnDeleteActionPerformed);
         btnEditar.addActionListener(this::btnEditarActionPerformed);
         btnCarregar.addActionListener(this::btnCarregarActionPerformed);
+        btnIrParaPedido.addActionListener(this::btnTrocarPaginaActionPerformed);
         clienteController.carregarClientes();
 
         pack();
@@ -69,6 +71,17 @@ public class ClienteView extends JFrame {
             }
 
         });
+
+        panelCliente.addMouseListener(new MouseAdapter() {
+            public void mousePressed(MouseEvent e) {
+                if (!tabelaCliente.getBounds().contains(e.getPoint())) {
+                        tabelaCliente.clearSelection();
+            }
+        }
+        });
+
+
+
 
     }
 
@@ -108,6 +121,12 @@ public class ClienteView extends JFrame {
         }
     }
 
+    private void btnTrocarPaginaActionPerformed(ActionEvent e) {
+        //Tela2 tela2 = new Tela2();
+        this.dispose();
+        //tela2.setVisible(true);
+    }
+
     private void btnDeleteActionPerformed(ActionEvent e) {
         int row = tabelaCliente.getSelectedRow();
 
@@ -134,6 +153,9 @@ public class ClienteView extends JFrame {
             String telefone = tabelaCliente.getValueAt(row, 2).toString();
 
             clienteController.editarCliente(row, nome, sobrenome, telefone);
+            JOptionPane.showMessageDialog(this,
+                    new StringBuilder("Cliente ").append(nome).append(" editado com sucesso!"),
+                    "Edição", JOptionPane.PLAIN_MESSAGE);
         }
     }
 
