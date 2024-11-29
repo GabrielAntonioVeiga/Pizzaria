@@ -36,7 +36,7 @@ public class ClienteView extends JFrame {
         );
         tabelaCliente.setModel(tableModel);
 
-        clienteController = new ClienteController(tableModel, this);
+        clienteController = new ClienteController(tableModel);
 
         btnCriar.addActionListener(this::btnAddActionPerformed);
         btnDeletar.addActionListener(this::btnDeleteActionPerformed);
@@ -124,6 +124,7 @@ public class ClienteView extends JFrame {
     private void btnTrocarPaginaActionPerformed(ActionEvent e) {
         //Tela2 tela2 = new Tela2();
         this.dispose();
+        new PedidoView();
         //tela2.setVisible(true);
     }
 

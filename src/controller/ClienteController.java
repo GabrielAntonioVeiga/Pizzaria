@@ -13,10 +13,9 @@ import java.util.stream.Collectors;
 
 public class ClienteController {
     private DefaultTableModel tableModel;
-    private ClienteView clienteView;
     private List<Cliente> clientes;
 
-    public ClienteController(DefaultTableModel tableModel, ClienteView clienteView) {
+    public ClienteController(DefaultTableModel tableModel) {
         this.tableModel = tableModel;
         this.clientes = new ArrayList<>();
     }
@@ -37,7 +36,6 @@ public class ClienteController {
         Cliente cliente = new Cliente(nome, sobrenome, telefone);
         clientes.add(cliente);
         tableModel.addRow(new Object[]{cliente.getNome(), cliente.getSobrenome(), cliente.getTelefone()});
-
     }
 
     public void removerCliente(int rowIndex) {
@@ -68,5 +66,14 @@ public class ClienteController {
 
     private List<Cliente> filtrarTabela(String telefone) {
         return  clientes.stream().filter(cliente -> cliente.getTelefone().contains(telefone)).collect(Collectors.toList());
+    }
+
+    public Cliente buscarClientePorTelefone(String telefone) {
+        for (Cliente cliente : clientes) {
+            if (cliente.getTelefone().contains(telefone)) {
+                return cliente;
+            }
+        }
+        return null;
     }
 }
