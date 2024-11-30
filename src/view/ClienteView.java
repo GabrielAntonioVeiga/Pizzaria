@@ -4,8 +4,9 @@ import controller.ClienteController;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
+import java.awt.event.*;
 
 public class ClienteView extends JFrame {
     private JPanel panelCliente;
@@ -16,6 +17,10 @@ public class ClienteView extends JFrame {
     private JTextField tfNome;
     private JButton btnDeletar;
     private JTable tabelaCliente;
+    private JButton btnEditar;
+    private JButton btnCarregar;
+    private JTextField tfFiltro;
+    private JButton btnIrParaPedido;
 
     private ClienteController clienteController;
 
@@ -31,14 +36,72 @@ public class ClienteView extends JFrame {
         );
         tabelaCliente.setModel(tableModel);
 
-        clienteController = new ClienteController(tableModel);
+        clienteController = new ClienteController(tableModel, this);
 
         btnCriar.addActionListener(this::btnAddActionPerformed);
         btnDeletar.addActionListener(this::btnDeleteActionPerformed);
-
+        btnEditar.addActionListener(this::btnEditarActionPerformed);
+        btnCarregar.addActionListener(this::btnCarregarActionPerformed);
+        btnIrParaPedido.addActionListener(this::btnTrocarPaginaActionPerformed);
+        clienteController.carregarClientes();
 
         pack();
         setVisible(true);
+
+        tfFiltro.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent e) {
+                tfPesquisarCliente();
+            }
+        });
+
+        tfFiltro.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                if (tfFiltro.getText().equalsIgnoreCase("Pesquisar")) {
+                    tfFiltro.setText("");
+                }
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                if (tfFiltro.getText().isEmpty()) {
+                    tfFiltro.setText("Pesquisar");
+                }
+            }
+
+        });
+
+        panelCliente.addMouseListener(new MouseAdapter() {
+            public void mousePressed(MouseEvent e) {
+                if (!tabelaCliente.getBounds().contains(e.getPoint())) {
+                        tabelaCliente.clearSelection();
+            }
+        }
+        });
+
+
+
+
+    }
+
+    private void tfPesquisarCliente() {
+        String textoFiltro = tfFiltro.getText().trim();
+        if (!textoFiltro.isEmpty()) {
+            filtrarTabela(textoFiltro);
+        } else {
+            TableRowSorter<TableModel> sorter = new TableRowSorter<>(tabelaCliente.getModel());
+            tabelaCliente.setRowSorter(sorter);
+            sorter.setRowFilter(null);
+        }
+    }
+
+    private void filtrarTabela(String textoFiltro) {
+        TableRowSorter<TableModel> sorter = new TableRowSorter<>(tabelaCliente.getModel());
+        tabelaCliente.setRowSorter(sorter);
+
+        RowFilter<TableModel, Object> rowFilter = RowFilter.regexFilter("(?i)" + textoFiltro);
+        sorter.setRowFilter(rowFilter);
     }
 
     private void btnAddActionPerformed(ActionEvent e) {
@@ -58,6 +121,12 @@ public class ClienteView extends JFrame {
         }
     }
 
+    private void btnTrocarPaginaActionPerformed(ActionEvent e) {
+        //Tela2 tela2 = new Tela2();
+        this.dispose();
+        //tela2.setVisible(true);
+    }
+
     private void btnDeleteActionPerformed(ActionEvent e) {
         int row = tabelaCliente.getSelectedRow();
 
@@ -69,6 +138,29 @@ public class ClienteView extends JFrame {
             clienteController.removerCliente(row);
         }
 
+    }
+
+    private void btnEditarActionPerformed(ActionEvent e) {
+        int row = tabelaCliente.getSelectedRow();
+
+        if(row < 0) {
+            JOptionPane.showMessageDialog(this,
+                    "Nenhum cliente selecionado para edição!",
+                    "Erro", JOptionPane.ERROR_MESSAGE);
+        } else {
+            String nome = tabelaCliente.getValueAt(row, 0).toString();
+            String sobrenome = tabelaCliente.getValueAt(row, 1).toString();
+            String telefone = tabelaCliente.getValueAt(row, 2).toString();
+
+            clienteController.editarCliente(row, nome, sobrenome, telefone);
+            JOptionPane.showMessageDialog(this,
+                    new StringBuilder("Cliente ").append(nome).append(" editado com sucesso!"),
+                    "Edição", JOptionPane.PLAIN_MESSAGE);
+        }
+    }
+
+    private void btnCarregarActionPerformed(ActionEvent e) {
+        clienteController.carregarClientes();
     }
 
     public static void main(String[] args) {
