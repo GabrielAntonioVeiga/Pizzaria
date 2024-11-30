@@ -15,6 +15,10 @@ public class BancoDados {
         return clientes;
     }
 
+    public List<SaborPizza> getSabores() {
+        return sabores;
+    }
+
     public void setClientes(List<Cliente> clientes) {
         this.clientes = clientes;
     }
