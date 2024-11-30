@@ -4,6 +4,8 @@ package model;
         public abstract double calcularArea();
 
         public abstract boolean validarDimensao(double valor);
+
+        public abstract String getForma();
     }
 
 

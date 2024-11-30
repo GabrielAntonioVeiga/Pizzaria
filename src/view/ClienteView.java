@@ -1,6 +1,7 @@
 package view;
 
 import controller.ClienteController;
+import dados.BancoDados;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -21,6 +22,7 @@ public class ClienteView extends JFrame {
     private JButton btnCarregar;
     private JTextField tfFiltro;
     private JButton btnIrParaPedido;
+    private BancoDados bd = new BancoDados();
 
     private ClienteController clienteController;
 
@@ -79,9 +81,6 @@ public class ClienteView extends JFrame {
             }
         }
         });
-
-
-
 
     }
 
@@ -164,7 +163,7 @@ public class ClienteView extends JFrame {
         clienteController.carregarClientes();
     }
 
-    public static void main(String[] args) {
-        new ClienteView();
-    }
+    //public static void main(String[] args) {
+       // new ClienteView();
+    //}
 }

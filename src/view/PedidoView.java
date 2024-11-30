@@ -2,12 +2,17 @@ package view;
 
 import controller.ClienteController;
 import controller.PedidoController;
-import model.Cliente;
+import dados.BancoDados;
+import enums.TipoSabor;
+import model.*;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
+
+import static enums.TipoSabor.PREMIUM;
 
 public class PedidoView extends JFrame {
     private JTextField clienteField;
@@ -20,6 +25,7 @@ public class PedidoView extends JFrame {
     private JLabel response;
     private ClienteController clienteController;
     private PedidoController pedidoController;
+    private BancoDados bd = new BancoDados();
 
     public PedidoView() {
         setContentPane(tela);
@@ -48,6 +54,18 @@ public class PedidoView extends JFrame {
                     response.setText("Cliente com o número " + clienteField.getText() + " não encontrado.");
                     return;
                 }
+
+                SaborPizza calabresa = new SaborPizza("calabresa", 0);
+                SaborPizza peperoni = new SaborPizza("Pepperoni", 1);
+                List<SaborPizza> sabores = List.of(calabresa, peperoni);
+
+                Pizza p1 = new Pizza(new Quadrado(20), sabores);
+                Pizza p2 = new Pizza(new Triangulo(30), sabores);
+
+                List<Pizza> itens = List.of(p1,p2);
+
+                clienteController.adicionarPedido(cliente, new Pedido(itens));
+
 
                 pedidoController.carregarItensPedido(cliente);
             }

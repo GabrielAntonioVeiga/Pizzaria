@@ -24,10 +24,12 @@ public class PedidoController {
         itensPedido = pedido.getItens();
         int contador = 0;
         for (Pizza pizza : itensPedido) {
+            String valorFormatado = String.format("%.2fcm²", pizza.getTamanho());
+
             tableModel.setRowCount(contador);
             tableModel.addRow(new Object[]{
                     pizza.getForma(),
-                    pizza.getTamanho(),
+                    valorFormatado,
                     pizza.getSabores()
             });
         }

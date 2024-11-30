@@ -1,6 +1,7 @@
 package model;
 
 class Circulo extends Forma {
+    private final String formaPizza = "Círculo";
     private double raio;
 
     public Circulo(double raio) {
@@ -19,5 +20,10 @@ class Circulo extends Forma {
     @Override
     public boolean validarDimensao(double valor) {
         return valor >= 7 && valor <= 23;
+    }
+
+    @Override
+    public String getForma() {
+        return formaPizza;
     }
 }

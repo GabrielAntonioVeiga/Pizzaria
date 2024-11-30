@@ -1,19 +1,16 @@
 package model;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class Pedido {
-    private ArrayList<Pizza> itens = new ArrayList();
+    private List<Pizza> itens;
 
-    public Cliente getCliente() {
-        return cliente;
+    public Pedido(List<Pizza> itens) {
+        this.itens = itens;
     }
 
-    public void setCliente(Cliente cliente) {
-        this.cliente = cliente;
-    }
-
-    public ArrayList<Pizza> getItens() {
+    public List<Pizza> getItens() {
         return itens;
     }
 

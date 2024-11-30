@@ -1,5 +1,6 @@
 package controller;
 
+import dados.BancoDados;
 import model.Cliente;
 import model.Pedido;
 import view.ClienteView;
@@ -18,7 +19,7 @@ public class ClienteController {
 
     public ClienteController(DefaultTableModel tableModel) {
         this.tableModel = tableModel;
-        this.clientes = new ArrayList<>();
+        this.clientes = new BancoDados().getClientes();
     }
 
     public void carregarClientes() {
@@ -71,7 +72,7 @@ public class ClienteController {
 
     public Cliente buscarClientePorTelefone(String telefone) {
         for (Cliente cliente : clientes) {
-            if (cliente.getTelefone().contains(telefone)) {
+            if (cliente.getTelefone().equals(telefone)) {
                 return cliente;
             }
         }

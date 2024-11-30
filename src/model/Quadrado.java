@@ -1,6 +1,7 @@
 package model;
 
-    class Quadrado extends Forma {
+    public class Quadrado extends Forma {
+        private final String formaPizza = "Quadrado";
         private double lado;
 
         public Quadrado(double lado) {
@@ -19,5 +20,10 @@ package model;
         @Override
         public boolean validarDimensao(double valor) {
             return valor >= 10 && valor <= 40;
+        }
+
+        @Override
+        public String getForma() {
+            return formaPizza;
         }
 }

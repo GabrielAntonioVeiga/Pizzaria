@@ -1,6 +1,7 @@
 package model;
 
-class Triangulo extends Forma {
+public class Triangulo extends Forma {
+    private final String formaPizza = "Triângulo";
     private double lado;
 
     public Triangulo(double lado) {
@@ -19,5 +20,10 @@ class Triangulo extends Forma {
     @Override
     public boolean validarDimensao(double valor) {
         return valor >= 20 && valor <= 60;
+    }
+
+    @Override
+    public String getForma() {
+        return formaPizza;
     }
 }
