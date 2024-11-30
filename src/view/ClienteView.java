@@ -1,6 +1,7 @@
 package view;
 
 import controller.ClienteController;
+import dados.BancoDados;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -21,6 +22,7 @@ public class ClienteView extends JFrame {
     private JButton btnCarregar;
     private JTextField tfFiltro;
     private JButton btnIrParaPedido;
+    private BancoDados bd = new BancoDados();
 
     private ClienteController clienteController;
 
@@ -36,7 +38,7 @@ public class ClienteView extends JFrame {
         );
         tabelaCliente.setModel(tableModel);
 
-        clienteController = new ClienteController(tableModel, this);
+        clienteController = new ClienteController(tableModel);
 
         btnCriar.addActionListener(this::btnAddActionPerformed);
         btnDeletar.addActionListener(this::btnDeleteActionPerformed);
@@ -80,9 +82,6 @@ public class ClienteView extends JFrame {
         }
         });
 
-
-
-
     }
 
     private void tfPesquisarCliente() {
@@ -124,6 +123,7 @@ public class ClienteView extends JFrame {
     private void btnTrocarPaginaActionPerformed(ActionEvent e) {
         //Tela2 tela2 = new Tela2();
         this.dispose();
+        new PedidoView();
         //tela2.setVisible(true);
     }
 
@@ -163,7 +163,7 @@ public class ClienteView extends JFrame {
         clienteController.carregarClientes();
     }
 
-    public static void main(String[] args) {
-        new ClienteView();
-    }
+    //public static void main(String[] args) {
+       // new ClienteView();
+    //}
 }
