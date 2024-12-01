@@ -77,13 +77,7 @@ public class PedidoView extends JFrame {
 
         cbStatus.setModel(new DefaultComboBoxModel<>(StatusPedido.values()));
 
-        this.tableModel = new DefaultTableModel(
-                new Object[][]{},
-                new String[]{"ID", "Forma", "Tamanho", "Sabores", "Preço"}
-        );
-        tableItensPedido.setModel(tableModel);
-
-        clienteController = new ClienteController(tableModel);
+        clienteController = new ClienteController();
         pedidoController = new PedidoController();
         saborController = new SaborController();
 
