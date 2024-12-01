@@ -17,4 +17,14 @@ public class PedidosController {
         return pedidos;
     }
 
+    public List<Pedido> carregarPedidosPorCliente(Cliente cliente) {
+        List<Pedido> pedidosCliente = new ArrayList<>();
+        for(Pedido pedido : carregarPedidos()) {
+            if(pedido.getIdCliente() == cliente.getId()){
+                pedidosCliente.add(pedido);
+            }
+        }
+        return pedidosCliente;
+    }
+
 }

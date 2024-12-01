@@ -31,6 +31,14 @@ public class Pedido {
         this.precoTotal = precoTotal;
     }
 
+    public Double getPrecoTotal() {
+        Double precoTotal = 0.0;
+        for(Pizza pizza : itens){
+            precoTotal += pizza.getPreco();
+        }
+        return precoTotal;
+    }
+
     public void setItens(List<Pizza> itens) {
         this.itens = itens;
     }
@@ -41,5 +49,9 @@ public class Pedido {
 
     public void setStatus(StatusPedido status) {
         this.status = status;
+    }
+
+    public int getId() {
+        return id;
     }
 }

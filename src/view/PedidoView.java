@@ -34,18 +34,20 @@ public class PedidoView extends JFrame {
 
     private final BancoDados bd = BancoDados.getInstancia();
     private Cliente cliente = null;
+    private Pedido pedido = null;
 
-    public PedidoView() {
+    public PedidoView(Pedido pedido, Cliente cliente) {
         this.inicializarTela();
     }
 
     public PedidoView(Pedido pedido) {
         this.cliente = clienteController.buscarClientePorId(pedido.getIdCliente());
         this.inicializarTela();
+        this.pedido = pedido;
         this.procurarItensPedido(this.cliente);
         clienteField.setText(cliente.getTelefone());
         cbStatus.setEnabled(true);
-        cbStatus.setSelectedItem(cliente.getPedido().getStatus());
+        cbStatus.setSelectedItem(pedido.getStatus());
     }
 
     private void renderizarItensNaTabela(List<Pizza> itensPedido) {
@@ -153,8 +155,7 @@ public class PedidoView extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 // O item selecionado
                 StatusPedido statusSelecionado = (StatusPedido) cbStatus.getSelectedItem();
-                pedidoController.alterarStatusPedido(cliente.getPedido(), statusSelecionado);
-                Pedido pedido = cliente.getPedido();
+                pedidoController.alterarStatusPedido(pedido, statusSelecionado);
             }
         });
     }
@@ -171,16 +172,8 @@ public class PedidoView extends JFrame {
             return;
         }
 
-        lblPrecoTotal.setText(String.format("%.2f", getPrecoTotal(itensPedido)));
+        lblPrecoTotal.setText(String.format("%.2f", pedido.getPrecoTotal()));
         renderizarItensNaTabela(itensPedido);
 
-    }
-
-    private Double getPrecoTotal(List<Pizza> itens){
-        Double precoTotal = 0.0;
-        for(Pizza pizza : itens){
-            precoTotal += pizza.getPreco();
-        }
-        return precoTotal;
     }
 }

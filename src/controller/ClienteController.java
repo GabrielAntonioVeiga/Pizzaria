@@ -23,6 +23,10 @@ public class ClienteController {
         this.clientes = banco.getClientes();
     }
 
+    public ClienteController() {
+        this.clientes = banco.getClientes();
+    }
+
     public void carregarClientes() {
         tableModel.setRowCount(0);
 
@@ -80,9 +84,9 @@ public class ClienteController {
         return clienteEncontrado;
     }
 
-    public Cliente buscarClientePorTelefone(int id) {
+    public Cliente buscarClientePorId(int id) {
         Cliente clienteEncontrado = this.clientes.stream()
-                .filter(clienteBanco -> clienteBanco.getId().equals(id))
+                .filter(clienteBanco -> clienteBanco.getId() == id)
                 .findFirst()
                 .orElse(null);
 
