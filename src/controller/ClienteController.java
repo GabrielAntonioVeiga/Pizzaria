@@ -1,6 +1,8 @@
 package controller;
 
+import dados.BancoDados;
 import model.Cliente;
+import model.Pedido;
 import view.ClienteView;
 
 import javax.swing.*;
@@ -13,12 +15,12 @@ import java.util.stream.Collectors;
 
 public class ClienteController {
     private DefaultTableModel tableModel;
-    private ClienteView clienteView;
     private List<Cliente> clientes;
+    private final BancoDados banco = BancoDados.getInstancia();
 
-    public ClienteController(DefaultTableModel tableModel, ClienteView clienteView) {
+    public ClienteController(DefaultTableModel tableModel) {
         this.tableModel = tableModel;
-        this.clientes = new ArrayList<>();
+        this.clientes = banco.getClientes();
     }
 
     public void carregarClientes() {
@@ -37,7 +39,6 @@ public class ClienteController {
         Cliente cliente = new Cliente(nome, sobrenome, telefone);
         clientes.add(cliente);
         tableModel.addRow(new Object[]{cliente.getNome(), cliente.getSobrenome(), cliente.getTelefone()});
-
     }
 
     public void removerCliente(int rowIndex) {
@@ -68,5 +69,35 @@ public class ClienteController {
 
     private List<Cliente> filtrarTabela(String telefone) {
         return  clientes.stream().filter(cliente -> cliente.getTelefone().contains(telefone)).collect(Collectors.toList());
+    }
+
+    public Cliente buscarClientePorTelefone(String telefone) {
+        Cliente clienteEncontrado = this.clientes.stream()
+                .filter(clienteBanco -> clienteBanco.getTelefone().equals(telefone))
+                .findFirst()
+                .orElse(null);
+
+        return clienteEncontrado;
+    }
+
+    public Cliente buscarClientePorId(int id) {
+        Cliente clienteEncontrado = this.clientes.stream()
+                .filter(clienteBanco -> clienteBanco.getId() == id)
+                .findFirst()
+                .orElse(null);
+
+        return clienteEncontrado;
+    }
+
+
+    public Cliente buscarClientePorIdPedido(int idPedido) {
+
+        Cliente clienteEncontrado = this.banco.getPedidos().stream()
+                .filter(pedido -> pedido.getId() == idPedido)
+                .findFirst()
+                .orElse(null)
+                .getCliente();
+
+        return clienteEncontrado;
     }
 }
