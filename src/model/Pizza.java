@@ -1,14 +1,22 @@
 package model;
 
 import java.util.List;
+import java.util.UUID;
 
 public class Pizza {
     private Forma forma;
     private List<SaborPizza> saborPizza;
+    private static int idCounter = 0;
+    private final int id;
 
     public Pizza(Forma forma, List<SaborPizza> saborPizza) {
         this.forma = forma;
         this.saborPizza = saborPizza;
+        this.id = ++idCounter;
+    }
+
+    public int getId() {
+        return id;
     }
 
     public Forma getForma() {

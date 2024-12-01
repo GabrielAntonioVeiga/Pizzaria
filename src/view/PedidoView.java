@@ -54,9 +54,9 @@ public class PedidoView extends JFrame {
                 List<SaborPizza> sabores = List.of(saborController.carregarSabores().get(1), saborController.carregarSabores().get(0));
                 Pizza pizzaSelecionada = new Pizza(new Quadrado(20), sabores);
 
-                ItensPedidoFormView tela2 = new ItensPedidoFormView(pizzaSelecionada);
+                ItensPedidoFormView telaFormularioItemPedido = new ItensPedidoFormView(pizzaSelecionada);
 
-                tela2.setVisible(true);
+                telaFormularioItemPedido.setVisible(true);
 
                 dispose();
             }
@@ -72,18 +72,13 @@ public class PedidoView extends JFrame {
                     return;
                 }
 
+                ItensPedidoFormView telaFormularioItemPedido = new ItensPedidoFormView(cliente, clienteController);
 
-                List<SaborPizza> sabores = List.of(saborController.carregarSabores().get(1), saborController.carregarSabores().get(0));
+                telaFormularioItemPedido.setVisible(true);
 
-                Pizza p1 = new Pizza(new Quadrado(20), sabores);
-                Pizza p2 = new Pizza(new Triangulo(30), sabores);
+                dispose();
 
-                List<Pizza> itens = List.of(p1,p2);
-
-                clienteController.adicionarPedido(cliente, new Pedido(itens));
-
-
-                pedidoController.carregarItensPedido(cliente);
+//                pedidoController.carregarItensPedido(cliente);
             }
         });
     }

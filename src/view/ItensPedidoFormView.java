@@ -1,5 +1,6 @@
 package view;
 
+import controller.ClienteController;
 import controller.ItemPedidoController;
 import controller.SaborController;
 import dados.BancoDados;
@@ -24,12 +25,17 @@ public class ItensPedidoFormView extends JFrame {
     private JCheckBox cbxDesativarSegundoSabor;
 
     Pizza pizza = null;
+    Cliente cliente = null;
     boolean ehEdicao = false;
     ItemPedidoController itemPedidoController = new ItemPedidoController();
     SaborController saborController = new SaborController();
+    ClienteController clienteController = null;
+
+
     private BancoDados banco = BancoDados.getInstancia();
 
-    public ItensPedidoFormView() {
+    public ItensPedidoFormView(Cliente cliente, ClienteController clienteController) {
+        this.clienteController = clienteController;
        this.inicializarTela();
     }
     public ItensPedidoFormView(Pizza pizza) {
@@ -112,40 +118,33 @@ public class ItensPedidoFormView extends JFrame {
         return new Forma[]{quadrado, triangulo, circulo};
     }
 
-
-    private void mostrarMensagemErroAoSalvar() {
-        JOptionPane.showMessageDialog(
-                tela,
-                "Houve um erro ao salvar este pedido!",
-                "Erro ao salvar",
-                JOptionPane.ERROR_MESSAGE
-        );
-    }
     private void finalizarOperacao() {
-        boolean sucessoOperacao;
         try {
             Forma formaEscolhida = this.getFormaEscolhida();
             List<SaborPizza> SaboresEscolhidos = getSaboresEscolhidos();
-            this.pizza = new Pizza(formaEscolhida, SaboresEscolhidos);
+            Pizza novaPizza = new Pizza(formaEscolhida, SaboresEscolhidos);
+            List<Pizza> itens = List.of(novaPizza);
+            if(ehEdicao)
+                itemPedidoController.editarItemPedido(novaPizza);
+            else
+                clienteController.adicionarPedido(cliente, new Pedido(itens));
 
-            sucessoOperacao  = ehEdicao ? itemPedidoController.editarItemPedido(this.pizza) :  itemPedidoController.salvarItemPedido(this.pizza);
+            JOptionPane.showMessageDialog(
+                    tela,
+                    "Item salvo no pedido com sucesso!",
+                    "Sucesso ao salvar",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+
         }
         catch (Exception e) {
-            sucessoOperacao = false;
+            JOptionPane.showMessageDialog(
+                    tela,
+                    "Houve um erro ao salvar este pedido!",
+                    "Erro ao salvar",
+                    JOptionPane.ERROR_MESSAGE
+            );
         }
-
-
-        if(!sucessoOperacao) {
-            mostrarMensagemErroAoSalvar();
-             return;
-        }
-
-        JOptionPane.showMessageDialog(
-                tela,
-                "Item salvo no pedido com sucesso!",
-                "Sucesso ao salvar",
-                JOptionPane.INFORMATION_MESSAGE
-        );
 
         PedidoView telaPedido = new PedidoView();
         telaPedido.setVisible(true);
@@ -197,10 +196,6 @@ public class ItensPedidoFormView extends JFrame {
     }
 
 
-
-    public static void main(String[] args) {
-        javax.swing.SwingUtilities.invokeLater(ItensPedidoFormView::new);
-    }
 
 
 }
