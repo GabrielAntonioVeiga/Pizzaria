@@ -49,9 +49,11 @@ public class BancoDados {
             SaborPizza sabor2 = new SaborPizza("Calabresa", tiposSabores.get(1));
             SaborPizza sabor3 = new SaborPizza("Portuguesa", tiposSabores.get(2));
 
+            sabores.clear();
             sabores.add(sabor1);
             sabores.add(sabor2);
             sabores.add(sabor3);
+
         return sabores;
     }
 
