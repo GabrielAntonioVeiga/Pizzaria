@@ -2,6 +2,9 @@ package view;
 
 import controller.ClienteController;
 import dados.BancoDados;
+import enums.NomeTipoSabor;
+import model.SaborPizza;
+import model.TipoSabor;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -137,6 +140,8 @@ public class ClienteView extends JFrame {
         } else {
             clienteController.removerCliente(row);
         }
+
+
 
     }
 
