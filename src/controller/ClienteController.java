@@ -93,4 +93,15 @@ public class ClienteController {
         return clienteEncontrado;
     }
 
+
+    public Cliente buscarClientePorIdPedido(int idPedido) {
+
+        Cliente clienteEncontrado = this.banco.getPedidos().stream()
+                .filter(pedido -> pedido.getId() == idPedido)
+                .findFirst()
+                .orElse(null)
+                .getCliente();
+
+        return clienteEncontrado;
+    }
 }

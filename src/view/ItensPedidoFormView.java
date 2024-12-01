@@ -2,6 +2,7 @@ package view;
 
 import controller.ClienteController;
 import controller.ItemPedidoController;
+import controller.PedidoController;
 import controller.SaborController;
 import dados.BancoDados;
 import model.*;
@@ -24,29 +25,28 @@ public class ItensPedidoFormView extends JFrame {
     private JComboBox<SaborPizza> cbSabor1;
     private JCheckBox cbxDesativarSegundoSabor;
 
-    Cliente cliente = null;
+
     int idItemSelecionado = 0;
+    int idPedido = 0;
+
     boolean ehEdicao = false;
     ItemPedidoController itemPedidoController = new ItemPedidoController();
     SaborController saborController = new SaborController();
+    PedidoController pedidoController = new PedidoController();
 
 
     private BancoDados banco = BancoDados.getInstancia();
 
-    public ItensPedidoFormView(Pedido pedido) {
-
-        int idCliente = pedido.getIdCliente();
-        this.cliente = itemPedidoController.retornarClientePorId(idCliente);
+    public ItensPedidoFormView(int idPedido) {
+        this.idPedido = idPedido;
         this.inicializarTela();
-
     }
 
-    public ItensPedidoFormView(Pedido pedido, int idItem) {
+    public ItensPedidoFormView(int idPedido, int idItem) {
         ehEdicao = true;
-        int idCliente = pedido.getIdCliente();
-        this.cliente = itemPedidoController.retornarClientePorId(idCliente);
+        this.idPedido = idPedido;
         this.inicializarTela();
-        Pizza itemSelecionado = itemPedidoController.retornarItemPedido(pedido, idItem);
+        Pizza itemSelecionado = itemPedidoController.retornarItemPedido(idPedido, idItem);
         setarDadosPizza(itemSelecionado);
     }
 
@@ -133,12 +133,12 @@ public class ItensPedidoFormView extends JFrame {
             String acaoAtualMensagem = "";
             String acaoConcluidaMensagem = "";
             if(ehEdicao) {
-                itemPedidoController.editarItemPedido(cliente, novaPizza, this.idItemSelecionado);
+                itemPedidoController.editarItemPedido(idPedido, novaPizza, this.idItemSelecionado);
                 acaoAtualMensagem = "salvar";
                 acaoConcluidaMensagem = "salvo";
             }
             else {
-                itemPedidoController.adicionarItemPedido(cliente, novaPizza);
+                itemPedidoController.adicionarItemPedido(idPedido, novaPizza);
                 acaoAtualMensagem = "editar";
                 acaoConcluidaMensagem = "editado";
             }
@@ -151,7 +151,7 @@ public class ItensPedidoFormView extends JFrame {
                     JOptionPane.INFORMATION_MESSAGE
             );
             setVisible(false);
-            new PedidoView(cliente);
+            new PedidoView(idPedido);
 
         }
         catch (Exception e) {

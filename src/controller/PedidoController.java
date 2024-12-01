@@ -29,12 +29,13 @@ public class PedidoController {
         return pedido.getItens();
     }
 
-    public void alterarStatusPedido(Pedido pedido, StatusPedido novoStatus) {
+    public void alterarStatusPedido(int idPedido, StatusPedido novoStatus) {
+        Pedido pedido = retornarPedidoPeloId(idPedido);
         pedido.setStatus(novoStatus);
     }
-    
+
     public Pedido retornarPedidoPeloId(int idPedido) {
-       return banco.getPedidos().stream()
+        return banco.getPedidos().stream()
                 .filter(pedidoBanco -> pedidoBanco.getId() == idPedido)
                 .findFirst()
                 .orElse(null);
