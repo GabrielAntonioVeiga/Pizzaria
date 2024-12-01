@@ -75,7 +75,4 @@ public class PedidoView extends JFrame {
             }
         });
     }
-    public static void main(String[] args) {
-        javax.swing.SwingUtilities.invokeLater(PedidoView::new);
-    }
 }

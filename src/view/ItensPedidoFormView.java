@@ -193,8 +193,4 @@ public class ItensPedidoFormView extends JFrame {
 
         return formaEscolhida;
     }
-
-
-
-
 }

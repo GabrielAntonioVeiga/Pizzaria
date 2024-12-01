@@ -55,6 +55,8 @@ public class AtualizarTipoSaborView extends JFrame {
                     "Sucesso ao atualizar preço",
                     JOptionPane.INFORMATION_MESSAGE
             );
+            setVisible(false);
+            new MenuView();
 
         }
         catch (NumberFormatException e) {

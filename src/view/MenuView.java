@@ -18,6 +18,7 @@ public class MenuView extends JFrame{
         setTitle(title.toString());
         setSize(450, 300);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setVisible(true);
 
         clienteButton.addActionListener(new ActionListener() {
             @Override
