@@ -11,7 +11,7 @@ public class TipoSabor {
         this.precoCm2 = precoCm2;
     }
 
-    public NomeTipoSabor getNomeTipoSabor() {
+    public NomeTipoSabor getNome() {
         return nomeTipoSabor;
     }
 
@@ -23,5 +23,12 @@ public class TipoSabor {
         this.nomeTipoSabor = nomeTipoSabor;
     }
 
-    public void setPrecoCm2(double precoCm2) {}
+    public void setPrecoCm2(double precoCm2) {
+        this.precoCm2 = precoCm2;
+    }
+
+    @Override
+    public String toString() {
+        return nomeTipoSabor.toString();
+    }
 }

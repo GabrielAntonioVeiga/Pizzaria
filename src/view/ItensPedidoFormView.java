@@ -135,6 +135,8 @@ public class ItensPedidoFormView extends JFrame {
                     "Sucesso ao salvar",
                     JOptionPane.INFORMATION_MESSAGE
             );
+            setVisible(false);
+            new PedidoView();
 
         }
         catch (Exception e) {
@@ -145,8 +147,7 @@ public class ItensPedidoFormView extends JFrame {
                     JOptionPane.ERROR_MESSAGE
             );
         }
-        setVisible(false);
-        PedidoView telaPedido = new PedidoView();
+
 
     }
 

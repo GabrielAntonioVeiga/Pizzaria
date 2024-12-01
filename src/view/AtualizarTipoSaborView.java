@@ -4,6 +4,8 @@ import controller.ItemPedidoController;
 import controller.SaborController;
 import controller.TipoSaborController;
 import dados.BancoDados;
+import enums.NomeTipoSabor;
+import model.Forma;
 import model.TipoSabor;
 
 import javax.swing.*;
@@ -13,7 +15,7 @@ import java.util.List;
 
 
 public class AtualizarTipoSaborView extends JFrame {
-    private JComboBox cbTipoSabor;
+    private JComboBox<TipoSabor> cbTipoSabor;
     private JTextField tfPreco;
     private JPanel tela;
     private JButton btnConfirmar;
@@ -44,7 +46,16 @@ public class AtualizarTipoSaborView extends JFrame {
     public void atualizarPreco() {
         try {
             double novoPreco = Double.parseDouble(tfPreco.getText());
-            tipoSaborController.atualizarPreco(novoPreco);
+            TipoSabor tipoSaborEscolhido = (TipoSabor) cbTipoSabor.getSelectedItem();
+
+            tipoSaborController.atualizarPreco(tipoSaborEscolhido.getNome(), novoPreco);
+            JOptionPane.showMessageDialog(
+                    tela,
+                    "Preço atualizado com sucesso!",
+                    "Sucesso ao atualizar preço",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+
         }
         catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(
