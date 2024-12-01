@@ -16,10 +16,11 @@ import java.util.stream.Collectors;
 public class ClienteController {
     private DefaultTableModel tableModel;
     private List<Cliente> clientes;
+    private final BancoDados banco = BancoDados.getInstancia();
 
     public ClienteController(DefaultTableModel tableModel) {
         this.tableModel = tableModel;
-        this.clientes = new BancoDados().getClientes();
+        this.clientes = banco.getClientes();
     }
 
     public void carregarClientes() {
@@ -71,15 +72,12 @@ public class ClienteController {
     }
 
     public Cliente buscarClientePorTelefone(String telefone) {
-        for (Cliente cliente : clientes) {
-            if (cliente.getTelefone().equals(telefone)) {
-                return cliente;
-            }
-        }
-        return null;
+        Cliente clienteEncontrado = this.clientes.stream()
+                .filter(clienteBanco -> clienteBanco.getTelefone().equals(telefone))
+                .findFirst()
+                .orElse(null);
+
+        return clienteEncontrado;
     }
 
-    public void adicionarPedido(Cliente cliente, Pedido pedido) {
-        cliente.setPedido(pedido);
-    }
 }

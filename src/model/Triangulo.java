@@ -1,15 +1,25 @@
 package model;
 
 public class Triangulo extends Forma {
-    private final String formaPizza = "Triângulo";
     private double lado;
 
+    public Triangulo() {}
+
     public Triangulo(double lado) {
-        if (validarDimensao(lado)) {
-            this.lado = lado;
-        } else {
-            throw new IllegalArgumentException("Lado do triângulo deve ser entre 20 e 60 cm.");
+        this.lado = lado;
+    }
+
+    @Override
+    public void setDimensao(double lado) {
+        this.lado = lado;
+    }
+
+    @Override
+    public double calcularDimensao(double area) {
+        if (area < 0) {
+            throw new IllegalArgumentException("A área não pode ser negativa");
         }
+        return Math.sqrt((4 * area) / Math.sqrt(3));
     }
 
     @Override
@@ -17,13 +27,21 @@ public class Triangulo extends Forma {
         return (Math.pow(lado, 2) * Math.sqrt(3)) / 4;
     }
 
-    @Override
-    public boolean validarDimensao(double valor) {
-        return valor >= 20 && valor <= 60;
+    public void validarDimensao(double valor, boolean mostrarErroDeArea) {
+
+        String mensagemErro = "Dimensão inválida: Deve estar entre 20 e 60.";
+
+        if(mostrarErroDeArea)
+            mensagemErro = "Dimensão inválida: A área deve estar 173,21cm² e 1558,85cm²";
+
+
+        if (valor < 10 || valor > 40) {
+            throw new IllegalArgumentException(mensagemErro);
+        }
     }
 
     @Override
-    public String getForma() {
-        return formaPizza;
+    public String getNomeForma() {
+        return "Triangulo";
     }
 }

@@ -18,6 +18,7 @@ public class MenuView extends JFrame{
         setTitle(title.toString());
         setSize(450, 300);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setVisible(true);
 
         clienteButton.addActionListener(new ActionListener() {
             @Override
@@ -43,6 +44,8 @@ public class MenuView extends JFrame{
             @Override
             public void actionPerformed(ActionEvent e) {
                 setVisible(false);
+                AtualizarTipoSaborView atualizarTipoSaborView = new AtualizarTipoSaborView();
+
             }
         });
         saboresPizzaButton.addActionListener(new ActionListener() {

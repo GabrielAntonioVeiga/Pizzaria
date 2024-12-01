@@ -21,6 +21,8 @@ public class PedidoController {
 
     public void carregarItensPedido(Cliente cliente) {
         Pedido pedido = cliente.getPedido();
+        if(pedido == null)
+            return;
         itensPedido = pedido.getItens();
         int contador = 0;
         for (Pizza pizza : itensPedido) {
@@ -28,10 +30,12 @@ public class PedidoController {
 
             tableModel.setRowCount(contador);
             tableModel.addRow(new Object[]{
-                    pizza.getForma(),
+                    pizza.getForma().toString(),
                     valorFormatado,
-                    pizza.getSabores()
+                    pizza.getNomeSabores()
             });
         }
+
+
     }
 }
