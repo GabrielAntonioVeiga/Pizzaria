@@ -33,18 +33,20 @@ public class ItensPedidoFormView extends JFrame {
 
     private BancoDados banco = BancoDados.getInstancia();
 
-    public ItensPedidoFormView(Cliente cliente) {
-        this.cliente = cliente;
+    public ItensPedidoFormView(Pedido pedido) {
+
+        int idCliente = pedido.getIdCliente();
+        this.cliente = itemPedidoController.retornarClientePorId(idCliente);
         this.inicializarTela();
 
     }
 
-    public ItensPedidoFormView(Cliente cliente, int idItem) {
+    public ItensPedidoFormView(Pedido pedido, int idItem) {
         ehEdicao = true;
-        this.cliente = cliente;
-        this.idItemSelecionado = idItem;
+        int idCliente = pedido.getIdCliente();
+        this.cliente = itemPedidoController.retornarClientePorId(idCliente);
         this.inicializarTela();
-        Pizza itemSelecionado = itemPedidoController.retornarItemPedido(cliente, idItem);
+        Pizza itemSelecionado = itemPedidoController.retornarItemPedido(pedido, idItem);
         setarDadosPizza(itemSelecionado);
     }
 

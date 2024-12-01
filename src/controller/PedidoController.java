@@ -1,5 +1,6 @@
 package controller;
 
+import dados.BancoDados;
 import enums.StatusPedido;
 import model.Cliente;
 import model.Pedido;
@@ -13,12 +14,14 @@ import java.util.List;
 
 public class PedidoController {
 
+    private final BancoDados banco = BancoDados.getInstancia();
+
     public PedidoController() {
     }
 
 
-    public List<Pizza> carregarItensPedido(Cliente cliente) {
-        Pedido pedido = cliente.getPedido();
+    public List<Pizza> carregarItensPedido(int idPedido) {
+        Pedido pedido = retornarPedidoPeloId(idPedido);
         List<Pizza> itensPedido = new ArrayList<>();
         if(pedido == null)
             return itensPedido;
@@ -29,4 +32,13 @@ public class PedidoController {
     public void alterarStatusPedido(Pedido pedido, StatusPedido novoStatus) {
         pedido.setStatus(novoStatus);
     }
+    
+    public Pedido retornarPedidoPeloId(int idPedido) {
+       return banco.getPedidos().stream()
+                .filter(pedidoBanco -> pedidoBanco.getId() == idPedido)
+                .findFirst()
+                .orElse(null);
+    }
+
+
 }
