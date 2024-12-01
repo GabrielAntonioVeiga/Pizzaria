@@ -21,6 +21,8 @@ public class PedidoController {
 
     public void carregarItensPedido(Cliente cliente) {
         Pedido pedido = cliente.getPedido();
+        if(pedido == null)
+            return;
         itensPedido = pedido.getItens();
         int contador = 0;
         for (Pizza pizza : itensPedido) {
@@ -33,5 +35,7 @@ public class PedidoController {
                     pizza.getNomeSabores()
             });
         }
+
+
     }
 }

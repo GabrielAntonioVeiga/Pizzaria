@@ -72,15 +72,12 @@ public class ClienteController {
     }
 
     public Cliente buscarClientePorTelefone(String telefone) {
-        for (Cliente cliente : clientes) {
-            if (cliente.getTelefone().equals(telefone)) {
-                return cliente;
-            }
-        }
-        return null;
+        Cliente clienteEncontrado = this.clientes.stream()
+                .filter(clienteBanco -> clienteBanco.getTelefone().equals(telefone))
+                .findFirst()
+                .orElse(null);
+
+        return clienteEncontrado;
     }
 
-    public void adicionarPedido(Cliente cliente, Pedido pedido) {
-        cliente.setPedido(pedido);
-    }
 }

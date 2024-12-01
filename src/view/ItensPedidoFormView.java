@@ -29,16 +29,17 @@ public class ItensPedidoFormView extends JFrame {
     boolean ehEdicao = false;
     ItemPedidoController itemPedidoController = new ItemPedidoController();
     SaborController saborController = new SaborController();
-    ClienteController clienteController = null;
+    Pedido pedidoAtual = null;
 
 
     private BancoDados banco = BancoDados.getInstancia();
 
-    public ItensPedidoFormView(Cliente cliente, ClienteController clienteController) {
-        this.clienteController = clienteController;
+    public ItensPedidoFormView(Cliente cliente) {
+        this.cliente = cliente;
        this.inicializarTela();
     }
-    public ItensPedidoFormView(Pizza pizza) {
+    public ItensPedidoFormView(Cliente cliente, Pizza pizza) {
+        this.cliente = cliente;
         this.pizza = pizza;
         ehEdicao = true;
         this.inicializarTela();
@@ -125,9 +126,9 @@ public class ItensPedidoFormView extends JFrame {
             Pizza novaPizza = new Pizza(formaEscolhida, SaboresEscolhidos);
             List<Pizza> itens = List.of(novaPizza);
             if(ehEdicao)
-                itemPedidoController.editarItemPedido(novaPizza);
+                itemPedidoController.editarItemPedido(novaPizza, pizza.getId());
             else
-                clienteController.adicionarPedido(cliente, new Pedido(itens));
+                itemPedidoController.adicionarItemPedido(cliente, novaPizza);
 
             JOptionPane.showMessageDialog(
                     tela,
@@ -187,6 +188,7 @@ public class ItensPedidoFormView extends JFrame {
                     "Erro de Validação",
                     JOptionPane.ERROR_MESSAGE
             );
+            throw e;
         }
 
         formaEscolhida.setDimensao(dimensao);

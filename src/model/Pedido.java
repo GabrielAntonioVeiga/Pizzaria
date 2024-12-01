@@ -18,7 +18,7 @@ public class Pedido {
         return itens;
     }
 
-    public void setItens(ArrayList<Pizza> itens) {
+    public void setItens(List<Pizza> itens) {
         this.itens = itens;
     }
 }

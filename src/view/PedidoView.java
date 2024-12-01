@@ -26,14 +26,15 @@ public class PedidoView extends JFrame {
     private ClienteController clienteController;
     private PedidoController pedidoController;
     private SaborController saborController;
+
     private final BancoDados bd = BancoDados.getInstancia();
+    private Cliente cliente = null;
 
     public PedidoView() {
         setContentPane(tela);
         setTitle("Pedidos");
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-
         DefaultTableModel tableModel = new DefaultTableModel(
                 new Object[][]{},
                 new String[]{"Forma", "Tamanho", "Sabores"}
@@ -54,7 +55,19 @@ public class PedidoView extends JFrame {
                 List<SaborPizza> sabores = List.of(saborController.carregarSabores().get(1), saborController.carregarSabores().get(0));
                 Pizza pizzaSelecionada = new Pizza(new Quadrado(20), sabores);
                 setVisible(false);
-                new ItensPedidoFormView(pizzaSelecionada);
+                new ItensPedidoFormView(cliente, pizzaSelecionada);
+
+            }
+        });
+
+        adicionarButton.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                setVisible(false);
+                new ItensPedidoFormView(cliente);
+
 
             }
         });
@@ -62,16 +75,16 @@ public class PedidoView extends JFrame {
         procurarButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Cliente cliente = clienteController.buscarClientePorTelefone(clienteField.getText());
+                cliente = clienteController.buscarClientePorTelefone(clienteField.getText());
 
                 if(cliente == null) {
                     response.setText("Cliente com o número " + clienteField.getText() + " não encontrado.");
                     return;
                 }
-                setVisible(false);
-                new ItensPedidoFormView(cliente, clienteController);
 
-//                pedidoController.carregarItensPedido(cliente);
+                pedidoController.carregarItensPedido(cliente);
+
+
             }
         });
     }
