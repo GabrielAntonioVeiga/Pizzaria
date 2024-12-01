@@ -24,27 +24,30 @@ public class ItensPedidoFormView extends JFrame {
     private JComboBox<SaborPizza> cbSabor1;
     private JCheckBox cbxDesativarSegundoSabor;
 
-    Pizza pizza = null;
     Cliente cliente = null;
+    int idItemSelecionado = 0;
     boolean ehEdicao = false;
     ItemPedidoController itemPedidoController = new ItemPedidoController();
     SaborController saborController = new SaborController();
-    Pedido pedidoAtual = null;
 
 
     private BancoDados banco = BancoDados.getInstancia();
 
     public ItensPedidoFormView(Cliente cliente) {
         this.cliente = cliente;
-       this.inicializarTela();
-    }
-    public ItensPedidoFormView(Cliente cliente, Pizza pizza) {
-        this.cliente = cliente;
-        this.pizza = pizza;
-        ehEdicao = true;
         this.inicializarTela();
-        this.setarDadosPizza();
+
     }
+
+    public ItensPedidoFormView(Cliente cliente, int idItem) {
+        ehEdicao = true;
+        this.cliente = cliente;
+        this.idItemSelecionado = idItem;
+        this.inicializarTela();
+        Pizza itemSelecionado = itemPedidoController.retornarItemPedido(cliente, idItem);
+        setarDadosPizza(itemSelecionado);
+    }
+
 
     private void inicializarTela() {
         setContentPane(tela);
@@ -77,14 +80,14 @@ public class ItensPedidoFormView extends JFrame {
 
     }
 
-    private void setarDadosPizza() {
+    private void setarDadosPizza(Pizza pizza) {
         cbForma.setSelectedItem(pizza.getForma());
-        setarSaboresPizza();
+        setarSaboresPizza(pizza);
         tfDimensao.setText(pizza.getTamanho().toString());
         cbxEhArea.setSelected(true);
     }
 
-    private void setarSaboresPizza() {
+    private void setarSaboresPizza(Pizza pizza) {
         List<SaborPizza> sabores = pizza.getSabores();
         List<JComboBox<SaborPizza>> cbSabores = List.of(cbSabor1, cbSabor2);
         List<JCheckBox> cbxDesativarSabores = new ArrayList<>(Arrays.asList(null, cbxDesativarSegundoSabor));
@@ -125,15 +128,24 @@ public class ItensPedidoFormView extends JFrame {
             List<SaborPizza> SaboresEscolhidos = getSaboresEscolhidos();
             Pizza novaPizza = new Pizza(formaEscolhida, SaboresEscolhidos);
             List<Pizza> itens = List.of(novaPizza);
-            if(ehEdicao)
-                itemPedidoController.editarItemPedido(novaPizza, pizza.getId());
-            else
+            String acaoAtualMensagem = "";
+            String acaoConcluidaMensagem = "";
+            if(ehEdicao) {
+                itemPedidoController.editarItemPedido(cliente, novaPizza, this.idItemSelecionado);
+                acaoAtualMensagem = "salvar";
+                acaoConcluidaMensagem = "salvo";
+            }
+            else {
                 itemPedidoController.adicionarItemPedido(cliente, novaPizza);
+                acaoAtualMensagem = "editar";
+                acaoConcluidaMensagem = "editado";
+            }
+
 
             JOptionPane.showMessageDialog(
                     tela,
-                    "Item salvo no pedido com sucesso!",
-                    "Sucesso ao salvar",
+                    "Item" + acaoConcluidaMensagem +  "no pedido com sucesso!",
+                    "Sucesso ao" + acaoAtualMensagem,
                     JOptionPane.INFORMATION_MESSAGE
             );
             setVisible(false);

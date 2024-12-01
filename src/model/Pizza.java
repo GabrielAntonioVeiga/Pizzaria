@@ -49,6 +49,9 @@ public class Pizza {
     public void setForma(Forma forma) {
         this.forma = forma;
     }
+    public void setSabores(List<SaborPizza> saborPizza) {
+        this.saborPizza = saborPizza;
+    }
 
     public String toString() {
         return "Pizza [Forma=" + getForma().toString() + ", Tamanho=" + getTamanho() + "cm², Sabores=" + getNomeSabores() + "]";

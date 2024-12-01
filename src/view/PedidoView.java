@@ -51,11 +51,8 @@ public class PedidoView extends JFrame {
         btnEditar.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
-                List<SaborPizza> sabores = List.of(saborController.carregarSabores().get(1), saborController.carregarSabores().get(0));
-                Pizza pizzaSelecionada = new Pizza(new Quadrado(20), sabores);
                 setVisible(false);
-                new ItensPedidoFormView(cliente, pizzaSelecionada);
+                new ItensPedidoFormView(cliente, 1);
 
             }
         });
