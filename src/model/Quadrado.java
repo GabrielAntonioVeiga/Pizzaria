@@ -1,15 +1,27 @@
 package model;
 
     public class Quadrado extends Forma {
-        private final String formaPizza = "Quadrado";
         private double lado;
 
+        public Quadrado() {}
+
         public Quadrado(double lado) {
-            if (validarDimensao(lado)) {
-                this.lado = lado;
-            } else {
-                throw new IllegalArgumentException("Lado do quadrado deve ser entre 10 e 40 cm.");
+            this.lado = lado;
+        }
+
+
+        @Override
+        public void setDimensao(double lado) {
+            this.lado = lado;
+        }
+
+        @Override
+        public double calcularDimensao(double area) {
+            if (area < 0) {
+
+                throw new IllegalArgumentException("A área não pode ser negativa");
             }
+            return Math.sqrt(area);
         }
 
         @Override
@@ -18,12 +30,22 @@ package model;
         }
 
         @Override
-        public boolean validarDimensao(double valor) {
-            return valor >= 10 && valor <= 40;
+        public void validarDimensao(double valor, boolean mostrarErroDeArea) {
+
+            String mensagemErro = "Dimensão inválida: Os Lados deve estar entre 10 e 40.";
+
+            if(mostrarErroDeArea)
+                mensagemErro = "Dimensão inválida: A área deve estar entre 100cm² e 1600cm²";
+
+
+            if (valor < 10 || valor > 40) {
+                throw new IllegalArgumentException(mensagemErro);
+            }
         }
 
+
         @Override
-        public String getForma() {
-            return formaPizza;
+        public String getNomeForma() {
+            return "Quadrado";
         }
 }

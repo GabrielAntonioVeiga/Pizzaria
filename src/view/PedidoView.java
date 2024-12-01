@@ -2,8 +2,9 @@ package view;
 
 import controller.ClienteController;
 import controller.PedidoController;
+import controller.SaborController;
 import dados.BancoDados;
-import enums.TipoSabor;
+import enums.NomeTipoSabor;
 import model.*;
 
 import javax.swing.*;
@@ -11,8 +12,6 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
-
-import static enums.TipoSabor.PREMIUM;
 
 public class PedidoView extends JFrame {
     private JTextField clienteField;
@@ -23,16 +22,19 @@ public class PedidoView extends JFrame {
     private JButton adicionarButton;
     private JButton procurarButton;
     private JLabel response;
+    private JButton btnEditar;
     private ClienteController clienteController;
     private PedidoController pedidoController;
-    private BancoDados bd = new BancoDados();
+    private SaborController saborController;
+
+    private final BancoDados bd = BancoDados.getInstancia();
+    private Cliente cliente = null;
 
     public PedidoView() {
         setContentPane(tela);
         setTitle("Pedidos");
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-
         DefaultTableModel tableModel = new DefaultTableModel(
                 new Object[][]{},
                 new String[]{"Forma", "Tamanho", "Sabores"}
@@ -41,33 +43,45 @@ public class PedidoView extends JFrame {
 
         clienteController = new ClienteController(tableModel);
         pedidoController = new PedidoController(tableModel);
+        saborController = new SaborController();
 
         pack();
         setVisible(true);
 
+        btnEditar.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                setVisible(false);
+                new ItensPedidoFormView(cliente, 1);
+
+            }
+        });
+
+        adicionarButton.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                setVisible(false);
+                new ItensPedidoFormView(cliente);
+
+
+            }
+        });
+
         procurarButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Cliente cliente = clienteController.buscarClientePorTelefone(clienteField.getText());
+                cliente = clienteController.buscarClientePorTelefone(clienteField.getText());
 
                 if(cliente == null) {
                     response.setText("Cliente com o número " + clienteField.getText() + " não encontrado.");
                     return;
                 }
 
-                SaborPizza calabresa = new SaborPizza("calabresa", 0);
-                SaborPizza peperoni = new SaborPizza("Pepperoni", 1);
-                List<SaborPizza> sabores = List.of(calabresa, peperoni);
-
-                Pizza p1 = new Pizza(new Quadrado(20), sabores);
-                Pizza p2 = new Pizza(new Triangulo(30), sabores);
-
-                List<Pizza> itens = List.of(p1,p2);
-
-                clienteController.adicionarPedido(cliente, new Pedido(itens));
-
-
                 pedidoController.carregarItensPedido(cliente);
+
+
             }
         });
     }
