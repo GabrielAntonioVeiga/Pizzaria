@@ -34,18 +34,21 @@ public class PedidoView extends JFrame {
 
     private final BancoDados bd = BancoDados.getInstancia();
     private Cliente cliente = null;
+    private int idPedido;
 
     public PedidoView() {
         this.inicializarTela();
     }
 
-    public PedidoView(Pedido pedido) {
-        this.cliente = clienteController.buscarClientePorId(pedido.getIdCliente());
+    public PedidoView(int idPedido) {
+        this.idPedido = idPedido;
+        this.cliente = clienteController.buscarClientePorIdPedido(idPedido);
         this.inicializarTela();
         this.procurarItensPedido(this.cliente);
         clienteField.setText(cliente.getTelefone());
         cbStatus.setEnabled(true);
-        cbStatus.setSelectedItem(cliente.getPedido().getStatus());
+        Pedido pedido = pedidoController.retornarPedidoPeloId(idPedido);
+        cbStatus.setSelectedItem(pedido.getStatus());
     }
 
     private void renderizarItensNaTabela(List<Pizza> itensPedido) {
@@ -112,8 +115,8 @@ public class PedidoView extends JFrame {
                             "Erro", JOptionPane.ERROR_MESSAGE);
                 } else {
                     setVisible(false);
-                    int id = Integer.parseInt(tableItensPedido.getValueAt(row, 0).toString());
-                    new ItensPedidoFormView(cliente, id);
+                    int idItem = Integer.parseInt(tableItensPedido.getValueAt(row, 0).toString());
+                    new ItensPedidoFormView(idPedido, idItem);
                 }
 
 
@@ -132,7 +135,7 @@ public class PedidoView extends JFrame {
                 }
 
                 setVisible(false);
-                new ItensPedidoFormView(cliente);
+                new ItensPedidoFormView(idPedido);
 
 
             }
@@ -153,8 +156,7 @@ public class PedidoView extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 // O item selecionado
                 StatusPedido statusSelecionado = (StatusPedido) cbStatus.getSelectedItem();
-                pedidoController.alterarStatusPedido(cliente.getPedido(), statusSelecionado);
-                Pedido pedido = cliente.getPedido();
+                pedidoController.alterarStatusPedido(idPedido, statusSelecionado);
             }
         });
     }
@@ -165,7 +167,7 @@ public class PedidoView extends JFrame {
             return;
         }
 
-        List<Pizza> itensPedido = pedidoController.carregarItensPedido(cliente);
+        List<Pizza> itensPedido = pedidoController.carregarItensPedido(this.idPedido);
         if(itensPedido.isEmpty()) {
             response.setText("Não possui pedidos.");
             return;
