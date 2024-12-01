@@ -16,10 +16,11 @@ import java.util.stream.Collectors;
 public class ClienteController {
     private DefaultTableModel tableModel;
     private List<Cliente> clientes;
+    BancoDados banco = BancoDados.getInstancia();
 
     public ClienteController(DefaultTableModel tableModel) {
         this.tableModel = tableModel;
-        this.clientes = new BancoDados().getClientes();
+        this.clientes = banco.getClientes();
     }
 
     public void carregarClientes() {
