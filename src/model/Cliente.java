@@ -8,11 +8,18 @@ public class Cliente {
     private String sobrenome;
     private String telefone;
     private List<Pedido> pedidos = new ArrayList<>();
+    private static int idCounter = 0;
+    private final int id;
 
     public Cliente(String nome, String sobrenome, String telefone) {
         this.nome = nome;
         this.sobrenome = sobrenome;
         this.telefone = telefone;
+        this.id = ++idCounter;
+    }
+
+    public int getId() {
+        return id;
     }
 
     public String getNome() {
