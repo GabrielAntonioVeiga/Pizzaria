@@ -80,4 +80,13 @@ public class ClienteController {
         return clienteEncontrado;
     }
 
+    public Cliente buscarClientePorTelefone(int id) {
+        Cliente clienteEncontrado = this.clientes.stream()
+                .filter(clienteBanco -> clienteBanco.getId().equals(id))
+                .findFirst()
+                .orElse(null);
+
+        return clienteEncontrado;
+    }
+
 }

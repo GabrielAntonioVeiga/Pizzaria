@@ -39,8 +39,8 @@ public class PedidoView extends JFrame {
         this.inicializarTela();
     }
 
-    public PedidoView(Cliente cliente) {
-        this.cliente = cliente;
+    public PedidoView(Pedido pedido) {
+        this.cliente = clienteController.buscarClientePorId(pedido.getIdCliente());
         this.inicializarTela();
         this.procurarItensPedido(this.cliente);
         clienteField.setText(cliente.getTelefone());

@@ -13,6 +13,10 @@ public class Pedido {
     private final int id;
     private int idCliente;
 
+    public int getIdCliente() {
+        return idCliente;
+    }
+
     public Pedido(List<Pizza> itens, int idCliente) {
         this.itens = itens;
         this.id = ++idCounter;
