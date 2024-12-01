@@ -1,10 +1,13 @@
 package model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Cliente {
     private String nome;
     private String sobrenome;
     private String telefone;
-    private Pedido pedido = null;
+    private List<Pedido> pedidos = new ArrayList<>();
 
     public Cliente(String nome, String sobrenome, String telefone) {
         this.nome = nome;
@@ -36,11 +39,11 @@ public class Cliente {
         this.telefone = telefone;
     }
 
-    public Pedido getPedido() {
-        return pedido;
+    public List<Pedido> getPedidos() {
+        return pedidos;
     }
 
-    public void setPedido(Pedido pedido) {
-        this.pedido = pedido;
+    public void addPedido(Pedido pedido) {
+        pedidos.add(pedido);
     }
 }
