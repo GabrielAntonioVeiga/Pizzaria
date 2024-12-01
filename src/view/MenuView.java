@@ -42,7 +42,11 @@ public class MenuView extends JFrame{
         atualizarPreçosButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                setVisible(false);
+                AtualizarTipoSaborView atualizarTipoSaborView = new AtualizarTipoSaborView();
+
+                atualizarTipoSaborView.setVisible(true);
+
+                dispose();
             }
         });
         saboresPizzaButton.addActionListener(new ActionListener() {
