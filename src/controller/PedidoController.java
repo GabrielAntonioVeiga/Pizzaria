@@ -1,5 +1,6 @@
 package controller;
 
+import enums.StatusPedido;
 import model.Cliente;
 import model.Pedido;
 import model.Pizza;
@@ -11,31 +12,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PedidoController {
-    private DefaultTableModel tableModel;
-    private PedidoView pedidoView;
-    private List<Pizza> itensPedido = new ArrayList<>();
 
-    public PedidoController(DefaultTableModel tableModel) {
-        this.tableModel = tableModel;
+    public PedidoController() {
     }
 
-    public void carregarItensPedido(Cliente cliente) {
+
+    public List<Pizza> carregarItensPedido(Cliente cliente) {
         Pedido pedido = cliente.getPedido();
+        List<Pizza> itensPedido = new ArrayList<>();
         if(pedido == null)
-            return;
-        itensPedido = pedido.getItens();
-        int contador = 0;
-        for (Pizza pizza : itensPedido) {
-            String valorFormatado = String.format("%.2fcm²", pizza.getTamanho());
+            return itensPedido;
 
-            tableModel.setRowCount(contador);
-            tableModel.addRow(new Object[]{
-                    pizza.getForma().toString(),
-                    valorFormatado,
-                    pizza.getNomeSabores()
-            });
-        }
+        return pedido.getItens();
+    }
 
-
+    public void alterarStatusPedido(Pedido pedido, StatusPedido novoStatus) {
+        pedido.setStatus(novoStatus);
     }
 }

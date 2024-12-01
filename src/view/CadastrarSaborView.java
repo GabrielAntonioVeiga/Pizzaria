@@ -1,11 +1,14 @@
 package view;
 
+import controller.SaborController;
 import dados.BancoDados;
 import model.SaborPizza;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.util.List;
+
+import static dados.BancoDados.getInstancia;
 
 public class CadastrarSaborView extends JFrame {
     private JPanel CadastraPizza;
@@ -25,7 +28,8 @@ public class CadastrarSaborView extends JFrame {
     private JButton ConfirmarButton;
     private JLabel TipoPizzaTable;
     private JLabel SaborPizzaTable;
-    private List<SaborPizza> sabores = new BancoDados().getSabores();
+    private SaborController saborController = new SaborController();
+    private List<SaborPizza> sabores = saborController.carregarSabores();
 
     public CadastrarSaborView() {
 
@@ -57,7 +61,8 @@ public class CadastrarSaborView extends JFrame {
 
             model.addRow(new Object[]{tipo, sabor});
             int saborNum = -1;
-            switch (tipo) {
+
+            /*switch (tipo) {
                 case "Simples":
                     saborNum = 0;
                     break;
@@ -67,10 +72,10 @@ public class CadastrarSaborView extends JFrame {
                 case "Premium":
                     saborNum = 2;
                     break;
-            }
+            }*/
 
-            SaborPizza novoSabor = new SaborPizza(sabor, saborNum);
-            sabores.add(novoSabor);
+            //SaborPizza novoSabor = new SaborPizza(sabor, n);
+            //sabores.add(novoSabor);
             saborPizza.setText(""); // Limpar o campo de sabor
         });
 

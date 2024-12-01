@@ -144,12 +144,12 @@ public class ItensPedidoFormView extends JFrame {
 
             JOptionPane.showMessageDialog(
                     tela,
-                    "Item" + acaoConcluidaMensagem +  "no pedido com sucesso!",
-                    "Sucesso ao" + acaoAtualMensagem,
+                    "Item " + acaoConcluidaMensagem +  " no pedido com sucesso!",
+                    "Sucesso ao " + acaoAtualMensagem,
                     JOptionPane.INFORMATION_MESSAGE
             );
             setVisible(false);
-            new PedidoView();
+            new PedidoView(cliente);
 
         }
         catch (Exception e) {
