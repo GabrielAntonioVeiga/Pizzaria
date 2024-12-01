@@ -18,6 +18,7 @@ package model;
         @Override
         public double calcularDimensao(double area) {
             if (area < 0) {
+
                 throw new IllegalArgumentException("A área não pode ser negativa");
             }
             return Math.sqrt(area);

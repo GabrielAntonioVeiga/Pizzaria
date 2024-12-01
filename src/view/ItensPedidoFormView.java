@@ -1,6 +1,8 @@
 package view;
 
-import enums.TipoSabor;
+import controller.ItemPedidoController;
+import controller.SaborController;
+import dados.BancoDados;
 import model.*;
 
 import javax.swing.*;
@@ -22,22 +24,29 @@ public class ItensPedidoFormView extends JFrame {
     private JCheckBox cbxDesativarSegundoSabor;
 
     Pizza pizza = null;
+    boolean ehEdicao = false;
+    ItemPedidoController itemPedidoController = new ItemPedidoController();
+    SaborController saborController = new SaborController();
+    private BancoDados banco = BancoDados.getInstancia();
 
     public ItensPedidoFormView() {
        this.inicializarTela();
     }
     public ItensPedidoFormView(Pizza pizza) {
         this.pizza = pizza;
+        ehEdicao = true;
         this.inicializarTela();
         this.setarDadosPizza();
     }
 
     private void inicializarTela() {
         setContentPane(tela);
-        setTitle("Criar Itens Pedido");
+        String actionMode = ehEdicao ? "Editar" : "Criar";
+        setTitle(actionMode + " Item no Pedido");
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(800, 600);
+
 
         cbForma.setModel(new DefaultComboBoxModel<>(getFormas()));
         cbSabor1.setModel(new DefaultComboBoxModel<>(getSabores()));
@@ -48,7 +57,7 @@ public class ItensPedidoFormView extends JFrame {
         btnConfirmar.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                salvarPedido();
+                finalizarOperacao();
             }
         });
 
@@ -92,10 +101,8 @@ public class ItensPedidoFormView extends JFrame {
     }
 
     private SaborPizza[] getSabores() {
-        SaborPizza sabor1 = new SaborPizza("Pepperoni", TipoSabor.ESPECIAL);
-        SaborPizza sabor2 = new SaborPizza("Calabresa", TipoSabor.SIMPLES);
-        SaborPizza sabor3 = new SaborPizza("Portuguesa", TipoSabor.PREMIUM);
-        return new SaborPizza[]{sabor1, sabor2, sabor3};
+      List<SaborPizza> sabores = this.saborController.carregarSabores();
+      return sabores.toArray(new SaborPizza[0]);
     }
 
     private Forma[] getFormas() {
@@ -106,12 +113,43 @@ public class ItensPedidoFormView extends JFrame {
     }
 
 
-    private void salvarPedido() {
+    private void mostrarMensagemErroAoSalvar() {
+        JOptionPane.showMessageDialog(
+                tela,
+                "Houve um erro ao salvar este pedido!",
+                "Erro ao salvar",
+                JOptionPane.ERROR_MESSAGE
+        );
+    }
+    private void finalizarOperacao() {
+        boolean sucessoOperacao;
+        try {
+            Forma formaEscolhida = this.getFormaEscolhida();
+            List<SaborPizza> SaboresEscolhidos = getSaboresEscolhidos();
+            this.pizza = new Pizza(formaEscolhida, SaboresEscolhidos);
 
-        Forma formaEscolhida = this.getFormaEscolhida();
-        List<SaborPizza> SaboresEscolhidos = getSaboresEscolhidos();
-        this.pizza = new Pizza(formaEscolhida, SaboresEscolhidos);
-        System.out.println(this.pizza.toString());
+            sucessoOperacao  = ehEdicao ? itemPedidoController.editarItemPedido(this.pizza) :  itemPedidoController.salvarItemPedido(this.pizza);
+        }
+        catch (Exception e) {
+            sucessoOperacao = false;
+        }
+
+
+        if(!sucessoOperacao) {
+            mostrarMensagemErroAoSalvar();
+             return;
+        }
+
+        JOptionPane.showMessageDialog(
+                tela,
+                "Item salvo no pedido com sucesso!",
+                "Sucesso ao salvar",
+                JOptionPane.INFORMATION_MESSAGE
+        );
+
+        PedidoView telaPedido = new PedidoView();
+        telaPedido.setVisible(true);
+        dispose();
 
     }
 
@@ -139,7 +177,7 @@ public class ItensPedidoFormView extends JFrame {
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(
                     tela,
-                    "A dimensão deve ser um número válido!", // Mensagem do erro
+                    "A dimensão deve ser um número válido!",
                     "Erro de Formato",
                     JOptionPane.ERROR_MESSAGE
             );

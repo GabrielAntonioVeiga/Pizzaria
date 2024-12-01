@@ -2,6 +2,7 @@ package dados;
 
 import enums.NomeTipoSabor;
 import model.Cliente;
+import model.Pedido;
 import model.SaborPizza;
 import model.TipoSabor;
 
@@ -22,6 +23,8 @@ public class BancoDados {
                     new TipoSabor(NomeTipoSabor.PREMIUM, 5)
             )
     );
+    public List<Pedido> pedidos = new ArrayList<>();
+
 
     private BancoDados() {
     }

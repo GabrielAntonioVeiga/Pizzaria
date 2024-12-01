@@ -22,7 +22,7 @@ public class ClienteView extends JFrame {
     private JButton btnCarregar;
     private JTextField tfFiltro;
     private JButton btnIrParaPedido;
-    private BancoDados bd = new BancoDados();
+    private final BancoDados bd = BancoDados.getInstancia();
 
     private ClienteController clienteController;
 

@@ -2,8 +2,9 @@ package view;
 
 import controller.ClienteController;
 import controller.PedidoController;
+import controller.SaborController;
 import dados.BancoDados;
-import enums.TipoSabor;
+import enums.NomeTipoSabor;
 import model.*;
 
 import javax.swing.*;
@@ -24,7 +25,8 @@ public class PedidoView extends JFrame {
     private JButton btnEditar;
     private ClienteController clienteController;
     private PedidoController pedidoController;
-    private BancoDados bd = new BancoDados();
+    private SaborController saborController;
+    private final BancoDados bd = BancoDados.getInstancia();
 
     public PedidoView() {
         setContentPane(tela);
@@ -40,6 +42,7 @@ public class PedidoView extends JFrame {
 
         clienteController = new ClienteController(tableModel);
         pedidoController = new PedidoController(tableModel);
+        saborController = new SaborController();
 
         pack();
         setVisible(true);
@@ -47,9 +50,8 @@ public class PedidoView extends JFrame {
         btnEditar.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                SaborPizza calabresa = new SaborPizza("Calabresa", TipoSabor.SIMPLES);
-                SaborPizza pepperoni = new SaborPizza("Pepperoni", TipoSabor.ESPECIAL);
-                List<SaborPizza> sabores = List.of(calabresa, pepperoni);
+
+                List<SaborPizza> sabores = List.of(saborController.carregarSabores().get(1), saborController.carregarSabores().get(0));
                 Pizza pizzaSelecionada = new Pizza(new Quadrado(20), sabores);
 
                 ItensPedidoFormView tela2 = new ItensPedidoFormView(pizzaSelecionada);
@@ -70,9 +72,8 @@ public class PedidoView extends JFrame {
                     return;
                 }
 
-                SaborPizza calabresa = new SaborPizza("Calabresa", TipoSabor.SIMPLES);
-                SaborPizza peperoni = new SaborPizza("Pepperoni", TipoSabor.ESPECIAL);
-                List<SaborPizza> sabores = List.of(calabresa, peperoni);
+
+                List<SaborPizza> sabores = List.of(saborController.carregarSabores().get(1), saborController.carregarSabores().get(0));
 
                 Pizza p1 = new Pizza(new Quadrado(20), sabores);
                 Pizza p2 = new Pizza(new Triangulo(30), sabores);
