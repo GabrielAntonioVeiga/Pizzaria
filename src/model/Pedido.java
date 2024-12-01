@@ -11,11 +11,8 @@ public class Pedido {
     private Double precoTotal;
     private static int idCounter = 0;
     private final int id;
-    private int idCliente;
 
-    public int getIdCliente() {
-        return idCliente;
-    }
+    private int idCliente;
 
     public Pedido(List<Pizza> itens, int idCliente) {
         this.itens = itens;
@@ -49,6 +46,10 @@ public class Pedido {
 
     public void setStatus(StatusPedido status) {
         this.status = status;
+    }
+
+    public int getIdCliente() {
+        return idCliente;
     }
 
     public int getId() {

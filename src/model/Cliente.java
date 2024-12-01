@@ -7,6 +7,11 @@ public class Cliente {
     private String nome;
     private String sobrenome;
     private String telefone;
+
+    public void setPedidos(List<Pedido> pedidos) {
+        this.pedidos = pedidos;
+    }
+
     private List<Pedido> pedidos = new ArrayList<>();
     private static int idCounter = 0;
     private final int id;
