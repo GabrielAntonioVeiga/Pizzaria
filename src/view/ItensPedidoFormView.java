@@ -145,10 +145,8 @@ public class ItensPedidoFormView extends JFrame {
                     JOptionPane.ERROR_MESSAGE
             );
         }
-
+        setVisible(false);
         PedidoView telaPedido = new PedidoView();
-        telaPedido.setVisible(true);
-        dispose();
 
     }
 

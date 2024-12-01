@@ -53,12 +53,9 @@ public class PedidoView extends JFrame {
 
                 List<SaborPizza> sabores = List.of(saborController.carregarSabores().get(1), saborController.carregarSabores().get(0));
                 Pizza pizzaSelecionada = new Pizza(new Quadrado(20), sabores);
+                setVisible(false);
+                new ItensPedidoFormView(pizzaSelecionada);
 
-                ItensPedidoFormView telaFormularioItemPedido = new ItensPedidoFormView(pizzaSelecionada);
-
-                telaFormularioItemPedido.setVisible(true);
-
-                dispose();
             }
         });
 
@@ -71,12 +68,8 @@ public class PedidoView extends JFrame {
                     response.setText("Cliente com o número " + clienteField.getText() + " não encontrado.");
                     return;
                 }
-
-                ItensPedidoFormView telaFormularioItemPedido = new ItensPedidoFormView(cliente, clienteController);
-
-                telaFormularioItemPedido.setVisible(true);
-
-                dispose();
+                setVisible(false);
+                new ItensPedidoFormView(cliente, clienteController);
 
 //                pedidoController.carregarItensPedido(cliente);
             }
