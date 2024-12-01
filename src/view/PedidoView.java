@@ -12,8 +12,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
 
-import static enums.TipoSabor.PREMIUM;
-
 public class PedidoView extends JFrame {
     private JTextField clienteField;
     private JLabel clienteLabel;
@@ -23,6 +21,7 @@ public class PedidoView extends JFrame {
     private JButton adicionarButton;
     private JButton procurarButton;
     private JLabel response;
+    private JButton btnEditar;
     private ClienteController clienteController;
     private PedidoController pedidoController;
     private BancoDados bd = new BancoDados();
@@ -45,6 +44,22 @@ public class PedidoView extends JFrame {
         pack();
         setVisible(true);
 
+        btnEditar.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                SaborPizza calabresa = new SaborPizza("Calabresa", TipoSabor.SIMPLES);
+                SaborPizza pepperoni = new SaborPizza("Pepperoni", TipoSabor.ESPECIAL);
+                List<SaborPizza> sabores = List.of(calabresa, pepperoni);
+                Pizza pizzaSelecionada = new Pizza(new Quadrado(20), sabores);
+
+                ItensPedidoFormView tela2 = new ItensPedidoFormView(pizzaSelecionada);
+
+                tela2.setVisible(true);
+
+                dispose();
+            }
+        });
+
         procurarButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -55,8 +70,8 @@ public class PedidoView extends JFrame {
                     return;
                 }
 
-                SaborPizza calabresa = new SaborPizza("calabresa", 0);
-                SaborPizza peperoni = new SaborPizza("Pepperoni", 1);
+                SaborPizza calabresa = new SaborPizza("Calabresa", TipoSabor.SIMPLES);
+                SaborPizza peperoni = new SaborPizza("Pepperoni", TipoSabor.ESPECIAL);
                 List<SaborPizza> sabores = List.of(calabresa, peperoni);
 
                 Pizza p1 = new Pizza(new Quadrado(20), sabores);
@@ -70,5 +85,8 @@ public class PedidoView extends JFrame {
                 pedidoController.carregarItensPedido(cliente);
             }
         });
+    }
+    public static void main(String[] args) {
+        javax.swing.SwingUtilities.invokeLater(PedidoView::new);
     }
 }

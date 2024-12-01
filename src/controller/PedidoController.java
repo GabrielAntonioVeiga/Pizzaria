@@ -28,9 +28,9 @@ public class PedidoController {
 
             tableModel.setRowCount(contador);
             tableModel.addRow(new Object[]{
-                    pizza.getForma(),
+                    pizza.getForma().toString(),
                     valorFormatado,
-                    pizza.getSabores()
+                    pizza.getNomeSabores()
             });
         }
     }

@@ -1,11 +1,20 @@
 package model;
 
-    abstract class Forma {
+    public abstract class Forma {
         public abstract double calcularArea();
 
-        public abstract boolean validarDimensao(double valor);
+        public abstract double calcularDimensao(double area);
 
-        public abstract String getForma();
+        public abstract void setDimensao(double dimensao);
+
+        public abstract void validarDimensao(double valor, boolean mostrarErroDeArea);
+
+        public abstract String getNomeForma();
+
+        @Override
+        public String toString() {
+            return getNomeForma();
+        }
     }
 
 

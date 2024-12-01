@@ -11,23 +11,38 @@ public class Pizza {
         this.saborPizza = saborPizza;
     }
 
-    public String getForma() {
-        return forma.getForma();
+    public Forma getForma() {
+        return forma;
     }
 
     public Double getTamanho(){
         return this.forma.calcularArea();
     }
 
-    public String getSabores(){
+    public String getNomeSabores(){
         String sabores = "";
-        for(SaborPizza sabor: this.saborPizza){
-            sabores = sabor.getNome() + " | ";
+        for (int i = 0; i < this.saborPizza.size(); i++) {
+            SaborPizza sabor = this.saborPizza.get(i);
+
+            boolean deveAdicionarTraco = this.saborPizza.size() > 1 && i < this.saborPizza.size() - 1;
+
+            sabores += sabor.getNome();
+
+            if (deveAdicionarTraco) {
+                sabores += " | ";
+            }
         }
         return sabores;
+    }
+    public List<SaborPizza>  getSabores(){
+        return saborPizza;
     }
 
     public void setForma(Forma forma) {
         this.forma = forma;
+    }
+
+    public String toString() {
+        return "Pizza [Forma=" + getForma().toString() + ", Tamanho=" + getTamanho() + "cm², Sabores=" + getNomeSabores() + "]";
     }
 }
