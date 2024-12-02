@@ -168,8 +168,6 @@ public class ItensPedidoFormView extends JFrame {
 
      private void finalizarOperacao() {
         try {
-            if(cbSabor2.getSelectedItem() == null && !cbxDesativarSegundoSabor.isSelected())
-                throw new NullPointerException("Você não selecionou o segundo sabor.");
             Forma formaEscolhida = this.getFormaEscolhida();
             List<SaborPizza> SaboresEscolhidos = getSaboresEscolhidos();
             Pizza novaPizza = new Pizza(formaEscolhida, SaboresEscolhidos);
@@ -199,30 +197,29 @@ public class ItensPedidoFormView extends JFrame {
 
         }
         catch (Exception e) {
-            if (e instanceof NullPointerException) {
-                JOptionPane.showMessageDialog(
-                        tela,
-                        e.getMessage(),
-                        "Erro ao salvar",
-                        JOptionPane.ERROR_MESSAGE
-                );
-                return;
+            String mensagemDeErro = "Houve um erro ao salvar este pedido!";
+
+            boolean mensagemDeErroFoiTratada = e instanceof NullPointerException || e instanceof IllegalArgumentException;
+
+            if(mensagemDeErroFoiTratada) {
+                mensagemDeErro = e.getMessage();
             }
 
             JOptionPane.showMessageDialog(
                     tela,
-                    "Houve um erro ao salvar este pedido!",
+                    mensagemDeErro,
                     "Erro ao salvar",
                     JOptionPane.ERROR_MESSAGE
             );
-
         }
-
-
 
     }
 
     private List<SaborPizza> getSaboresEscolhidos() {
+
+        if(cbSabor2.getSelectedItem() == null && !cbxDesativarSegundoSabor.isSelected())
+            throw new NullPointerException("Você não selecionou o segundo sabor.");
+
         if(cbxDesativarSegundoSabor.isSelected()) {
             return List.of((SaborPizza) cbSabor1.getSelectedItem());
         }
@@ -243,23 +240,13 @@ public class ItensPedidoFormView extends JFrame {
             boolean deveMostrarErroDeArea = this.cbxEhArea.isSelected();
             formaEscolhida.validarDimensao(dimensao, deveMostrarErroDeArea);
 
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(
-                    tela,
-                    "A dimensão deve ser um número válido!",
-                    "Erro de Formato",
-                    JOptionPane.ERROR_MESSAGE
-            );
-        }
-        catch (IllegalArgumentException e) {
-            JOptionPane.showMessageDialog(
-                    tela,
-                    e.getMessage(),
-                    "Erro de Validação",
-                    JOptionPane.ERROR_MESSAGE
-            );
+        }    catch (Exception e) {
+            if (e instanceof NumberFormatException) {
+                throw new NumberFormatException("A dimensão deve ser um número válido!");
+            }
             throw e;
         }
+
 
         formaEscolhida.setDimensao(dimensao);
 
