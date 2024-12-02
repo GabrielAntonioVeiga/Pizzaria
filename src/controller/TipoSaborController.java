@@ -2,7 +2,7 @@ package controller;
 
 import dados.BancoDados;
 import enums.NomeTipoSabor;
-import model.Pizza;
+import model.SaborPizza;
 import model.TipoSabor;
 
 public class TipoSaborController {
@@ -16,5 +16,10 @@ public class TipoSaborController {
                 .orElse(null);
 
         tipoSaborEncontrado.setPrecoCm2(novoPreco);
+    }
+    public void adicionarSabor(String nomeSabor, NomeTipoSabor tipoSaborEnum, double precoPorCm2) {
+        TipoSabor tipoSabor = new TipoSabor(tipoSaborEnum, precoPorCm2);
+        SaborPizza novoSabor = new SaborPizza(nomeSabor, tipoSabor);
+        BancoDados.getInstancia().getSabores().add(novoSabor);
     }
 }

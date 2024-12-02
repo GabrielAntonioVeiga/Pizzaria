@@ -3,6 +3,8 @@ import java.util.Objects;
 
 import enums.NomeTipoSabor;
 
+import javax.swing.*;
+
 public class SaborPizza {
     private String nome;
     private TipoSabor tipoSabor;
@@ -39,4 +41,8 @@ public class SaborPizza {
         return Objects.hash(nome);
     }
 
+    public void setTipoSabor(NomeTipoSabor nomeTipoSabor, double precoCm2) {
+        this.tipoSabor.setNomeTipoSabor(nomeTipoSabor);
+        this.tipoSabor.setPrecoCm2(precoCm2);
+    }
 }
