@@ -205,6 +205,10 @@ public class ClienteView extends JFrame {
             JOptionPane.showMessageDialog(this,
                     "Por favor, insira um telefone válido!",
                     "Erro", JOptionPane.ERROR_MESSAGE);
+        } else if (clienteController.buscarClientes().stream().anyMatch(cliente -> cliente.getTelefone().equals(telefoneFormatado))) {
+            JOptionPane.showMessageDialog(this,
+                    "Já existe um cliente com esse telefone!",
+                    "Erro", JOptionPane.ERROR_MESSAGE);
         } else {
             clienteController.adicionarCliente(nome, sobrenome, telefoneFormatado);
             tfNome.setText("");
