@@ -41,7 +41,7 @@ public class CadastrarSaborView extends JFrame {
         setContentPane(CadastraPizza);
         setTitle("Pedidos");
         setSize(450, 300);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
 
         this.tableModel = new DefaultTableModel(
