@@ -35,18 +35,12 @@ public class SaborPizza {
         if (this == obj) return true;
         if (obj == null || getClass() != obj.getClass()) return false;
         SaborPizza that = (SaborPizza) obj;
-//        return Objects.equals(nome, that.nome) && Objects.equals(nomeTipoSabor, that.nomeTipoSabor);
         return Objects.equals(nome, that.nome);
     }
 
     @Override
     public int hashCode() {
-//        return Objects.hash(nome, nomeTipoSabor);
         return Objects.hash(nome);
     }
 
-    public void setTipoSabor(NomeTipoSabor nomeTipoSabor, double precoCm2) {
-        this.tipoSabor.setNomeTipoSabor(nomeTipoSabor);
-        this.tipoSabor.setPrecoCm2(precoCm2);
-    }
 }

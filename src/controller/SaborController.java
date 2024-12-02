@@ -18,4 +18,12 @@ public class SaborController {
         return banco.getTiposSabores();
     }
 
+    public TipoSabor carregarTipoSaborPeloNome(NomeTipoSabor nome) {
+        return carregarTipoSabores().stream()
+                .filter(tipoSabor -> tipoSabor.getNome() == nome)
+                .findFirst()
+                .orElse(null);
+    }
+
+
 }
