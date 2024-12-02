@@ -14,36 +14,25 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class ClienteController {
-    private DefaultTableModel tableModel;
     private List<Cliente> clientes;
+    private final BancoDados banco = BancoDados.getInstancia();
 
-    public ClienteController(DefaultTableModel tableModel) {
-        this.tableModel = tableModel;
-        this.clientes = new BancoDados().getClientes();
+    public ClienteController() {
+        this.clientes = banco.getClientes();
     }
 
-    public void carregarClientes() {
-        tableModel.setRowCount(0);
-
-        for (Cliente cliente : clientes) {
-            tableModel.addRow(new Object[]{
-                    cliente.getNome(),
-                    cliente.getSobrenome(),
-                    cliente.getTelefone()
-            });
-        }
+    public List<Cliente> buscarClientes() {
+        return this.clientes;
     }
 
     public void adicionarCliente(String nome, String sobrenome, String telefone) {
         Cliente cliente = new Cliente(nome, sobrenome, telefone);
         clientes.add(cliente);
-        tableModel.addRow(new Object[]{cliente.getNome(), cliente.getSobrenome(), cliente.getTelefone()});
     }
 
     public void removerCliente(int rowIndex) {
         if (rowIndex >= 0 && rowIndex < clientes.size()) {
             clientes.remove(rowIndex);
-            tableModel.removeRow(rowIndex);
         }
     }
 
@@ -54,9 +43,6 @@ public class ClienteController {
             cliente.setSobrenome(sobrenome);
             cliente.setTelefone(telefone);
 
-            tableModel.setValueAt(nome, rowIndex, 0);
-            tableModel.setValueAt(sobrenome, rowIndex, 1);
-            tableModel.setValueAt(telefone, rowIndex, 2);
         }
     }
 
@@ -71,15 +57,32 @@ public class ClienteController {
     }
 
     public Cliente buscarClientePorTelefone(String telefone) {
-        for (Cliente cliente : clientes) {
-            if (cliente.getTelefone().equals(telefone)) {
-                return cliente;
-            }
-        }
-        return null;
+        Cliente clienteEncontrado = this.clientes.stream()
+                .filter(clienteBanco -> clienteBanco.getTelefone().replaceAll("[^\\d]", "").trim().equals(telefone.trim()))
+                .findFirst()
+                .orElse(null);
+
+        return clienteEncontrado;
     }
 
-    public void adicionarPedido(Cliente cliente, Pedido pedido) {
-        cliente.setPedido(pedido);
+    public Cliente buscarClientePorId(int id) {
+        Cliente clienteEncontrado = this.clientes.stream()
+                .filter(clienteBanco -> clienteBanco.getId() == id)
+                .findFirst()
+                .orElse(null);
+
+        return clienteEncontrado;
+    }
+
+
+    public Cliente buscarClientePorIdPedido(int idPedido) {
+
+        Cliente clienteEncontrado = this.banco.getPedidos().stream()
+                .filter(pedido -> pedido.getId() == idPedido)
+                .findFirst()
+                .orElse(null)
+                .getCliente();
+
+        return clienteEncontrado;
     }
 }
