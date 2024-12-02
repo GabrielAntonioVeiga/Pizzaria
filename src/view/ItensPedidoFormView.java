@@ -7,6 +7,8 @@ import dados.BancoDados;
 import model.*;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -23,6 +25,7 @@ public class ItensPedidoFormView extends JFrame {
     private JPanel tela;
     private JComboBox<SaborPizza> cbSabor1;
     private JCheckBox cbxDesativarSegundoSabor;
+    private JLabel lblValorLado;
 
 
     int idItemSelecionado = 0;
@@ -75,6 +78,30 @@ public class ItensPedidoFormView extends JFrame {
             }
         });
 
+        tfDimensao.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                alterarLabelValorCalculadoDimensao();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                alterarLabelValorCalculadoDimensao();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                alterarLabelValorCalculadoDimensao();
+            }
+
+        });
+
+        cbxEhArea.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                alterarLabelValorCalculadoDimensao();
+            }
+        });
 
         cbxDesativarSegundoSabor.addItemListener(e -> {
 
@@ -87,6 +114,7 @@ public class ItensPedidoFormView extends JFrame {
 
         cbSabor1.addActionListener(e -> atualizarDisponibilidadeSabores());
         cbSabor2.addActionListener(e -> atualizarDisponibilidadeSabores());
+        cbForma.addActionListener(e -> alterarLabelValorCalculadoDimensao());
 
     }
 
@@ -125,8 +153,12 @@ public class ItensPedidoFormView extends JFrame {
     private void setarDadosPizza(Pizza pizza) {
         cbForma.setSelectedItem(pizza.getForma());
         setarSaboresPizza(pizza);
-        tfDimensao.setText(pizza.getTamanho().toString());
+        double dimensao = pizza.getTamanho();
+        String dimensaoFormatada = String.format("%.2f", dimensao).replace(',', '.');
+        tfDimensao.setText(dimensaoFormatada);
         cbxEhArea.setSelected(true);
+        alterarLabelValorCalculadoDimensao();
+
     }
 
     private void setarSaboresPizza(Pizza pizza) {
@@ -174,13 +206,13 @@ public class ItensPedidoFormView extends JFrame {
             String acaoConcluidaMensagem = "";
             if(ehEdicao) {
                 itemPedidoController.editarItemPedido(idPedido, novaPizza, this.idItemSelecionado);
-                acaoAtualMensagem = "salvar";
-                acaoConcluidaMensagem = "salvo";
+                acaoAtualMensagem = "editar";
+                acaoConcluidaMensagem = "editado";
             }
             else {
                 itemPedidoController.adicionarItemPedido(idPedido, novaPizza);
-                acaoAtualMensagem = "editar";
-                acaoConcluidaMensagem = "editado";
+                acaoAtualMensagem = "salvar";
+                acaoConcluidaMensagem = "salvo";
             }
 
 
@@ -249,5 +281,30 @@ public class ItensPedidoFormView extends JFrame {
         formaEscolhida.setDimensao(dimensao);
 
         return formaEscolhida;
+    }
+
+    private void alterarLabelValorCalculadoDimensao() {
+        try {
+            if(!cbxEhArea.isSelected() || tfDimensao.getText().equals("")) {
+                lblValorLado.setText("");
+                return;
+            }
+
+            double dimensao = Double.parseDouble(tfDimensao.getText());
+            Forma formaEscolhida = (Forma) cbForma.getSelectedItem();
+            double ladoForma = formaEscolhida.calcularDimensao(dimensao);
+
+            String nomeMedida = "lado";
+
+            if (formaEscolhida instanceof Circulo)
+                nomeMedida = "raio";
+
+            lblValorLado.setText(String.format("A medida do %s correspondente é: %.2f cm", nomeMedida, ladoForma));
+
+
+        }
+        catch (Exception e) {
+            lblValorLado.setText("");
+        }
     }
 }
