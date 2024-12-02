@@ -6,6 +6,8 @@ import controller.PedidosController;
 import dados.BancoDados;
 import model.Cliente;
 import model.Pedido;
+import renderer.ButtonEditor;
+import renderer.ButtonRenderer;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -39,7 +41,6 @@ public class PedidosView extends JFrame{
     }
 
     public PedidosView(int idPedido) {
-        this.inicializarTela();
         this.pedidosController = new PedidosController();
         this.clienteController = new ClienteController();
         this.itemPedidoController = new ItemPedidoController();
@@ -47,7 +48,9 @@ public class PedidosView extends JFrame{
         Cliente clienteTelaAnterior = clienteController.buscarClientePorIdPedido(idPedido);
         textField1.setText(clienteTelaAnterior.getTelefone());
         List<Pedido> pedidosCliente = pedidosController.carregarPedidosPorCliente(clienteController.buscarClientePorIdPedido(idPedido));
+        this.inicializarTela();
         renderizarItensNaTabela(pedidosCliente);
+
     }
 
     private void inicializarTela() {
@@ -58,11 +61,14 @@ public class PedidosView extends JFrame{
 
         this.tableModel = new DefaultTableModel(
                 new Object[][]{},
-                new String[]{"ID Pedido", "Cliente", "Status", "Preco Total", ""}
+                new String[]{"ID Pedido", "Cliente", "Status", "Preco Total", "Detalhes"}
         );
 
         tablePedidos.setModel(tableModel);
-
+        tablePedidos.getColumnModel().getColumn(4).setCellRenderer(new ButtonRenderer("Ver"));
+        tablePedidos.getColumnModel().getColumn(4).setCellEditor(
+                new ButtonEditor(new JCheckBox(), () -> detalhesPedido())  // Pass the method as a Runnable
+        );
         renderizarItensNaTabela(pedidos);
         pack();
         setVisible(true);
@@ -137,6 +143,7 @@ public class PedidosView extends JFrame{
                 new ItensPedidoFormView(idPedido);
             }
         });
+
     }
 
     private void renderizarItensNaTabela(List<Pedido> pedidos) {
@@ -150,31 +157,28 @@ public class PedidosView extends JFrame{
         }
 
         for (Pedido pedido : pedidos) {
-            verMaisBtn = new JButton("Ver mais");
             this.tableModel.setRowCount(contador);
+            String valorTotalFormatado = String.format("R$%.2f", pedido.getPrecoTotal());
             tableModel.addRow(new Object[]{
                     pedido.getId(),
                     pedido.getCliente().getNome(),
                     pedido.getStatus(),
-                    pedido.getPrecoTotal(),
-                    verMais(pedido.getId())
+                    valorTotalFormatado,
+                    "Ver Detalhes",
             });
             contador++;
         }
 
     }
 
-    public Object verMais(int id){
-        verMaisBtn.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                new PedidoView(id);
-            }
-        });
-        return null;
-    }
-
     private Cliente getClientePedido(int idCliente) {
         return clienteController.buscarClientePorId(idCliente);
+    }
+
+    public void detalhesPedido() {
+        int row = tablePedidos.getSelectedRow();
+        int idPedido = Integer.parseInt(tablePedidos.getValueAt(row, 0).toString());
+        setVisible(false);
+        new PedidoView(idPedido);
     }
 }
