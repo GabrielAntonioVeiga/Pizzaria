@@ -7,11 +7,13 @@ public class Pizza {
     private List<SaborPizza> saborPizza;
     private static int idCounter = 0;
     private final int id;
+    private double preco;
 
     public Pizza(Forma forma, List<SaborPizza> saborPizza) {
         this.forma = forma;
         this.saborPizza = saborPizza;
         this.id = ++idCounter;
+        this.preco = calculaPreco();
     }
 
     public int getId() {
@@ -42,16 +44,20 @@ public class Pizza {
         return sabores;
     }
 
-    public Double getPreco() {
+    public Double calculaPreco() {
         int numSabores = this.saborPizza.size();
-        double preco = 0.0;
+        double precoPizza = 0.0;
         double areaSabor = this.getForma().calcularArea();
 
         for (SaborPizza sabor : this.saborPizza) {
             double precoSabor = sabor.getTipoSabor().getPrecoCm2();
-            preco += precoSabor * (areaSabor/numSabores);
+            precoPizza += precoSabor * (areaSabor/numSabores);
         }
 
+        return precoPizza;
+    }
+
+    public double getPreco() {
         return preco;
     }
 
@@ -68,5 +74,9 @@ public class Pizza {
 
     public String toString() {
         return "Pizza [Forma=" + getForma().toString() + ", Tamanho=" + getTamanho() + "cm², Sabores=" + getNomeSabores() + "]";
+    }
+
+    public void setPreco(double preco) {
+        this.preco = preco;
     }
 }

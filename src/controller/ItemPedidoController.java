@@ -18,6 +18,9 @@ public class ItemPedidoController {
 
         pizzaBanco.setForma(pizza.getForma());
         pizzaBanco.setSabores(pizza.getSabores());
+
+        double novoPreco = pizza.calculaPreco();
+        pizzaBanco.setPreco(novoPreco);
     }
 
     public Pizza retornarItemPedido(int idPedido, int idItem) {
@@ -32,12 +35,17 @@ public class ItemPedidoController {
     public void adicionarItemPedido(int idPedido, Pizza pizza) {
         Pedido pedido = pedidosController.retornarPedidoPeloId(idPedido);
         pedido.getItens().add(pizza);
+        double precoTotal = pedido.calculaPrecoTotal();
+        pedido.setPrecoTotal(precoTotal);
     }
 
     public void deletarItemPedido(int idPedido, int idItem) {
         Pedido pedido = pedidosController.retornarPedidoPeloId(idPedido);
         Pizza itemPedido = retornarItemPedido(idPedido, idItem);
         pedido.getItens().remove(itemPedido);
+
+        double precoTotal = pedido.calculaPrecoTotal();
+        pedido.setPrecoTotal(precoTotal);
     }
 
 

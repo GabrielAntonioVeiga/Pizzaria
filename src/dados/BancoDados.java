@@ -18,9 +18,9 @@ public class BancoDados {
 
     public List<TipoSabor> tiposSabores = new ArrayList<>(
             Arrays.asList(
-                    new TipoSabor(NomeTipoSabor.SIMPLES, 1),
-                    new TipoSabor(NomeTipoSabor.ESPECIAL, 3),
-                    new TipoSabor(NomeTipoSabor.PREMIUM, 5)
+                    new TipoSabor(NomeTipoSabor.SIMPLES, 0.19),
+                    new TipoSabor(NomeTipoSabor.ESPECIAL, 0.25),
+                    new TipoSabor(NomeTipoSabor.PREMIUM, 0.30)
             )
     );
 

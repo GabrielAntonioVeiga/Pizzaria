@@ -30,14 +30,16 @@ public class PedidoView extends JFrame {
     private ItemPedidoController itemPedidoController = new ItemPedidoController();
     private DefaultTableModel tableModel;
 
+
     private final BancoDados bd = BancoDados.getInstancia();
     private Cliente cliente = null;
     private int idPedido;
+    Pedido pedido = null;
 
     public PedidoView(int idPedido) {
         this.idPedido = idPedido;
         this.cliente = clienteController.buscarClientePorIdPedido(idPedido);
-        Pedido pedido = pedidosController.retornarPedidoPeloId(idPedido);
+        pedido = pedidosController.retornarPedidoPeloId(idPedido);
         statusPedido.setText(pedido.getStatus().toString());
         this.inicializarTela();
         renderizarItensNaTabela();
@@ -55,7 +57,8 @@ public class PedidoView extends JFrame {
         int contador = 0;
         for (Pizza pizza : itensPedido) {
             String valorTamanhoFormatado = String.format("%.2fcm²", pizza.getTamanho());
-            String valorPrecoFormatado = String.format("R$%.2f", pizza.getPreco());
+
+            String valorPrecoFormatado = String.format("R$%.2f", pizza.calculaPreco());
             this.tableModel.setRowCount(contador);
             tableModel.addRow(new Object[]{
                     pizza.getId(),
@@ -80,6 +83,12 @@ public class PedidoView extends JFrame {
                 new String[]{"ID", "Forma", "Tamanho", "Sabores", "Preço"}
         );
         tableItensPedido.setModel(tableModel);
+
+        if(!pedido.getStatus().toString().equals(StatusPedido.ABERTO.toString())) {
+            btnEditar.setEnabled(false);
+            adicionarButton.setEnabled(false);
+            deletarButton.setEnabled(false);
+        }
 
         inicializarListeners();
 
@@ -114,13 +123,12 @@ public class PedidoView extends JFrame {
                     JOptionPane.showMessageDialog(tela,
                             "Nenhum Item selecionado para edição!",
                             "Erro", JOptionPane.ERROR_MESSAGE);
-                } else {
-                    setVisible(false);
-                    int idItem = Integer.parseInt(tableItensPedido.getValueAt(row, 0).toString());
-                    new ItensPedidoFormView(idPedido, idItem);
+                    return;
                 }
 
-
+                setVisible(false);
+                int idItem = Integer.parseInt(tableItensPedido.getValueAt(row, 0).toString());
+                new ItensPedidoFormView(idPedido, idItem);
             }
         });
 
@@ -146,7 +154,7 @@ public class PedidoView extends JFrame {
     private Double getPrecoTotal(List<Pizza> itens){
         Double precoTotal = 0.0;
         for(Pizza pizza : itens){
-            precoTotal += pizza.getPreco();
+            precoTotal += pizza.calculaPreco();
         }
         return precoTotal;
     }
