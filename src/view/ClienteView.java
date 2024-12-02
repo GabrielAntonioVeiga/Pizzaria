@@ -2,27 +2,17 @@ package view;
 
 import controller.ClienteController;
 import dados.BancoDados;
-import enums.NomeTipoSabor;
-import model.Cliente;
-import model.SaborPizza;
-import model.TipoSabor;
 
 import javax.swing.*;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
-import javax.swing.text.MaskFormatter;
 import java.awt.event.*;
-import java.util.List;
-import java.text.ParseException;
-import java.util.stream.Collectors;
 
 public class ClienteView extends JFrame {
     private JPanel panelCliente;
     private JTextField tfSobrenome;
-    private JFormattedTextField tfTelefone;
+    private JTextField tfTelefone;
     private JPanel panelCadastroCliente;
     private JButton btnCriar;
     private JTextField tfNome;
@@ -32,7 +22,6 @@ public class ClienteView extends JFrame {
     private JButton btnCarregar;
     private JTextField tfFiltro;
     private JButton btnIrParaPedido;
-    private DefaultTableModel tableModel;
     private final BancoDados bd = BancoDados.getInstancia();
 
     private ClienteController clienteController;
@@ -43,14 +32,19 @@ public class ClienteView extends JFrame {
         setSize(450, 300);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        clienteController = new ClienteController();
+        DefaultTableModel tableModel = new DefaultTableModel(
+                new Object[][]{},
+                new String[]{"Nome", "Sobrenome", "Telefone"}
+        );
+        tabelaCliente.setModel(tableModel);
 
+        clienteController = new ClienteController(tableModel);
         btnCriar.addActionListener(this::btnAddActionPerformed);
         btnDeletar.addActionListener(this::btnDeleteActionPerformed);
         btnEditar.addActionListener(this::btnEditarActionPerformed);
         btnCarregar.addActionListener(this::btnCarregarActionPerformed);
         btnIrParaPedido.addActionListener(this::btnTrocarPaginaActionPerformed);
-        this.inicializarTabela();
+        clienteController.carregarClientes();
 
         pack();
         setVisible(true);
@@ -59,39 +53,6 @@ public class ClienteView extends JFrame {
             @Override
             public void keyReleased(KeyEvent e) {
                 tfPesquisarCliente();
-            }
-        });
-
-        tfTelefone.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyPressed(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE) {
-                    int caretPosition = tfTelefone.getCaretPosition();
-                    String text = tfTelefone.getText();
-
-                    if (caretPosition > 0) {
-                        int deleteIndex = caretPosition - 1;
-
-                        while (deleteIndex > 0 && !Character.isDigit(text.charAt(deleteIndex))) {
-                            deleteIndex--;
-                        }
-
-                        if (deleteIndex >= 0 && Character.isDigit(text.charAt(deleteIndex))) {
-                            StringBuilder newText = new StringBuilder(text);
-                            newText.deleteCharAt(deleteIndex);
-
-                            e.consume();
-                            updateTextField(newText.toString(), deleteIndex);
-                        }
-                    }
-                }
-            }
-        });
-
-        tfTelefone.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyReleased(KeyEvent e) {
-                formatarTelefone();
             }
         });
 
@@ -120,62 +81,6 @@ public class ClienteView extends JFrame {
         }
         });
 
-    }
-
-    private void inicializarTabela() {
-        this.tableModel = new DefaultTableModel(
-                new Object[][]{},
-                new String[]{"Nome", "Sobrenome", "Telefone"}
-        );
-        tabelaCliente.setModel(tableModel);
-        this.carregarClientes(clienteController.buscarClientes());
-    }
-
-    public void carregarClientes(List<Cliente> clientes) {
-        this.tableModel.setRowCount(0);
-
-        for (Cliente cliente : clientes) {
-            tableModel.addRow(new Object[]{
-                    cliente.getNome(),
-                    cliente.getSobrenome(),
-                    formatarTelefoneParaExibicao(cliente.getTelefone())
-            });
-        }
-    }
-
-    private void updateTextField(String rawText, int caretPosition) {
-        try {
-            rawText = rawText.replaceAll("[^\\d]", "");
-            MaskFormatter phoneMask = new MaskFormatter("(##) #####-####");
-            phoneMask.setPlaceholderCharacter('_');
-            phoneMask.setValueContainsLiteralCharacters(false);
-
-            String formattedTelefone = phoneMask.valueToString(rawText);
-
-            tfTelefone.setText(formattedTelefone);
-            tfTelefone.setCaretPosition(Math.min(caretPosition, formattedTelefone.length()));
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void formatarTelefone() {
-        String telefone = tfTelefone.getText();
-
-        try {
-            telefone = telefone.replaceAll("[^\\d]", "");
-            MaskFormatter phoneMask = new MaskFormatter("(##) #####-####");
-            phoneMask.setPlaceholderCharacter('_');
-            phoneMask.setValueContainsLiteralCharacters(false);
-
-            String formattedTelefone = phoneMask.valueToString(telefone);
-
-            if (!tfTelefone.getText().equals(formattedTelefone)) {
-                tfTelefone.setText(formattedTelefone);
-            }
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
     }
 
     private void tfPesquisarCliente() {
@@ -207,19 +112,17 @@ public class ClienteView extends JFrame {
                     "Por favor, insira todos os valores do cliente!",
                     "Erro", JOptionPane.ERROR_MESSAGE);
         } else {
-            String telefoneSemFormatacao = telefone.replaceAll("[^\\d]", "");
-            clienteController.adicionarCliente(nome, sobrenome, telefoneSemFormatacao);
+            clienteController.adicionarCliente(nome, sobrenome, telefone);
             tfNome.setText("");
             tfSobrenome.setText("");
             tfTelefone.setText("");
-            tableModel.addRow(new Object[]{nome, sobrenome, telefone});
         }
-     }
+    }
 
     private void btnTrocarPaginaActionPerformed(ActionEvent e) {
         //Tela2 tela2 = new Tela2();
         this.dispose();
-        new PedidosView();
+        new PedidoView();
         //tela2.setVisible(true);
     }
 
@@ -232,7 +135,6 @@ public class ClienteView extends JFrame {
                             "Erro", JOptionPane.ERROR_MESSAGE);
         } else {
             clienteController.removerCliente(row);
-            tableModel.removeRow(row);
         }
 
     }
@@ -250,9 +152,6 @@ public class ClienteView extends JFrame {
             String telefone = tabelaCliente.getValueAt(row, 2).toString();
 
             clienteController.editarCliente(row, nome, sobrenome, telefone);
-            tableModel.setValueAt(nome, row, 0);
-            tableModel.setValueAt(sobrenome, row, 1);
-            tableModel.setValueAt(telefone, row, 2);
             JOptionPane.showMessageDialog(this,
                     new StringBuilder("Cliente ").append(nome).append(" editado com sucesso!"),
                     "Edição", JOptionPane.PLAIN_MESSAGE);
@@ -260,19 +159,10 @@ public class ClienteView extends JFrame {
     }
 
     private void btnCarregarActionPerformed(ActionEvent e) {
-         this.carregarClientes(clienteController.buscarClientes());
-
+        clienteController.carregarClientes();
     }
 
-    private String formatarTelefoneParaExibicao(String telefone) {
-        try {
-            telefone = telefone.replaceAll("[^\\d]", "");
-            MaskFormatter phoneMask = new MaskFormatter("(##) #####-####");
-            phoneMask.setValueContainsLiteralCharacters(false);
-            return phoneMask.valueToString(telefone);
-        } catch (ParseException e) {
-            e.printStackTrace();
-            return telefone;
-        }
-    }
+    //public static void main(String[] args) {
+       // new ClienteView();
+    //}
 }
