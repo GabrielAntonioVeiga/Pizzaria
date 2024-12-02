@@ -1,6 +1,7 @@
 package view;
 
 import controller.ClienteController;
+import controller.ItemPedidoController;
 import controller.PedidosController;
 import controller.SaborController;
 import dados.BancoDados;
@@ -26,6 +27,7 @@ public class PedidoView extends JFrame {
     private JLabel statusPedido;
     private ClienteController clienteController = new ClienteController();
     private PedidosController pedidosController = new PedidosController();
+    private ItemPedidoController itemPedidoController = new ItemPedidoController();
     private DefaultTableModel tableModel;
 
     private final BancoDados bd = BancoDados.getInstancia();
@@ -98,8 +100,7 @@ public class PedidoView extends JFrame {
         deletarButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                setVisible(false);
-                new PedidosView(idPedido);
+                deletarItemPedido();
             }
         });
 
@@ -149,4 +150,27 @@ public class PedidoView extends JFrame {
         }
         return precoTotal;
     }
+
+    private void deletarItemPedido() {
+        int selectedRow = tableItensPedido.getSelectedRow();
+
+        if(selectedRow == -1){
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Selecione um pedido para alterar!",
+                    "Erro",
+                    JOptionPane.ERROR_MESSAGE
+            );
+            return;
+        }
+
+        int idItemPedido = (int)tableModel.getValueAt(selectedRow, 0);
+
+        this.itemPedidoController.deletarItemPedido(this.idPedido, idItemPedido);
+        JOptionPane.showMessageDialog(tela,
+                "Pedido excluido com sucesso",
+                "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+
+        this.renderizarItensNaTabela();
     }
+}

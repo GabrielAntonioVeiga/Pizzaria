@@ -30,8 +30,14 @@ public class ItemPedidoController {
     }
 
     public void adicionarItemPedido(int idPedido, Pizza pizza) {
-       Pedido pedido = pedidosController.retornarPedidoPeloId(idPedido);
-       pedido.getItens().add(pizza);
+        Pedido pedido = pedidosController.retornarPedidoPeloId(idPedido);
+        pedido.getItens().add(pizza);
+    }
+
+    public void deletarItemPedido(int idPedido, int idItem) {
+        Pedido pedido = pedidosController.retornarPedidoPeloId(idPedido);
+        Pizza itemPedido = retornarItemPedido(idPedido, idItem);
+        pedido.getItens().remove(itemPedido);
     }
 
 
