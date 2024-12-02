@@ -26,6 +26,7 @@ public class ItensPedidoFormView extends JFrame {
     private JComboBox<SaborPizza> cbSabor1;
     private JCheckBox cbxDesativarSegundoSabor;
     private JLabel lblValorLado;
+    private JLabel lblPrecoPizza;
 
 
     int idItemSelecionado = 0;
@@ -82,16 +83,19 @@ public class ItensPedidoFormView extends JFrame {
             @Override
             public void insertUpdate(DocumentEvent e) {
                 alterarLabelValorCalculadoDimensao();
+                calcularPrecoEstimado();
             }
 
             @Override
             public void removeUpdate(DocumentEvent e) {
                 alterarLabelValorCalculadoDimensao();
+                calcularPrecoEstimado();
             }
 
             @Override
             public void changedUpdate(DocumentEvent e) {
                 alterarLabelValorCalculadoDimensao();
+                calcularPrecoEstimado();
             }
 
         });
@@ -103,18 +107,35 @@ public class ItensPedidoFormView extends JFrame {
             }
         });
 
-        cbxDesativarSegundoSabor.addItemListener(e -> {
+        cbxEhArea.addItemListener(e -> {
+            calcularPrecoEstimado();
+        });
 
+
+        cbxDesativarSegundoSabor.addItemListener(e -> {
+            calcularPrecoEstimado();
             boolean selecionado = cbxDesativarSegundoSabor.isSelected();
             cbSabor2.setEnabled(!selecionado);
             if (!selecionado)
                 cbSabor2.setSelectedItem(null);
             this.atualizarDisponibilidadeSabores();
+
         });
 
-        cbSabor1.addActionListener(e -> atualizarDisponibilidadeSabores());
-        cbSabor2.addActionListener(e -> atualizarDisponibilidadeSabores());
-        cbForma.addActionListener(e -> alterarLabelValorCalculadoDimensao());
+        cbSabor1.addActionListener(e ->
+        {
+            calcularPrecoEstimado();
+            atualizarDisponibilidadeSabores();
+        });
+        cbSabor2.addActionListener(e -> {
+            calcularPrecoEstimado();
+            atualizarDisponibilidadeSabores();
+        });
+
+        cbForma.addActionListener(e -> {
+            alterarLabelValorCalculadoDimensao();
+            calcularPrecoEstimado();
+        });
 
     }
 
@@ -158,6 +179,7 @@ public class ItensPedidoFormView extends JFrame {
         tfDimensao.setText(dimensaoFormatada);
         cbxEhArea.setSelected(true);
         alterarLabelValorCalculadoDimensao();
+        calcularPrecoEstimado();
 
     }
 
@@ -198,9 +220,7 @@ public class ItensPedidoFormView extends JFrame {
 
      private void finalizarOperacao() {
         try {
-            Forma formaEscolhida = this.getFormaEscolhida();
-            List<SaborPizza> SaboresEscolhidos = getSaboresEscolhidos();
-            Pizza novaPizza = new Pizza(formaEscolhida, SaboresEscolhidos);
+            Pizza novaPizza = this.montarNovaPizza(true);
             List<Pizza> itens = List.of(novaPizza);
             String acaoAtualMensagem = "";
             String acaoConcluidaMensagem = "";
@@ -245,9 +265,11 @@ public class ItensPedidoFormView extends JFrame {
 
     }
 
-    private List<SaborPizza> getSaboresEscolhidos() {
 
-        if(cbSabor2.getSelectedItem() == null && !cbxDesativarSegundoSabor.isSelected())
+    private List<SaborPizza> getSaboresEscolhidos(boolean validarSabores) {
+
+        boolean saborInvalido = cbSabor2.getSelectedItem() == null && !cbxDesativarSegundoSabor.isSelected();
+        if(saborInvalido && validarSabores)
             throw new NullPointerException("Você não selecionou o segundo sabor.");
 
         if(cbxDesativarSegundoSabor.isSelected()) {
@@ -256,8 +278,29 @@ public class ItensPedidoFormView extends JFrame {
 
         return  List.of((SaborPizza) cbSabor1.getSelectedItem(), (SaborPizza) cbSabor2.getSelectedItem());
     }
-    private Forma getFormaEscolhida() {
+    private Forma getFormaEscolhida(boolean validarForma) {
         Forma formaEscolhida = (Forma) cbForma.getSelectedItem();
+
+        if(!validarForma)
+        {
+            double dimensao;
+
+            try {
+               dimensao = Double.parseDouble(tfDimensao.getText());
+            }
+            catch (Exception e) {
+                dimensao = 0;
+            }
+
+            if (cbxEhArea.isSelected()) {
+                dimensao = formaEscolhida.calcularDimensao(dimensao);
+            }
+
+            formaEscolhida.setDimensao(dimensao);
+
+            return formaEscolhida;
+
+        }
 
         double dimensao = 0;
         try {
@@ -283,7 +326,33 @@ public class ItensPedidoFormView extends JFrame {
         return formaEscolhida;
     }
 
+    private Pizza montarNovaPizza(boolean validarCampos) {
+        try {
+            Forma formaEscolhida = this.getFormaEscolhida(validarCampos);
+            List<SaborPizza> SaboresEscolhidos = getSaboresEscolhidos(validarCampos);
+
+
+            return new Pizza(formaEscolhida, SaboresEscolhidos);
+        }
+        catch (Exception e) {
+            throw e;
+        }
+    }
+
+    private void calcularPrecoEstimado() {
+        try {
+
+            Pizza pizza = montarNovaPizza(false);
+            double preco = pizza.getPreco();
+            lblPrecoPizza.setText(String.format("%.2f R$", preco));
+        }
+        catch (Exception e) {
+            lblPrecoPizza.setText("Formulário incompleto para estimar preço");
+        }
+    }
+
     private void alterarLabelValorCalculadoDimensao() {
+
         try {
             if(!cbxEhArea.isSelected() || tfDimensao.getText().equals("")) {
                 lblValorLado.setText("");
