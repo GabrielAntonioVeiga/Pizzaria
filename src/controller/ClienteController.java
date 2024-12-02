@@ -94,7 +94,7 @@ public class ClienteController {
         List<Pizza> itens = new ArrayList<>();
         Pedido pedido = new Pedido(itens, cliente);
         banco.getPedidos().add(pedido);
-        List<Pedido> pedidos = Arrays.asList(pedido);
+        List<Pedido> pedidos = new ArrayList<>(Arrays.asList(pedido));
         cliente.setPedidos(pedidos);
 
         return pedido.getId();
