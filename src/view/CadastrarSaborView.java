@@ -172,7 +172,13 @@ public class CadastrarSaborView extends JFrame {
         String saborAtual = (String)tableModel.getValueAt(selectedRow, 1);
 
         this.saborController.deletarSabor(saborAtual);
-        JOptionPane.showMessageDialog(null, "Pizza deletada com sucesso!");
+
+        JOptionPane.showMessageDialog(
+                this,
+                "Sabor excluído com sucesso!",
+                "Sucesso",
+                JOptionPane.INFORMATION_MESSAGE
+        );
 
         this.renderizarItensNaTabela();
     }
