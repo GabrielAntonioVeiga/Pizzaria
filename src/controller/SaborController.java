@@ -32,6 +32,11 @@ public class SaborController {
                 .orElse(null);
     }
 
+    public void deletarSabor(String nome) {
+        SaborPizza sabor = carregarSaborPeloNome(nome);
+        List<SaborPizza> sabores = carregarSabores();
+        sabores.remove(sabor);
+    }
 
 
 }

@@ -61,15 +61,7 @@ public class CadastrarSaborView extends JFrame {
 
 
         deletarButton.addActionListener(e -> {
-            int selectedRow = PizzasCadastradas.getSelectedRow();
-
-            if (selectedRow < 0) {
-                JOptionPane.showMessageDialog(null, "Selecione uma pizza válida para deletar!");
-                return;
-            }
-
-            tableModel.removeRow(selectedRow);
-            JOptionPane.showMessageDialog(null, "Pizza deletada com sucesso!");
+          this.deletarSabor();
         });
 
 
@@ -88,7 +80,7 @@ public class CadastrarSaborView extends JFrame {
     }
 
 
-    public void finalizarOperacao(boolean ehEdicao) {
+    private void finalizarOperacao(boolean ehEdicao) {
         String sabor = saborPizza.getText();
         NomeTipoSabor nomeTipoSaborSelecionado = (NomeTipoSabor) TipoPizzaBox.getSelectedItem();
         TipoSabor tipoSabor = this.tipoSaborController.carregarTipoSaborPeloNome(nomeTipoSaborSelecionado);
@@ -163,4 +155,27 @@ public class CadastrarSaborView extends JFrame {
         }
 
     }
+
+    private void deletarSabor() {
+        int selectedRow = PizzasCadastradas.getSelectedRow();
+
+        if(selectedRow == -1){
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Selecione um pedido para alterar!",
+                    "Erro",
+                    JOptionPane.ERROR_MESSAGE
+            );
+            return;
+        }
+
+        String saborAtual = (String)tableModel.getValueAt(selectedRow, 1);
+
+        this.saborController.deletarSabor(saborAtual);
+        JOptionPane.showMessageDialog(null, "Pizza deletada com sucesso!");
+
+        this.renderizarItensNaTabela();
+    }
+
+
 }
