@@ -2,6 +2,7 @@ package view;
 
 import controller.ClienteController;
 import controller.ItemPedidoController;
+import controller.PedidoController;
 import controller.SaborController;
 import dados.BancoDados;
 import model.*;
@@ -24,27 +25,29 @@ public class ItensPedidoFormView extends JFrame {
     private JComboBox<SaborPizza> cbSabor1;
     private JCheckBox cbxDesativarSegundoSabor;
 
-    Cliente cliente = null;
+
     int idItemSelecionado = 0;
+    int idPedido = 0;
+
     boolean ehEdicao = false;
     ItemPedidoController itemPedidoController = new ItemPedidoController();
     SaborController saborController = new SaborController();
+    PedidoController pedidoController = new PedidoController();
 
 
     private BancoDados banco = BancoDados.getInstancia();
 
-    public ItensPedidoFormView(Cliente cliente) {
-        this.cliente = cliente;
+    public ItensPedidoFormView(int idPedido) {
+        this.idPedido = idPedido;
         this.inicializarTela();
-
     }
 
-    public ItensPedidoFormView(Cliente cliente, int idItem) {
+    public ItensPedidoFormView(int idPedido, int idItem) {
         ehEdicao = true;
-        this.cliente = cliente;
+        this.idPedido = idPedido;
         this.idItemSelecionado = idItem;
         this.inicializarTela();
-        Pizza itemSelecionado = itemPedidoController.retornarItemPedido(cliente, idItem);
+        Pizza itemSelecionado = itemPedidoController.retornarItemPedido(idPedido, idItem);
         setarDadosPizza(itemSelecionado);
     }
 
@@ -62,6 +65,9 @@ public class ItensPedidoFormView extends JFrame {
         cbSabor1.setModel(new DefaultComboBoxModel<>(getSabores()));
         cbSabor2.setModel(new DefaultComboBoxModel<>(getSabores()));
 
+        cbxDesativarSegundoSabor.setSelected(true);
+        cbSabor2.setSelectedItem(null);
+        cbSabor2.setEnabled(false);
         setVisible(true);
 
         btnConfirmar.addActionListener(new ActionListener() {
@@ -76,8 +82,46 @@ public class ItensPedidoFormView extends JFrame {
 
             boolean selecionado = cbxDesativarSegundoSabor.isSelected();
             cbSabor2.setEnabled(!selecionado);
+            if (!selecionado)
+                cbSabor2.setSelectedItem(null);
+            this.atualizarDisponibilidadeSabores();
         });
 
+        cbSabor1.addActionListener(e -> atualizarDisponibilidadeSabores());
+        cbSabor2.addActionListener(e -> atualizarDisponibilidadeSabores());
+
+    }
+
+    private void atualizarDisponibilidadeSabores() {
+        SaborPizza[] todosSabores = getSabores();
+
+        SaborPizza saborSelecionado1 = (SaborPizza) cbSabor1.getSelectedItem();
+        SaborPizza saborSelecionado2 = (SaborPizza) cbSabor2.getSelectedItem();
+
+        if(!cbSabor2.isEnabled()) {
+            cbSabor1.setModel(new DefaultComboBoxModel<>(todosSabores));
+            cbSabor1.setSelectedItem(saborSelecionado1);
+            return;
+        }
+
+        DefaultComboBoxModel<SaborPizza> modeloSabor1 = new DefaultComboBoxModel<>();
+        for (SaborPizza sabor : todosSabores) {
+            if (!sabor.equals(saborSelecionado2)) {
+                modeloSabor1.addElement(sabor);
+            }
+        }
+        cbSabor1.setModel(modeloSabor1);
+        cbSabor1.setSelectedItem(saborSelecionado1);
+
+
+        DefaultComboBoxModel<SaborPizza> modeloSabor2 = new DefaultComboBoxModel<>();
+        for (SaborPizza sabor : todosSabores) {
+            if (!sabor.equals(saborSelecionado1)) {
+                modeloSabor2.addElement(sabor);
+            }
+        }
+        cbSabor2.setModel(modeloSabor2);
+        cbSabor2.setSelectedItem(saborSelecionado2);
     }
 
     private void setarDadosPizza(Pizza pizza) {
@@ -122,7 +166,7 @@ public class ItensPedidoFormView extends JFrame {
         return new Forma[]{quadrado, triangulo, circulo};
     }
 
-    private void finalizarOperacao() {
+     private void finalizarOperacao() {
         try {
             Forma formaEscolhida = this.getFormaEscolhida();
             List<SaborPizza> SaboresEscolhidos = getSaboresEscolhidos();
@@ -131,12 +175,12 @@ public class ItensPedidoFormView extends JFrame {
             String acaoAtualMensagem = "";
             String acaoConcluidaMensagem = "";
             if(ehEdicao) {
-                itemPedidoController.editarItemPedido(cliente, novaPizza, this.idItemSelecionado);
+                itemPedidoController.editarItemPedido(idPedido, novaPizza, this.idItemSelecionado);
                 acaoAtualMensagem = "salvar";
                 acaoConcluidaMensagem = "salvo";
             }
             else {
-                itemPedidoController.adicionarItemPedido(cliente, novaPizza);
+                itemPedidoController.adicionarItemPedido(idPedido, novaPizza);
                 acaoAtualMensagem = "editar";
                 acaoConcluidaMensagem = "editado";
             }
@@ -144,27 +188,38 @@ public class ItensPedidoFormView extends JFrame {
 
             JOptionPane.showMessageDialog(
                     tela,
-                    "Item" + acaoConcluidaMensagem +  "no pedido com sucesso!",
-                    "Sucesso ao" + acaoAtualMensagem,
+                    "Item " + acaoConcluidaMensagem +  " no pedido com sucesso!",
+                    "Sucesso ao " + acaoAtualMensagem,
                     JOptionPane.INFORMATION_MESSAGE
             );
             setVisible(false);
-            new PedidoView();
+            new PedidoView(idPedido);
 
         }
         catch (Exception e) {
+            String mensagemDeErro = "Houve um erro ao salvar este pedido!";
+
+            boolean mensagemDeErroFoiTratada = e instanceof NullPointerException || e instanceof IllegalArgumentException;
+
+            if(mensagemDeErroFoiTratada) {
+                mensagemDeErro = e.getMessage();
+            }
+
             JOptionPane.showMessageDialog(
                     tela,
-                    "Houve um erro ao salvar este pedido!",
+                    mensagemDeErro,
                     "Erro ao salvar",
                     JOptionPane.ERROR_MESSAGE
             );
         }
 
-
     }
 
     private List<SaborPizza> getSaboresEscolhidos() {
+
+        if(cbSabor2.getSelectedItem() == null && !cbxDesativarSegundoSabor.isSelected())
+            throw new NullPointerException("Você não selecionou o segundo sabor.");
+
         if(cbxDesativarSegundoSabor.isSelected()) {
             return List.of((SaborPizza) cbSabor1.getSelectedItem());
         }
@@ -185,23 +240,13 @@ public class ItensPedidoFormView extends JFrame {
             boolean deveMostrarErroDeArea = this.cbxEhArea.isSelected();
             formaEscolhida.validarDimensao(dimensao, deveMostrarErroDeArea);
 
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(
-                    tela,
-                    "A dimensão deve ser um número válido!",
-                    "Erro de Formato",
-                    JOptionPane.ERROR_MESSAGE
-            );
-        }
-        catch (IllegalArgumentException e) {
-            JOptionPane.showMessageDialog(
-                    tela,
-                    e.getMessage(),
-                    "Erro de Validação",
-                    JOptionPane.ERROR_MESSAGE
-            );
+        }    catch (Exception e) {
+            if (e instanceof NumberFormatException) {
+                throw new NumberFormatException("A dimensão deve ser um número válido!");
+            }
             throw e;
         }
+
 
         formaEscolhida.setDimensao(dimensao);
 

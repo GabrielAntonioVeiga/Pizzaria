@@ -1,47 +1,37 @@
 package controller;
 
 import dados.BancoDados;
+import enums.NomeTipoSabor;
 import model.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class ItemPedidoController {
     private final BancoDados banco = BancoDados.getInstancia();
+    private final PedidoController pedidoController = new PedidoController();
 
 
-    public void editarItemPedido(Cliente cliente, Pizza pizza, int idItem) {
-
-        Pizza pizzaBanco = retornarItemPedido(cliente, idItem);
+    public void editarItemPedido(int idPedido, Pizza pizza, int idItem) {
+        Pizza pizzaBanco = retornarItemPedido(idPedido, idItem);
 
         pizzaBanco.setForma(pizza.getForma());
         pizzaBanco.setSabores(pizza.getSabores());
     }
 
-    public Pizza retornarItemPedido(Cliente cliente, int idItem) {
-        Cliente clienteEncontrado = retornarClientePorTelefone(cliente.getTelefone());
-
-       Pizza itemBuscado = clienteEncontrado.getPedido().getItens().stream().filter(itemPedido -> itemPedido.getId() == idItem)
+    public Pizza retornarItemPedido(int idPedido, int idItem) {
+        Pedido pedido = pedidoController.retornarPedidoPeloId(idPedido);
+       Pizza itemBuscado = pedido.getItens().stream().filter(itemPedido -> itemPedido.getId() == idItem)
                .findFirst()
                .orElse(null);
 
        return itemBuscado;
     }
 
-    public void adicionarItemPedido(Cliente cliente, Pizza pizza) {
-
-       Cliente clienteEncontrado = retornarClientePorTelefone(cliente.getTelefone());
-
-
-        Pedido pedido = clienteEncontrado.getPedido();
-        if (pedido == null) {
-            pedido = criarPedidoCliente();
-            clienteEncontrado.setPedido(pedido);
-        }
-
-        pedido.getItens().add(pizza);
-
-        clienteEncontrado.getPedido();
+    public void adicionarItemPedido(int idPedido, Pizza pizza) {
+       Pedido pedido = pedidoController.retornarPedidoPeloId(idPedido);
+       pedido.getItens().add(pizza);
     }
 
     public Cliente retornarClientePorTelefone(String telefone) {
@@ -51,8 +41,23 @@ public class ItemPedidoController {
                 .orElse(null);
     }
 
-    public Pedido criarPedidoCliente() {
-        return new Pedido(new ArrayList<>());
+    public Cliente retornarClientePorId(int id) {
+        return banco.getClientes().stream()
+                .filter(clienteBanco -> clienteBanco.getId() == id)
+                .findFirst()
+                .orElse(null);
+    }
+
+    public int criarPedidoCliente(int idCliente) {
+
+        Cliente cliente = retornarClientePorId(idCliente);
+        List<Pizza> itens = new ArrayList<>();
+        Pedido pedido = new Pedido(itens, cliente);
+        banco.getPedidos().add(pedido);
+        List<Pedido> pedidos = Arrays.asList(pedido);
+        cliente.setPedidos(pedidos);
+
+        return pedido.getId();
     }
 
 

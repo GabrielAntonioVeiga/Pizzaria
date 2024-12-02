@@ -18,9 +18,9 @@ public class BancoDados {
     public List<SaborPizza> sabores = new ArrayList<>();
     public List<TipoSabor> tiposSabores = new ArrayList<>(
             Arrays.asList(
-                    new TipoSabor(NomeTipoSabor.SIMPLES, 1),
-                    new TipoSabor(NomeTipoSabor.ESPECIAL, 3),
-                    new TipoSabor(NomeTipoSabor.PREMIUM, 5)
+                    new TipoSabor(NomeTipoSabor.SIMPLES, 0.1),
+                    new TipoSabor(NomeTipoSabor.ESPECIAL, 0.2),
+                    new TipoSabor(NomeTipoSabor.PREMIUM, 0.3)
             )
     );
     public List<Pedido> pedidos = new ArrayList<>();
@@ -40,6 +40,10 @@ public class BancoDados {
         return clientes;
     }
 
+    public List<Pedido> getPedidos() {
+        return pedidos;
+    }
+
     public List<TipoSabor> getTiposSabores() {
         return tiposSabores;
     }
@@ -53,7 +57,6 @@ public class BancoDados {
             sabores.add(sabor1);
             sabores.add(sabor2);
             sabores.add(sabor3);
-            List<SaborPizza> saborPizzaList;
 
         return sabores;
     }

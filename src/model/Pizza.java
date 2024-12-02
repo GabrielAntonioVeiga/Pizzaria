@@ -42,6 +42,20 @@ public class Pizza {
         }
         return sabores;
     }
+
+    public Double getPreco() {
+        int numSabores = this.saborPizza.size();
+        double preco = 0.0;
+        double areaSabor = this.getForma().calcularArea();
+
+        for (SaborPizza sabor : this.saborPizza) {
+            double precoSabor = sabor.getTipoSabor().getPrecoCm2();
+            preco += precoSabor * (areaSabor/numSabores);
+        }
+
+        return preco;
+    }
+
     public List<SaborPizza>  getSabores(){
         return saborPizza;
     }

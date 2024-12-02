@@ -1,15 +1,30 @@
 package model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Cliente {
     private String nome;
     private String sobrenome;
     private String telefone;
-    private Pedido pedido = null;
+
+    public void setPedidos(List<Pedido> pedidos) {
+        this.pedidos = pedidos;
+    }
+
+    private List<Pedido> pedidos = new ArrayList<>();
+    private static int idCounter = 0;
+    private final int id;
 
     public Cliente(String nome, String sobrenome, String telefone) {
         this.nome = nome;
         this.sobrenome = sobrenome;
         this.telefone = telefone;
+        this.id = ++idCounter;
+    }
+
+    public int getId() {
+        return id;
     }
 
     public String getNome() {
@@ -36,11 +51,11 @@ public class Cliente {
         this.telefone = telefone;
     }
 
-    public Pedido getPedido() {
-        return pedido;
+    public List<Pedido> getPedidos() {
+        return pedidos;
     }
 
-    public void setPedido(Pedido pedido) {
-        this.pedido = pedido;
+    public void addPedido(Pedido pedido) {
+        pedidos.add(pedido);
     }
 }

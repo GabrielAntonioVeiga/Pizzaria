@@ -17,6 +17,10 @@ public class SaborPizza {
         return nome;
     }
 
+    public TipoSabor getTipoSabor() {
+        return tipoSabor;
+    }
+
     public void setNome(String nome) {
         this.nome = nome;
     }

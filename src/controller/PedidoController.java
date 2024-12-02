@@ -1,5 +1,7 @@
 package controller;
 
+import dados.BancoDados;
+import enums.StatusPedido;
 import model.Cliente;
 import model.Pedido;
 import model.Pizza;
@@ -11,31 +13,33 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PedidoController {
-    private DefaultTableModel tableModel;
-    private PedidoView pedidoView;
-    private List<Pizza> itensPedido = new ArrayList<>();
 
-    public PedidoController(DefaultTableModel tableModel) {
-        this.tableModel = tableModel;
+    private final BancoDados banco = BancoDados.getInstancia();
+
+    public PedidoController() {
     }
 
-    public void carregarItensPedido(Cliente cliente) {
-        Pedido pedido = cliente.getPedido();
+
+    public List<Pizza> carregarItensPedido(int idPedido) {
+        Pedido pedido = retornarPedidoPeloId(idPedido);
+        List<Pizza> itensPedido = new ArrayList<>();
         if(pedido == null)
-            return;
-        itensPedido = pedido.getItens();
-        int contador = 0;
-        for (Pizza pizza : itensPedido) {
-            String valorFormatado = String.format("%.2fcm²", pizza.getTamanho());
+            return itensPedido;
 
-            tableModel.setRowCount(contador);
-            tableModel.addRow(new Object[]{
-                    pizza.getForma().toString(),
-                    valorFormatado,
-                    pizza.getNomeSabores()
-            });
-        }
-
-
+        return pedido.getItens();
     }
+
+    public void alterarStatusPedido(int idPedido, StatusPedido novoStatus) {
+        Pedido pedido = retornarPedidoPeloId(idPedido);
+        pedido.setStatus(novoStatus);
+    }
+
+    public Pedido retornarPedidoPeloId(int idPedido) {
+        return banco.getPedidos().stream()
+                .filter(pedidoBanco -> pedidoBanco.getId() == idPedido)
+                .findFirst()
+                .orElse(null);
+    }
+
+
 }
