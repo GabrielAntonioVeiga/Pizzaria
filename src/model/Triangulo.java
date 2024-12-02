@@ -35,7 +35,7 @@ public class Triangulo extends Forma {
             mensagemErro = "Dimensão inválida: A área deve estar 173,21cm² e 1558,85cm²";
 
 
-        if (valor < 10 || valor > 40) {
+        if (valor < 20 || valor > 60) {
             throw new IllegalArgumentException(mensagemErro);
         }
     }
