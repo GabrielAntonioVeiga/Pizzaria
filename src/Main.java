@@ -1,5 +1,4 @@
 import dados.BancoDados;
-import view.ClienteView;
 import view.MenuView;
 
 import javax.swing.*;

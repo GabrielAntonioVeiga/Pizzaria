@@ -8,16 +8,21 @@ import model.SaborPizza;
 import model.TipoSabor;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
+import javax.swing.text.MaskFormatter;
 import java.awt.event.*;
 import java.util.List;
+import java.text.ParseException;
+import java.util.stream.Collectors;
 
 public class ClienteView extends JFrame {
     private JPanel panelCliente;
     private JTextField tfSobrenome;
-    private JTextField tfTelefone;
+    private JFormattedTextField tfTelefone;
     private JPanel panelCadastroCliente;
     private JButton btnCriar;
     private JTextField tfNome;
@@ -54,6 +59,39 @@ public class ClienteView extends JFrame {
             @Override
             public void keyReleased(KeyEvent e) {
                 tfPesquisarCliente();
+            }
+        });
+
+        tfTelefone.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE) {
+                    int caretPosition = tfTelefone.getCaretPosition();
+                    String text = tfTelefone.getText();
+
+                    if (caretPosition > 0) {
+                        int deleteIndex = caretPosition - 1;
+
+                        while (deleteIndex > 0 && !Character.isDigit(text.charAt(deleteIndex))) {
+                            deleteIndex--;
+                        }
+
+                        if (deleteIndex >= 0 && Character.isDigit(text.charAt(deleteIndex))) {
+                            StringBuilder newText = new StringBuilder(text);
+                            newText.deleteCharAt(deleteIndex);
+
+                            e.consume();
+                            updateTextField(newText.toString(), deleteIndex);
+                        }
+                    }
+                }
+            }
+        });
+
+        tfTelefone.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent e) {
+                formatarTelefone();
             }
         });
 
@@ -100,8 +138,43 @@ public class ClienteView extends JFrame {
             tableModel.addRow(new Object[]{
                     cliente.getNome(),
                     cliente.getSobrenome(),
-                    cliente.getTelefone()
+                    formatarTelefoneParaExibicao(cliente.getTelefone())
             });
+        }
+    }
+
+    private void updateTextField(String rawText, int caretPosition) {
+        try {
+            rawText = rawText.replaceAll("[^\\d]", "");
+            MaskFormatter phoneMask = new MaskFormatter("(##) #####-####");
+            phoneMask.setPlaceholderCharacter('_');
+            phoneMask.setValueContainsLiteralCharacters(false);
+
+            String formattedTelefone = phoneMask.valueToString(rawText);
+
+            tfTelefone.setText(formattedTelefone);
+            tfTelefone.setCaretPosition(Math.min(caretPosition, formattedTelefone.length()));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void formatarTelefone() {
+        String telefone = tfTelefone.getText();
+
+        try {
+            telefone = telefone.replaceAll("[^\\d]", "");
+            MaskFormatter phoneMask = new MaskFormatter("(##) #####-####");
+            phoneMask.setPlaceholderCharacter('_');
+            phoneMask.setValueContainsLiteralCharacters(false);
+
+            String formattedTelefone = phoneMask.valueToString(telefone);
+
+            if (!tfTelefone.getText().equals(formattedTelefone)) {
+                tfTelefone.setText(formattedTelefone);
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
         }
     }
 
@@ -134,13 +207,14 @@ public class ClienteView extends JFrame {
                     "Por favor, insira todos os valores do cliente!",
                     "Erro", JOptionPane.ERROR_MESSAGE);
         } else {
-            clienteController.adicionarCliente(nome, sobrenome, telefone);
+            String telefoneSemFormatacao = telefone.replaceAll("[^\\d]", "");
+            clienteController.adicionarCliente(nome, sobrenome, telefoneSemFormatacao);
             tfNome.setText("");
             tfSobrenome.setText("");
             tfTelefone.setText("");
             tableModel.addRow(new Object[]{nome, sobrenome, telefone});
         }
-    }
+     }
 
     private void btnTrocarPaginaActionPerformed(ActionEvent e) {
         //Tela2 tela2 = new Tela2();
@@ -186,6 +260,19 @@ public class ClienteView extends JFrame {
     }
 
     private void btnCarregarActionPerformed(ActionEvent e) {
-        this.carregarClientes(clienteController.buscarClientes());
+         this.carregarClientes(clienteController.buscarClientes());
+
+    }
+
+    private String formatarTelefoneParaExibicao(String telefone) {
+        try {
+            telefone = telefone.replaceAll("[^\\d]", "");
+            MaskFormatter phoneMask = new MaskFormatter("(##) #####-####");
+            phoneMask.setValueContainsLiteralCharacters(false);
+            return phoneMask.valueToString(telefone);
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return telefone;
+        }
     }
 }

@@ -58,7 +58,7 @@ public class ClienteController {
 
     public Cliente buscarClientePorTelefone(String telefone) {
         Cliente clienteEncontrado = this.clientes.stream()
-                .filter(clienteBanco -> clienteBanco.getTelefone().equals(telefone))
+                .filter(clienteBanco -> clienteBanco.getTelefone().replaceAll("[^\\d]", "").trim().equals(telefone.trim()))
                 .findFirst()
                 .orElse(null);
 
