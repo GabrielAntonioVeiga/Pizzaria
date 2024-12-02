@@ -189,7 +189,7 @@ public class PedidosView extends JFrame{
                     renderizarItensNaTabela(new ArrayList<>());
                     return;
                 }
-                int idPedido = itemPedidoController.criarPedidoCliente(cliente.getId());
+                int idPedido = clienteController.criarPedidoCliente(cliente.getId());
                 setVisible(false);
                 new ItensPedidoFormView(idPedido);
             }
