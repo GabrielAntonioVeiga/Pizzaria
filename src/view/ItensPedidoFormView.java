@@ -206,13 +206,13 @@ public class ItensPedidoFormView extends JFrame {
             String acaoConcluidaMensagem = "";
             if(ehEdicao) {
                 itemPedidoController.editarItemPedido(idPedido, novaPizza, this.idItemSelecionado);
-                acaoAtualMensagem = "salvar";
-                acaoConcluidaMensagem = "salvo";
+                acaoAtualMensagem = "editar";
+                acaoConcluidaMensagem = "editado";
             }
             else {
                 itemPedidoController.adicionarItemPedido(idPedido, novaPizza);
-                acaoAtualMensagem = "editar";
-                acaoConcluidaMensagem = "editado";
+                acaoAtualMensagem = "salvar";
+                acaoConcluidaMensagem = "salvo";
             }
 
 
