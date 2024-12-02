@@ -65,6 +65,9 @@ public class ItensPedidoFormView extends JFrame {
         cbSabor1.setModel(new DefaultComboBoxModel<>(getSabores()));
         cbSabor2.setModel(new DefaultComboBoxModel<>(getSabores()));
 
+        cbxDesativarSegundoSabor.setSelected(true);
+        cbSabor2.setSelectedItem(null);
+        cbSabor2.setEnabled(false);
         setVisible(true);
 
         btnConfirmar.addActionListener(new ActionListener() {
@@ -79,8 +82,46 @@ public class ItensPedidoFormView extends JFrame {
 
             boolean selecionado = cbxDesativarSegundoSabor.isSelected();
             cbSabor2.setEnabled(!selecionado);
+            if (!selecionado)
+                cbSabor2.setSelectedItem(null);
+            this.atualizarDisponibilidadeSabores();
         });
 
+        cbSabor1.addActionListener(e -> atualizarDisponibilidadeSabores());
+        cbSabor2.addActionListener(e -> atualizarDisponibilidadeSabores());
+
+    }
+
+    private void atualizarDisponibilidadeSabores() {
+        SaborPizza[] todosSabores = getSabores();
+
+        SaborPizza saborSelecionado1 = (SaborPizza) cbSabor1.getSelectedItem();
+        SaborPizza saborSelecionado2 = (SaborPizza) cbSabor2.getSelectedItem();
+
+        if(!cbSabor2.isEnabled()) {
+            cbSabor1.setModel(new DefaultComboBoxModel<>(todosSabores));
+            cbSabor1.setSelectedItem(saborSelecionado1);
+            return;
+        }
+
+        DefaultComboBoxModel<SaborPizza> modeloSabor1 = new DefaultComboBoxModel<>();
+        for (SaborPizza sabor : todosSabores) {
+            if (!sabor.equals(saborSelecionado2)) {
+                modeloSabor1.addElement(sabor);
+            }
+        }
+        cbSabor1.setModel(modeloSabor1);
+        cbSabor1.setSelectedItem(saborSelecionado1);
+
+
+        DefaultComboBoxModel<SaborPizza> modeloSabor2 = new DefaultComboBoxModel<>();
+        for (SaborPizza sabor : todosSabores) {
+            if (!sabor.equals(saborSelecionado1)) {
+                modeloSabor2.addElement(sabor);
+            }
+        }
+        cbSabor2.setModel(modeloSabor2);
+        cbSabor2.setSelectedItem(saborSelecionado2);
     }
 
     private void setarDadosPizza(Pizza pizza) {
@@ -125,8 +166,10 @@ public class ItensPedidoFormView extends JFrame {
         return new Forma[]{quadrado, triangulo, circulo};
     }
 
-    private void finalizarOperacao() {
+     private void finalizarOperacao() {
         try {
+            if(cbSabor2.getSelectedItem() == null && !cbxDesativarSegundoSabor.isSelected())
+                throw new NullPointerException("Você não selecionou o segundo sabor.");
             Forma formaEscolhida = this.getFormaEscolhida();
             List<SaborPizza> SaboresEscolhidos = getSaboresEscolhidos();
             Pizza novaPizza = new Pizza(formaEscolhida, SaboresEscolhidos);
@@ -156,13 +199,25 @@ public class ItensPedidoFormView extends JFrame {
 
         }
         catch (Exception e) {
+            if (e instanceof NullPointerException) {
+                JOptionPane.showMessageDialog(
+                        tela,
+                        e.getMessage(),
+                        "Erro ao salvar",
+                        JOptionPane.ERROR_MESSAGE
+                );
+                return;
+            }
+
             JOptionPane.showMessageDialog(
                     tela,
                     "Houve um erro ao salvar este pedido!",
                     "Erro ao salvar",
                     JOptionPane.ERROR_MESSAGE
             );
+
         }
+
 
 
     }
