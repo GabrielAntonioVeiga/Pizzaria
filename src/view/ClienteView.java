@@ -39,7 +39,6 @@ public class ClienteView extends JFrame {
         tabelaCliente.setModel(tableModel);
 
         clienteController = new ClienteController(tableModel);
-
         btnCriar.addActionListener(this::btnAddActionPerformed);
         btnDeletar.addActionListener(this::btnDeleteActionPerformed);
         btnEditar.addActionListener(this::btnEditarActionPerformed);
