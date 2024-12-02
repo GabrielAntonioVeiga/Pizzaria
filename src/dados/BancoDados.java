@@ -23,6 +23,7 @@ public class BancoDados {
                     new TipoSabor(NomeTipoSabor.PREMIUM, 5)
             )
     );
+
     public List<Pedido> pedidos = new ArrayList<>();
 
 
@@ -58,7 +59,12 @@ public class BancoDados {
         return sabores;
     }
 
+    public List<Pedido> getPedidos() {
+        return pedidos;
+    }
+
     public void setClientes(List<Cliente> novosClientes) {
         clientes = novosClientes;
     }
+
 }
