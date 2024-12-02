@@ -14,15 +14,10 @@ public class SaborController {
         return banco.getSabores();
     }
 
-    public List<TipoSabor> carregarTipoSabores() {
-        return banco.getTiposSabores();
-    }
-
-    public TipoSabor carregarTipoSaborPeloNome(NomeTipoSabor nome) {
-        return carregarTipoSabores().stream()
-                .filter(tipoSabor -> tipoSabor.getNome() == nome)
-                .findFirst()
-                .orElse(null);
+    public void adicionarSabor(String nomeSabor, NomeTipoSabor tipoSaborEnum, double precoPorCm2) {
+        TipoSabor tipoSabor = new TipoSabor(tipoSaborEnum, precoPorCm2);
+        SaborPizza novoSabor = new SaborPizza(nomeSabor, tipoSabor);
+        BancoDados.getInstancia().getSabores().add(novoSabor);
     }
 
 

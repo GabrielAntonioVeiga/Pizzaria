@@ -29,7 +29,7 @@ public class AtualizarTipoSaborView extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(800, 600);
 
-        List<TipoSabor> tipoSabores = saborController.carregarTipoSabores();
+        List<TipoSabor> tipoSabores = tipoSaborController.carregarTipoSabores();
         cbTipoSabor.setModel(new DefaultComboBoxModel<>(tipoSabores.toArray(new TipoSabor[0])));
 
 

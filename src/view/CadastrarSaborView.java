@@ -1,6 +1,7 @@
 package view;
 
 import controller.SaborController;
+import controller.TipoSaborController;
 import dados.BancoDados;
 import enums.NomeTipoSabor;
 import model.SaborPizza;
@@ -31,6 +32,7 @@ public class CadastrarSaborView extends JFrame {
     private JButton voltaMenuButton;
 
     private SaborController saborController = new SaborController();
+    private TipoSaborController tipoSaborController = new TipoSaborController();
     private List<SaborPizza> sabores;
 
     public CadastrarSaborView() {
@@ -63,7 +65,7 @@ public class CadastrarSaborView extends JFrame {
 
             tableModel.addRow(new Object[]{tipo, sabor});
 
-            TipoSabor tipoSabor = this.saborController.carregarTipoSaborPeloNome((NomeTipoSabor)TipoPizzaBox.getSelectedItem());
+            TipoSabor tipoSabor = this.tipoSaborController.carregarTipoSaborPeloNome((NomeTipoSabor)TipoPizzaBox.getSelectedItem());
 
             SaborPizza novoSabor = new SaborPizza(sabor, tipoSabor);
             sabores.add(novoSabor);
