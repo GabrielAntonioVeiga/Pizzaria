@@ -2,8 +2,10 @@ package view;
 
 import controller.ClienteController;
 import controller.ItemPedidoController;
+import controller.PedidoController;
 import controller.PedidosController;
 import dados.BancoDados;
+import enums.StatusPedido;
 import model.Cliente;
 import model.Pedido;
 import renderer.ButtonEditor;
@@ -24,10 +26,12 @@ public class PedidosView extends JFrame{
     private JButton adicionarPedidoButton;
     private JButton voltarButton;
     private JButton buscarButton;
-    private JButton verMaisBtn;
+    private JComboBox cbStatus;
+    private JButton alterarStatusDoPedidoButton;
     private DefaultTableModel tableModel;
     private ClienteController clienteController;
     private PedidosController pedidosController;
+    private PedidoController pedidoController;
     private ItemPedidoController itemPedidoController;
     private List<Pedido> pedidos = BancoDados.getInstancia().getPedidos();
     private Cliente cliente;
@@ -37,17 +41,23 @@ public class PedidosView extends JFrame{
         this.pedidosController = new PedidosController();
         this.clienteController = new ClienteController();
         this.itemPedidoController = new ItemPedidoController();
+        this.pedidoController = new PedidoController();
         this.pedidos = pedidosController.carregarPedidos();
+        cbStatus.setEnabled(false);
+        alterarStatusDoPedidoButton.setEnabled(false);
     }
 
     public PedidosView(int idPedido) {
         this.pedidosController = new PedidosController();
         this.clienteController = new ClienteController();
         this.itemPedidoController = new ItemPedidoController();
+        this.pedidoController = new PedidoController();
         this.pedidos = pedidosController.carregarPedidos();
         Cliente clienteTelaAnterior = clienteController.buscarClientePorIdPedido(idPedido);
         textField1.setText(clienteTelaAnterior.getTelefone());
         List<Pedido> pedidosCliente = pedidosController.carregarPedidosPorCliente(clienteController.buscarClientePorIdPedido(idPedido));
+        cbStatus.setEnabled(false);
+        alterarStatusDoPedidoButton.setEnabled(false);
         this.inicializarTela();
         renderizarItensNaTabela(pedidosCliente);
 
@@ -69,13 +79,54 @@ public class PedidosView extends JFrame{
         tablePedidos.getColumnModel().getColumn(4).setCellEditor(
                 new ButtonEditor(new JCheckBox(), () -> detalhesPedido())  // Pass the method as a Runnable
         );
+
         renderizarItensNaTabela(pedidos);
+
+
+
+        if(!pedidos.isEmpty()){
+            cbStatus.setEnabled(true);
+            cbStatus.setModel(new DefaultComboBoxModel<>(StatusPedido.values()));
+            alterarStatusDoPedidoButton.setEnabled(true);
+        }
+
         pack();
         setVisible(true);
         this.inicializarListeners();
     }
 
     private void inicializarListeners(){
+
+        alterarStatusDoPedidoButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int row = tablePedidos.getSelectedRow();
+
+                if(row == -1){
+                    JOptionPane.showMessageDialog(
+                            tela,
+                            "Selecione um pedido para alterar o status!",
+                            "Erro ao busar",
+                            JOptionPane.ERROR_MESSAGE
+                    );
+                    return;
+                }
+                int idPedido = (int) tableModel.getValueAt(row, 0);
+
+                Pedido pedido = pedidoController.retornarPedidoPeloId(idPedido);
+
+                cbStatus.setSelectedItem(pedido.getStatus().toString());
+
+                String status = cbStatus.getSelectedItem().toString();
+
+                StatusPedido novoStatus = StatusPedido.valueOf(status);
+
+                pedidoController.alterarStatusPedido(pedido.getId(), novoStatus);
+
+                renderizarItensNaTabela(pedidos);
+            }
+        });
+
         voltarButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
