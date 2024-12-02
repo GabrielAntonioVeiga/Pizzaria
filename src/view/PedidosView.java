@@ -247,7 +247,7 @@ public class PedidosView extends JFrame{
         if(selectedRow == -1){
             JOptionPane.showMessageDialog(
                     this,
-                    "Selecione um pedido para alterar!",
+                    "Selecione um pedido para excluir!",
                     "Erro",
                     JOptionPane.ERROR_MESSAGE
             );
