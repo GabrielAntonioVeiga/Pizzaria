@@ -15,6 +15,12 @@ package model;
         public String toString() {
             return getNomeForma();
         }
+
+        public boolean equals(Object obj) {
+            if (this == obj) return true;
+            if (obj == null || getClass() != obj.getClass()) return false;
+            return this.getNomeForma().equals(((Forma) obj).getNomeForma());
+        }
     }
 
 
