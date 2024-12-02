@@ -34,31 +34,5 @@ public class ItemPedidoController {
        pedido.getItens().add(pizza);
     }
 
-    public Cliente retornarClientePorTelefone(String telefone) {
-     return banco.getClientes().stream()
-                .filter(clienteBanco -> clienteBanco.getTelefone().equals(telefone))
-                .findFirst()
-                .orElse(null);
-    }
-
-    public Cliente retornarClientePorId(int id) {
-        return banco.getClientes().stream()
-                .filter(clienteBanco -> clienteBanco.getId() == id)
-                .findFirst()
-                .orElse(null);
-    }
-
-    public int criarPedidoCliente(int idCliente) {
-
-        Cliente cliente = retornarClientePorId(idCliente);
-        List<Pizza> itens = new ArrayList<>();
-        Pedido pedido = new Pedido(itens, cliente);
-        banco.getPedidos().add(pedido);
-        List<Pedido> pedidos = Arrays.asList(pedido);
-        cliente.setPedidos(pedidos);
-
-        return pedido.getId();
-    }
-
 
 }

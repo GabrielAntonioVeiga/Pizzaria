@@ -64,7 +64,7 @@ public class PedidoView extends JFrame {
         setContentPane(tela);
         setTitle("Pedido");
         setSize(800, 600);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         this.tableModel = new DefaultTableModel(
                 new Object[][]{},
