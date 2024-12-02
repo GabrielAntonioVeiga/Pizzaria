@@ -15,6 +15,7 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -150,11 +151,12 @@ public class PedidosView extends JFrame{
                             "Erro ao busar",
                             JOptionPane.ERROR_MESSAGE
                     );
-                    renderizarItensNaTabela();
+                    limparTabela();
                     return;
                 }
 
                 List<Pedido> pedidosCliente = pedidosController.carregarPedidosPorCliente(cliente);
+                renderizarItensNaTabela(pedidosCliente);
 
                 if(pedidosCliente.isEmpty()){
                     JOptionPane.showMessageDialog(
@@ -163,11 +165,9 @@ public class PedidosView extends JFrame{
                             "Cliente sem pedidos.",
                             JOptionPane.INFORMATION_MESSAGE
                     );
-                    limparTabela();
                     return;
                 }
 
-                renderizarItensNaTabela(pedidosCliente);
             }
         });
 
@@ -194,6 +194,8 @@ public class PedidosView extends JFrame{
     }
 
     private void limparTabela() {
+        this.pedidos = new ArrayList<>();
+
         for(int i =0; i < tableModel.getRowCount(); i++){
             tableModel.removeRow(i);
         }
