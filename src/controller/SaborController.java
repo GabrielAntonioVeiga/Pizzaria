@@ -1,9 +1,7 @@
 package controller;
 
 import dados.BancoDados;
-import enums.NomeTipoSabor;
 import model.SaborPizza;
-import model.TipoSabor;
 
 import java.util.List;
 

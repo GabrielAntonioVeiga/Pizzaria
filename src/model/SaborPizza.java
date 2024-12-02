@@ -1,10 +1,6 @@
 package model;
 import java.util.Objects;
 
-import enums.NomeTipoSabor;
-
-import javax.swing.*;
-
 public class SaborPizza {
     private String nome;
 

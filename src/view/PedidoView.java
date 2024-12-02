@@ -3,9 +3,8 @@ package view;
 import controller.ClienteController;
 import controller.ItemPedidoController;
 import controller.PedidosController;
-import controller.SaborController;
 import dados.BancoDados;
-import enums.StatusPedido;
+import enums.EnStatusPedido;
 import model.*;
 
 import javax.swing.*;
@@ -84,7 +83,7 @@ public class PedidoView extends JFrame {
         );
         tableItensPedido.setModel(tableModel);
 
-        if(!pedido.getStatus().toString().equals(StatusPedido.ABERTO.toString())) {
+        if(!pedido.getStatus().toString().equals(EnStatusPedido.ABERTO.toString())) {
             btnEditar.setEnabled(false);
             adicionarButton.setEnabled(false);
             deletarButton.setEnabled(false);

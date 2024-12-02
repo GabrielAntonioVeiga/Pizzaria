@@ -3,8 +3,7 @@ package view;
 import controller.ClienteController;
 import controller.ItemPedidoController;
 import controller.PedidosController;
-import dados.BancoDados;
-import enums.StatusPedido;
+import enums.EnStatusPedido;
 import model.Cliente;
 import model.Pedido;
 import renderer.ButtonEditor;
@@ -15,7 +14,6 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -76,7 +74,7 @@ public class PedidosView extends JFrame{
 
         if(!pedidos.isEmpty()){
             cbStatus.setEnabled(true);
-            cbStatus.setModel(new DefaultComboBoxModel<>(StatusPedido.values()));
+            cbStatus.setModel(new DefaultComboBoxModel<>(EnStatusPedido.values()));
             alterarStatusDoPedidoButton.setEnabled(true);
         }
 
@@ -109,7 +107,7 @@ public class PedidosView extends JFrame{
 
                 String status = cbStatus.getSelectedItem().toString();
 
-                StatusPedido novoStatus = StatusPedido.valueOf(status);
+                EnStatusPedido novoStatus = EnStatusPedido.valueOf(status);
 
                 pedidosController.alterarStatusPedido(pedido.getId(), novoStatus);
 

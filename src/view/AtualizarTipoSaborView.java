@@ -1,11 +1,7 @@
 package view;
 
-import controller.ItemPedidoController;
 import controller.SaborController;
 import controller.TipoSaborController;
-import dados.BancoDados;
-import enums.NomeTipoSabor;
-import model.Forma;
 import model.TipoSabor;
 
 import javax.swing.*;

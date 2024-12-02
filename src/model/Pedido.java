@@ -1,12 +1,11 @@
 package model;
 
-import enums.StatusPedido;
+import enums.EnStatusPedido;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class Pedido {
-    private StatusPedido status = StatusPedido.ABERTO;
+    private EnStatusPedido status = EnStatusPedido.ABERTO;
     private List<Pizza> itens;
     private Double precoTotal=0.0;
     private static int idCounter = 0;
@@ -43,11 +42,11 @@ public class Pedido {
         this.itens = itens;
     }
 
-    public StatusPedido getStatus() {
+    public EnStatusPedido getStatus() {
         return status;
     }
 
-    public void setStatus(StatusPedido status) {
+    public void setStatus(EnStatusPedido status) {
         this.status = status;
     }
 

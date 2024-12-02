@@ -1,7 +1,7 @@
 package controller;
 
 import dados.BancoDados;
-import enums.StatusPedido;
+import enums.EnStatusPedido;
 import model.Cliente;
 import model.Pedido;
 import model.Pizza;
@@ -38,7 +38,7 @@ public class PedidosController {
         return pedido.getItens();
     }
 
-    public void alterarStatusPedido(int idPedido, StatusPedido novoStatus) {
+    public void alterarStatusPedido(int idPedido, EnStatusPedido novoStatus) {
         Pedido pedido = retornarPedidoPeloId(idPedido);
         pedido.setStatus(novoStatus);
     }
@@ -57,6 +57,14 @@ public class PedidosController {
         pedido.getCliente().getPedidos().remove(pedido);
         pedidos.remove(pedido);
     }
+
+    public void deletarPedidoPorCliente(Cliente cliente) {
+        List<Pedido> pedidos = carregarPedidosPorCliente(cliente);
+        banco.getPedidos().removeAll(pedidos);
+        pedidos.clear();
+    }
+
+
 
 
 }

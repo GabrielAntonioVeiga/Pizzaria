@@ -1,12 +1,7 @@
 package controller;
 
 import dados.BancoDados;
-import enums.NomeTipoSabor;
 import model.*;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 public class ItemPedidoController {
     private final BancoDados banco = BancoDados.getInstancia();
