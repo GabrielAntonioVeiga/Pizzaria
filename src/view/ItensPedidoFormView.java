@@ -1,8 +1,7 @@
 package view;
 
-import controller.ClienteController;
 import controller.ItemPedidoController;
-import controller.PedidoController;
+import controller.PedidosController;
 import controller.SaborController;
 import dados.BancoDados;
 import model.*;
@@ -32,7 +31,6 @@ public class ItensPedidoFormView extends JFrame {
     boolean ehEdicao = false;
     ItemPedidoController itemPedidoController = new ItemPedidoController();
     SaborController saborController = new SaborController();
-    PedidoController pedidoController = new PedidoController();
 
 
     private BancoDados banco = BancoDados.getInstancia();

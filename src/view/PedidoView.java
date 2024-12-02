@@ -1,7 +1,7 @@
 package view;
 
 import controller.ClienteController;
-import controller.PedidoController;
+import controller.PedidosController;
 import controller.SaborController;
 import dados.BancoDados;
 import enums.StatusPedido;
@@ -25,7 +25,7 @@ public class PedidoView extends JFrame {
     private JLabel lblPrecoTotal;
     private JLabel statusPedido;
     private ClienteController clienteController = new ClienteController();
-    private PedidoController pedidoController = new PedidoController();
+    private PedidosController pedidosController = new PedidosController();
     private DefaultTableModel tableModel;
 
     private final BancoDados bd = BancoDados.getInstancia();
@@ -35,14 +35,21 @@ public class PedidoView extends JFrame {
     public PedidoView(int idPedido) {
         this.idPedido = idPedido;
         this.cliente = clienteController.buscarClientePorIdPedido(idPedido);
-        Pedido pedido = pedidoController.retornarPedidoPeloId(idPedido);
+        Pedido pedido = pedidosController.retornarPedidoPeloId(idPedido);
         statusPedido.setText(pedido.getStatus().toString());
         this.inicializarTela();
-        this.procurarItensPedido();
+        renderizarItensNaTabela();
 
     }
 
-    private void renderizarItensNaTabela(List<Pizza> itensPedido) {
+    private void renderizarItensNaTabela() {
+        List<Pizza> itensPedido = pedidosController.carregarItensPedido(this.idPedido);
+        if(itensPedido.isEmpty()) {
+            response.setText("Não possui pedidos.");
+            return;
+        }
+
+        lblPrecoTotal.setText(String.format("%.2f", getPrecoTotal(itensPedido)));
         int contador = 0;
         for (Pizza pizza : itensPedido) {
             String valorTamanhoFormatado = String.format("%.2fcm²", pizza.getTamanho());
@@ -81,6 +88,14 @@ public class PedidoView extends JFrame {
     private void inicializarListeners() {
 
         voltarButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                setVisible(false);
+                new PedidosView(idPedido);
+            }
+        });
+
+        deletarButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 setVisible(false);
@@ -127,19 +142,6 @@ public class PedidoView extends JFrame {
         });
     }
 
-    private void procurarItensPedido() {
-
-        List<Pizza> itensPedido = pedidoController.carregarItensPedido(this.idPedido);
-        if(itensPedido.isEmpty()) {
-            response.setText("Não possui pedidos.");
-            return;
-        }
-
-        lblPrecoTotal.setText(String.format("%.2f", getPrecoTotal(itensPedido)));
-        renderizarItensNaTabela(itensPedido);
-
-    }
-
     private Double getPrecoTotal(List<Pizza> itens){
         Double precoTotal = 0.0;
         for(Pizza pizza : itens){
@@ -147,4 +149,4 @@ public class PedidoView extends JFrame {
         }
         return precoTotal;
     }
-}
+    }

@@ -10,7 +10,7 @@ import java.util.List;
 
 public class ItemPedidoController {
     private final BancoDados banco = BancoDados.getInstancia();
-    private final PedidoController pedidoController = new PedidoController();
+    private final PedidosController pedidosController = new PedidosController();
 
 
     public void editarItemPedido(int idPedido, Pizza pizza, int idItem) {
@@ -21,7 +21,7 @@ public class ItemPedidoController {
     }
 
     public Pizza retornarItemPedido(int idPedido, int idItem) {
-        Pedido pedido = pedidoController.retornarPedidoPeloId(idPedido);
+        Pedido pedido = pedidosController.retornarPedidoPeloId(idPedido);
        Pizza itemBuscado = pedido.getItens().stream().filter(itemPedido -> itemPedido.getId() == idItem)
                .findFirst()
                .orElse(null);
@@ -30,7 +30,7 @@ public class ItemPedidoController {
     }
 
     public void adicionarItemPedido(int idPedido, Pizza pizza) {
-       Pedido pedido = pedidoController.retornarPedidoPeloId(idPedido);
+       Pedido pedido = pedidosController.retornarPedidoPeloId(idPedido);
        pedido.getItens().add(pizza);
     }
 
