@@ -1,7 +1,6 @@
 package model;
 
 public class Circulo extends Forma {
-    private final String formaPizza = "Círculo";
     private double raio;
 
     public Circulo() { }
