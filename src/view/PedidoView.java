@@ -14,41 +14,32 @@ import java.awt.event.ActionListener;
 import java.util.List;
 
 public class PedidoView extends JFrame {
-    private JTextField clienteField;
-    private JLabel clienteLabel;
     private JTable tableItensPedido;
     private JPanel tela;
     private JScrollPane itensPedidos;
     private JButton adicionarButton;
-    private JButton procurarButton;
     private JLabel response;
     private JButton btnEditar;
-    private JComboBox<StatusPedido> cbStatus;
     private JButton voltarButton;
     private JButton deletarButton;
     private JLabel lblPrecoTotal;
-    private ClienteController clienteController;
-    private PedidoController pedidoController;
-    private SaborController saborController;
+    private JLabel statusPedido;
+    private ClienteController clienteController = new ClienteController();
+    private PedidoController pedidoController = new PedidoController();
     private DefaultTableModel tableModel;
 
     private final BancoDados bd = BancoDados.getInstancia();
     private Cliente cliente = null;
     private int idPedido;
 
-    public PedidoView() {
-        this.inicializarTela();
-    }
-
     public PedidoView(int idPedido) {
         this.idPedido = idPedido;
         this.cliente = clienteController.buscarClientePorIdPedido(idPedido);
-        this.inicializarTela();
-        this.procurarItensPedido(this.cliente);
-        clienteField.setText(cliente.getTelefone());
-        cbStatus.setEnabled(true);
         Pedido pedido = pedidoController.retornarPedidoPeloId(idPedido);
-        cbStatus.setSelectedItem(pedido.getStatus());
+        statusPedido.setText(pedido.getStatus().toString());
+        this.inicializarTela();
+        this.procurarItensPedido();
+
     }
 
     private void renderizarItensNaTabela(List<Pizza> itensPedido) {
@@ -71,11 +62,9 @@ public class PedidoView extends JFrame {
 
     private void inicializarTela() {
         setContentPane(tela);
-        setTitle("Pedidos");
+        setTitle("Pedido");
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-
-        cbStatus.setModel(new DefaultComboBoxModel<>(StatusPedido.values()));
 
         this.tableModel = new DefaultTableModel(
                 new Object[][]{},
@@ -83,14 +72,10 @@ public class PedidoView extends JFrame {
         );
         tableItensPedido.setModel(tableModel);
 
-        clienteController = new ClienteController(tableModel);
-        pedidoController = new PedidoController();
-        saborController = new SaborController();
+        inicializarListeners();
 
         pack();
         setVisible(true);
-
-        inicializarListeners();
     }
 
     private void inicializarListeners() {
@@ -99,7 +84,7 @@ public class PedidoView extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 setVisible(false);
-                new MenuView();
+                new PedidosView(idPedido);
             }
         });
 
@@ -140,32 +125,9 @@ public class PedidoView extends JFrame {
 
             }
         });
-
-        procurarButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                cliente = clienteController.buscarClientePorTelefone(clienteField.getText());
-
-                procurarItensPedido(cliente);
-
-            }
-        });
-
-        cbStatus.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // O item selecionado
-                StatusPedido statusSelecionado = (StatusPedido) cbStatus.getSelectedItem();
-                pedidoController.alterarStatusPedido(idPedido, statusSelecionado);
-            }
-        });
     }
 
-    private void procurarItensPedido(Cliente cliente) {
-        if(cliente == null) {
-            response.setText("Cliente com o número " + clienteField.getText() + " não encontrado.");
-            return;
-        }
+    private void procurarItensPedido() {
 
         List<Pizza> itensPedido = pedidoController.carregarItensPedido(this.idPedido);
         if(itensPedido.isEmpty()) {

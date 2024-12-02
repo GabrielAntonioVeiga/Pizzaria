@@ -20,7 +20,7 @@ public class PedidosController {
     public List<Pedido> carregarPedidosPorCliente(Cliente cliente) {
         List<Pedido> pedidosCliente = new ArrayList<>();
         for(Pedido pedido : carregarPedidos()) {
-            if(pedido.getIdCliente() == cliente.getId()){
+            if(pedido.getCliente().getId() == cliente.getId()){
                 pedidosCliente.add(pedido);
             }
         }

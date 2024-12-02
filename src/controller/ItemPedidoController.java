@@ -52,8 +52,8 @@ public class ItemPedidoController {
 
         Cliente cliente = retornarClientePorId(idCliente);
         List<Pizza> itens = new ArrayList<>();
-        Pedido pedido = new Pedido(itens, idCliente);
-
+        Pedido pedido = new Pedido(itens, cliente);
+        banco.getPedidos().add(pedido);
         List<Pedido> pedidos = Arrays.asList(pedido);
         cliente.setPedidos(pedidos);
 

@@ -126,7 +126,7 @@ public class ClienteView extends JFrame {
     private void btnTrocarPaginaActionPerformed(ActionEvent e) {
         //Tela2 tela2 = new Tela2();
         this.dispose();
-        new PedidoView();
+        new PedidosView();
         //tela2.setVisible(true);
     }
 
