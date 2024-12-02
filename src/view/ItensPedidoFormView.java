@@ -45,6 +45,7 @@ public class ItensPedidoFormView extends JFrame {
     public ItensPedidoFormView(int idPedido, int idItem) {
         ehEdicao = true;
         this.idPedido = idPedido;
+        this.idItemSelecionado = idItem;
         this.inicializarTela();
         Pizza itemSelecionado = itemPedidoController.retornarItemPedido(idPedido, idItem);
         setarDadosPizza(itemSelecionado);

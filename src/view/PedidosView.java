@@ -129,6 +129,7 @@ public class PedidosView extends JFrame{
                             "Cliente não selecionado",
                             JOptionPane.INFORMATION_MESSAGE
                     );
+                    renderizarItensNaTabela(new ArrayList<>());
                     return;
                 }
                 int idPedido = itemPedidoController.criarPedidoCliente(cliente.getId());
@@ -142,6 +143,9 @@ public class PedidosView extends JFrame{
         int contador = 0;
 
         if(pedidos.isEmpty()) {
+            for(int i =0; i<tableModel.getRowCount(); i++){
+                tableModel.removeRow(i);
+            }
             return;
         }
 
