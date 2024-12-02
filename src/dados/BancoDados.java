@@ -1,6 +1,6 @@
 package dados;
 
-import enums.NomeTipoSabor;
+import enums.EnTipoSabor;
 import model.Cliente;
 import model.Pedido;
 import model.SaborPizza;
@@ -18,15 +18,15 @@ public class BancoDados {
 
     public List<TipoSabor> tiposSabores = new ArrayList<>(
             Arrays.asList(
-                    new TipoSabor(NomeTipoSabor.SIMPLES, 0.19),
-                    new TipoSabor(NomeTipoSabor.ESPECIAL, 0.25),
-                    new TipoSabor(NomeTipoSabor.PREMIUM, 0.30)
+                    new TipoSabor(EnTipoSabor.SIMPLES, 0.19),
+                    new TipoSabor(EnTipoSabor.ESPECIAL, 0.25),
+                    new TipoSabor(EnTipoSabor.PREMIUM, 0.30)
             )
     );
 
     public List<SaborPizza> sabores = new ArrayList<>(
             Arrays.asList(
-                    new SaborPizza("Pepperoni", tiposSabores.getFirst()),
+                    new SaborPizza("Pepperoni", tiposSabores.get(0)),
                     new SaborPizza("Calabresa", tiposSabores.get(1)),
                     new SaborPizza("Portuguesa", tiposSabores.get(2))
                     )

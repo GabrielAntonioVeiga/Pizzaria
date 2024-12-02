@@ -1,6 +1,6 @@
 package enums;
 
-public enum NomeTipoSabor {
+public enum EnTipoSabor {
     SIMPLES,
     ESPECIAL,
     PREMIUM

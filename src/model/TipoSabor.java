@@ -1,17 +1,17 @@
 package model;
 
-import enums.NomeTipoSabor;
+import enums.EnTipoSabor;
 
 public class TipoSabor {
-    private NomeTipoSabor nomeTipoSabor;
+    private EnTipoSabor nomeTipoSabor;
     private double precoCm2;
 
-    public TipoSabor(NomeTipoSabor nomeTipoSabor, double precoCm2) {
+    public TipoSabor(EnTipoSabor nomeTipoSabor, double precoCm2) {
         this.nomeTipoSabor = nomeTipoSabor;
         this.precoCm2 = precoCm2;
     }
 
-    public NomeTipoSabor getNome() {
+    public EnTipoSabor getNome() {
         return nomeTipoSabor;
     }
 
@@ -19,7 +19,7 @@ public class TipoSabor {
         return precoCm2;
     }
 
-    public void setNomeTipoSabor(NomeTipoSabor nomeTipoSabor) {
+    public void setNomeTipoSabor(EnTipoSabor nomeTipoSabor) {
         this.nomeTipoSabor = nomeTipoSabor;
     }
 

@@ -1,6 +1,6 @@
 package enums;
 
-public enum StatusPedido {
+public enum EnStatusPedido {
     ABERTO,
     A_CAMINHO,
     ENTREGUE

@@ -2,9 +2,7 @@ package view;
 
 import controller.SaborController;
 import controller.TipoSaborController;
-import dados.BancoDados;
-import enums.NomeTipoSabor;
-import model.Pedido;
+import enums.EnTipoSabor;
 import model.SaborPizza;
 import model.TipoSabor;
 
@@ -26,7 +24,7 @@ public class CadastrarSaborView extends JFrame {
     private JTable PizzasCadastradas;
     private JPanel LabelCadastraPizza;
     private JLabel BntTipoPizza;
-    private JComboBox<NomeTipoSabor> TipoPizzaBox;
+    private JComboBox<EnTipoSabor> TipoPizzaBox;
     private JLabel BntSaborPizza;
     private JTextField saborPizza;
     private JButton ConfirmarButton;
@@ -52,7 +50,7 @@ public class CadastrarSaborView extends JFrame {
 
         this.renderizarItensNaTabela();
 
-        TipoPizzaBox.setModel(new DefaultComboBoxModel<>(NomeTipoSabor.values()));
+        TipoPizzaBox.setModel(new DefaultComboBoxModel<>(EnTipoSabor.values()));
 
 
         ConfirmarButton.addActionListener(e -> {
@@ -82,7 +80,7 @@ public class CadastrarSaborView extends JFrame {
 
     private void finalizarOperacao(boolean ehEdicao) {
         String sabor = saborPizza.getText();
-        NomeTipoSabor nomeTipoSaborSelecionado = (NomeTipoSabor) TipoPizzaBox.getSelectedItem();
+        EnTipoSabor nomeTipoSaborSelecionado = (EnTipoSabor) TipoPizzaBox.getSelectedItem();
         TipoSabor tipoSabor = this.tipoSaborController.carregarTipoSaborPeloNome(nomeTipoSaborSelecionado);
         SaborPizza novoSabor = new SaborPizza(sabor, tipoSabor);
 

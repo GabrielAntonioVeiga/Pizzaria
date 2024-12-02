@@ -16,8 +16,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class ClienteController {
+
     private List<Cliente> clientes;
     private final BancoDados banco = BancoDados.getInstancia();
+    private PedidosController pedidosController = new PedidosController();
+
 
     public ClienteController() {
         this.clientes = banco.getClientes();
@@ -33,6 +36,8 @@ public class ClienteController {
     }
 
     public void removerCliente(int rowIndex) {
+        pedidosController.deletarPedidoPorCliente(clientes.get(rowIndex));
+
         if (rowIndex >= 0 && rowIndex < clientes.size()) {
             clientes.remove(rowIndex);
         }
