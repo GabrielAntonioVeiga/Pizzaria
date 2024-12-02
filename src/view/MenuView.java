@@ -31,20 +31,19 @@ public class MenuView extends JFrame{
             @Override
             public void actionPerformed(ActionEvent e) {
                 setVisible(false);
-                new PedidoView();
+                new PedidosView();
             }
         });
         sairButton.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent e) {
-                setVisible(false);
+            public void actionPerformed(ActionEvent e) {    System.exit(0);
             }
         });
         atualizarPreçosButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 setVisible(false);
-                AtualizarTipoSaborView atualizarTipoSaborView = new AtualizarTipoSaborView();
+                new AtualizarTipoSaborView();
 
             }
         });

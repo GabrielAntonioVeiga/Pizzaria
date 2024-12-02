@@ -3,6 +3,7 @@ package controller;
 import dados.BancoDados;
 import model.Cliente;
 import model.Pedido;
+import model.Pizza;
 import view.ClienteView;
 
 import javax.swing.*;
@@ -10,6 +11,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -45,20 +47,13 @@ public class ClienteController {
 
         }
     }
-
-    private void tfPesquisarClientePorTelefone(String telefone) {
-        if (!telefone.isEmpty()) {
-            filtrarTabela(telefone);
-        }
-    }
-
     private List<Cliente> filtrarTabela(String telefone) {
         return  clientes.stream().filter(cliente -> cliente.getTelefone().contains(telefone)).collect(Collectors.toList());
     }
 
     public Cliente buscarClientePorTelefone(String telefone) {
         Cliente clienteEncontrado = this.clientes.stream()
-                .filter(clienteBanco -> clienteBanco.getTelefone().replaceAll("[^\\d]", "").trim().equals(telefone.trim()))
+                .filter(clienteBanco -> clienteBanco.getTelefone().equals(telefone))
                 .findFirst()
                 .orElse(null);
 
@@ -85,4 +80,24 @@ public class ClienteController {
 
         return clienteEncontrado;
     }
+
+    public Cliente retornarClientePorId(int id) {
+        return banco.getClientes().stream()
+                .filter(clienteBanco -> clienteBanco.getId() == id)
+                .findFirst()
+                .orElse(null);
+    }
+
+    public int criarPedidoCliente(int idCliente) {
+
+        Cliente cliente = retornarClientePorId(idCliente);
+        List<Pizza> itens = new ArrayList<>();
+        Pedido pedido = new Pedido(itens, cliente);
+        banco.getPedidos().add(pedido);
+        List<Pedido> pedidos = new ArrayList<>(Arrays.asList(pedido));
+        cliente.setPedidos(pedidos);
+
+        return pedido.getId();
+    }
+
 }

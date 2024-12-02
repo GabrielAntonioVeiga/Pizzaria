@@ -8,7 +8,7 @@ import java.util.List;
 public class Pedido {
     private StatusPedido status = StatusPedido.ABERTO;
     private List<Pizza> itens;
-    private Double precoTotal;
+    private Double precoTotal=0.0;
     private static int idCounter = 0;
     private final int id;
     private Cliente cliente;
@@ -25,6 +25,18 @@ public class Pedido {
 
     public void setPrecoTotal(Double precoTotal) {
         this.precoTotal = precoTotal;
+    }
+
+    public Double calculaPrecoTotal() {
+        Double precoTotal = 0.0;
+        for(Pizza pizza : itens){
+            precoTotal += pizza.getPreco();
+        }
+        return precoTotal;
+    }
+
+    public Double getPrecoTotal() {
+        return precoTotal;
     }
 
     public void setItens(List<Pizza> itens) {

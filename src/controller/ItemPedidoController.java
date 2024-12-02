@@ -10,7 +10,7 @@ import java.util.List;
 
 public class ItemPedidoController {
     private final BancoDados banco = BancoDados.getInstancia();
-    private final PedidoController pedidoController = new PedidoController();
+    private final PedidosController pedidosController = new PedidosController();
 
 
     public void editarItemPedido(int idPedido, Pizza pizza, int idItem) {
@@ -18,10 +18,13 @@ public class ItemPedidoController {
 
         pizzaBanco.setForma(pizza.getForma());
         pizzaBanco.setSabores(pizza.getSabores());
+
+        double novoPreco = pizza.calculaPreco();
+        pizzaBanco.setPreco(novoPreco);
     }
 
     public Pizza retornarItemPedido(int idPedido, int idItem) {
-        Pedido pedido = pedidoController.retornarPedidoPeloId(idPedido);
+        Pedido pedido = pedidosController.retornarPedidoPeloId(idPedido);
        Pizza itemBuscado = pedido.getItens().stream().filter(itemPedido -> itemPedido.getId() == idItem)
                .findFirst()
                .orElse(null);
@@ -30,34 +33,19 @@ public class ItemPedidoController {
     }
 
     public void adicionarItemPedido(int idPedido, Pizza pizza) {
-       Pedido pedido = pedidoController.retornarPedidoPeloId(idPedido);
-       pedido.getItens().add(pizza);
+        Pedido pedido = pedidosController.retornarPedidoPeloId(idPedido);
+        pedido.getItens().add(pizza);
+        double precoTotal = pedido.calculaPrecoTotal();
+        pedido.setPrecoTotal(precoTotal);
     }
 
-    public Cliente retornarClientePorTelefone(String telefone) {
-     return banco.getClientes().stream()
-                .filter(clienteBanco -> clienteBanco.getTelefone().equals(telefone))
-                .findFirst()
-                .orElse(null);
-    }
+    public void deletarItemPedido(int idPedido, int idItem) {
+        Pedido pedido = pedidosController.retornarPedidoPeloId(idPedido);
+        Pizza itemPedido = retornarItemPedido(idPedido, idItem);
+        pedido.getItens().remove(itemPedido);
 
-    public Cliente retornarClientePorId(int id) {
-        return banco.getClientes().stream()
-                .filter(clienteBanco -> clienteBanco.getId() == id)
-                .findFirst()
-                .orElse(null);
-    }
-
-    public int criarPedidoCliente(int idCliente) {
-
-        Cliente cliente = retornarClientePorId(idCliente);
-        List<Pizza> itens = new ArrayList<>();
-        Pedido pedido = new Pedido(itens, cliente);
-
-        List<Pedido> pedidos = Arrays.asList(pedido);
-        cliente.setPedidos(pedidos);
-
-        return pedido.getId();
+        double precoTotal = pedido.calculaPrecoTotal();
+        pedido.setPrecoTotal(precoTotal);
     }
 
 
