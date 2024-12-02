@@ -15,7 +15,7 @@ public class BancoDados {
     private static BancoDados instancia;
 
     public static List<Cliente> clientes = new ArrayList<>();
-    public List<SaborPizza> sabores = new ArrayList<>();
+
     public List<TipoSabor> tiposSabores = new ArrayList<>(
             Arrays.asList(
                     new TipoSabor(NomeTipoSabor.SIMPLES, 1),
@@ -24,6 +24,13 @@ public class BancoDados {
             )
     );
 
+    public List<SaborPizza> sabores = new ArrayList<>(
+            Arrays.asList(
+                    new SaborPizza("Pepperoni", tiposSabores.getFirst()),
+                    new SaborPizza("Calabresa", tiposSabores.get(1)),
+                    new SaborPizza("Portuguesa", tiposSabores.get(2))
+                    )
+    );
     public List<Pedido> pedidos = new ArrayList<>();
 
 
@@ -45,19 +52,7 @@ public class BancoDados {
         return tiposSabores;
     }
 
-    public List<SaborPizza> getSabores() {
-            SaborPizza sabor1 = new SaborPizza("Pepperoni", tiposSabores.get(0));
-            SaborPizza sabor2 = new SaborPizza("Calabresa", tiposSabores.get(1));
-            SaborPizza sabor3 = new SaborPizza("Portuguesa", tiposSabores.get(2));
-
-            sabores.clear();
-            sabores.add(sabor1);
-            sabores.add(sabor2);
-            sabores.add(sabor3);
-            List<SaborPizza> saborPizzaList;
-
-        return sabores;
-    }
+    public List<SaborPizza> getSabores() { return sabores; }
 
     public List<Pedido> getPedidos() {
         return pedidos;

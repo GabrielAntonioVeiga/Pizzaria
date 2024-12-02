@@ -7,6 +7,11 @@ import javax.swing.*;
 
 public class SaborPizza {
     private String nome;
+
+    public void setTipoSabor(TipoSabor tipoSabor) {
+        this.tipoSabor = tipoSabor;
+    }
+
     private TipoSabor tipoSabor;
     public SaborPizza(String nome, TipoSabor tipoSabor) {
         this.tipoSabor = tipoSabor;

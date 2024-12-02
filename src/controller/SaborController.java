@@ -9,16 +9,29 @@ import java.util.List;
 
 public class SaborController {
     private final BancoDados banco = BancoDados.getInstancia();
+    private final TipoSaborController tipoSaborController = new TipoSaborController()  ;
 
     public List<SaborPizza> carregarSabores() {
         return banco.getSabores();
     }
 
-    public void adicionarSabor(String nomeSabor, NomeTipoSabor tipoSaborEnum, double precoPorCm2) {
-        TipoSabor tipoSabor = new TipoSabor(tipoSaborEnum, precoPorCm2);
-        SaborPizza novoSabor = new SaborPizza(nomeSabor, tipoSabor);
+    public void adicionarSabor(SaborPizza novoSabor) {
         BancoDados.getInstancia().getSabores().add(novoSabor);
     }
+
+    public void atualizarSabor(SaborPizza novoSabor, String nomeAtual) {
+       SaborPizza sabor = carregarSaborPeloNome(nomeAtual);
+       sabor.setNome(novoSabor.getNome());
+       sabor.setTipoSabor(novoSabor.getTipoSabor());
+    }
+
+    public SaborPizza carregarSaborPeloNome(String nome) {
+        return this.carregarSabores().stream()
+                .filter(sabor -> sabor.getNome().equals(nome))
+                .findFirst()
+                .orElse(null);
+    }
+
 
 
 }
