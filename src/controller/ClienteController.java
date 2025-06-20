@@ -1,6 +1,9 @@
 package controller;
 
 import dados.BancoDados;
+import dao.cliente.ClienteDao;
+import dao.cliente.IClienteDao;
+import factory.DAOFactory;
 import model.Cliente;
 import model.Pedido;
 import model.Pizza;
@@ -16,62 +19,95 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class ClienteController {
+    private ClienteDao clienteDao = DAOFactory.getClienteDao();
+    private ClienteView view;
 
-    private List<Cliente> clientes;
-    private final BancoDados banco = BancoDados.getInstancia();
-    private PedidosController pedidosController = new PedidosController();
-
-
-    public ClienteController() {
-        this.clientes = banco.getClientes();
+    public ClienteController(ClienteView view) {
+        this.view = view;
     }
 
     public List<Cliente> buscarClientes() {
-        return this.clientes;
+        return clienteDao.listar();
     }
 
-    public void adicionarCliente(String nome, String sobrenome, String telefone) {
+    public void adicionarCliente() {
+
+        String nome = view.getNome();
+        String sobrenome = view.getSobrenome();
+        String telefone = view.getTelefone();
+
+
+        String telefoneFormatado = telefone.replaceAll("[^\\d]", "");
+
+        if (nome.isEmpty() || sobrenome.isEmpty() || telefone.isEmpty()) {
+            view.exibirMensagemErro("Por favor, insira todos os valores do cliente!");
+            return;
+        }
+
+        if (!(telefoneFormatado.length() >= 10 && telefoneFormatado.length() <= 15)) {
+            view.exibirMensagemErro("Por favor, insira um telefone válido!");
+            return;
+        }
+
+        boolean telefoneExistente = buscarClientes().stream()
+                .anyMatch(c -> c.getTelefone().equals(telefoneFormatado));
+
+        if (telefoneExistente) {
+            view.exibirMensagemErro("Já existe um cliente com esse telefone!");
+            return;
+        }
+
         Cliente cliente = new Cliente(nome, sobrenome, telefone);
-        clientes.add(cliente);
+        clienteDao.salvar(cliente);
+
+        view.exibirMensagemSucesso("Cliente cadastrado com sucesso!");
+        view.limparCampos();
+        view.adicionarNaTabela(cliente);
     }
 
-    public void removerCliente(int rowIndex) {
-        pedidosController.deletarPedidoPorCliente(clientes.get(rowIndex));
-
-        if (rowIndex >= 0 && rowIndex < clientes.size()) {
-            clientes.remove(rowIndex);
+    public void removerCliente(Long id) {
+        Cliente cliente = buscarClientePorId(id);
+        if (cliente != null) {
+            pedidosController.deletarPedidoPorCliente(id);
+            clienteDao.remover(id);
+            view.removerNaTabela(id);
+            view.exibirMensagemSucesso("Cliente removido com sucesso!");
+        } else {
+            view.exibirMensagemErro("Cliente não encontrado");
         }
     }
 
-    public void editarCliente(int rowIndex, String nome, String sobrenome, String telefone) {
-        if (rowIndex >= 0 && rowIndex < clientes.size()) {
-            Cliente cliente = clientes.get(rowIndex);
+    public void editarCliente(Long idSelecionado, String nome, String sobrenome, String telefone) {
+        if (nome.isEmpty() || sobrenome.isEmpty() || telefone.isEmpty()) {
+            view.exibirMensagemErro("Todos os campos devem ser preenchidos.");
+            return;
+        }
+
+        String telefoneFormatado = telefone.replaceAll("[^\\d]", "");
+
+        if (!(telefoneFormatado.length() >= 10 && telefoneFormatado.length() <= 15)) {
+            view.exibirMensagemErro("Telefone inválido.");
+            return;
+        }
+
+        Cliente cliente = buscarClientePorId(idSelecionado);
+        if (cliente != null) {
             cliente.setNome(nome);
             cliente.setSobrenome(sobrenome);
-            cliente.setTelefone(telefone);
-
+            cliente.setTelefone(telefoneFormatado);
+            clienteDao.atualizar(cliente);
+            view.exibirMensagemSucesso("Cliente editado com sucesso!");
+        } else {
+            view.exibirMensagemErro("Cliente não encontrado.");
         }
-    }
-    private List<Cliente> filtrarTabela(String telefone) {
-        return  clientes.stream().filter(cliente -> cliente.getTelefone().contains(telefone)).collect(Collectors.toList());
     }
 
     public Cliente buscarClientePorTelefone(String telefone) {
-        Cliente clienteEncontrado = this.clientes.stream()
-                .filter(clienteBanco -> clienteBanco.getTelefone().equals(telefone))
-                .findFirst()
-                .orElse(null);
-
-        return clienteEncontrado;
+        return clienteDao.listarPorTelefone(telefone);
     }
 
-    public Cliente buscarClientePorId(int id) {
-        Cliente clienteEncontrado = this.clientes.stream()
-                .filter(clienteBanco -> clienteBanco.getId() == id)
-                .findFirst()
-                .orElse(null);
-
-        return clienteEncontrado;
+    public Cliente buscarClientePorId(Long id) {
+        return clienteDao.listarPorId(id);
     }
 
 
@@ -86,16 +122,9 @@ public class ClienteController {
         return clienteEncontrado;
     }
 
-    public Cliente retornarClientePorId(int id) {
-        return banco.getClientes().stream()
-                .filter(clienteBanco -> clienteBanco.getId() == id)
-                .findFirst()
-                .orElse(null);
-    }
+    public int criarPedidoCliente(Long idCliente) {
 
-    public int criarPedidoCliente(int idCliente) {
-
-        Cliente cliente = retornarClientePorId(idCliente);
+        Cliente cliente = buscarClientePorId(idCliente);
         List<Pizza> itens = new ArrayList<>();
         Pedido pedido = new Pedido(itens, cliente);
         banco.getPedidos().add(pedido);

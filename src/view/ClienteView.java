@@ -37,7 +37,7 @@ public class ClienteView extends JFrame {
         setSize(450, 300);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        clienteController = new ClienteController();
+        clienteController = new ClienteController(this);
 
         btnCriar.addActionListener(this::btnAddActionPerformed);
         btnDeletar.addActionListener(this::btnDeleteActionPerformed);
@@ -153,7 +153,7 @@ public class ClienteView extends JFrame {
     private void inicializarTabela() {
         this.tableModel = new DefaultTableModel(
                 new Object[][]{},
-                new String[]{"Nome", "Sobrenome", "Telefone"}
+                new String[]{"ID", "Nome", "Sobrenome", "Telefone"}
         );
         tabelaCliente.setModel(tableModel);
         this.carregarClientes(clienteController.buscarClientes());
@@ -164,6 +164,7 @@ public class ClienteView extends JFrame {
 
         for (Cliente cliente : clientes) {
             tableModel.addRow(new Object[]{
+                    cliente.getId(),
                     cliente.getNome(),
                     cliente.getSobrenome(),
                     formatarTelefoneParaExibicao(cliente.getTelefone())
@@ -190,32 +191,38 @@ public class ClienteView extends JFrame {
         sorter.setRowFilter(rowFilter);
     }
 
+    public String getNome() {
+        return tfNome.getText();
+    }
+
+    public String getSobrenome() {
+        return tfSobrenome.getText();
+    }
+
+    public String getTelefone() {
+        return tfTelefone.getText();
+    }
+
+    public void exibirMensagemErro(String mensagem) {
+        JOptionPane.showMessageDialog(this, mensagem, "Erro", JOptionPane.ERROR_MESSAGE);
+    }
+
+    public void exibirMensagemSucesso(String mensagem) {
+        JOptionPane.showMessageDialog(this, mensagem, "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    public void limparCampos() {
+        tfNome.setText("");
+        tfSobrenome.setText("");
+        tfTelefone.setText("");
+    }
+
+    public void adicionarNaTabela(Cliente cliente) {
+        tableModel.addRow(new Object[]{cliente.getNome(), cliente.getSobrenome(), cliente.getTelefone()});
+    }
+
     private void btnAddActionPerformed(ActionEvent e) {
-        String nome = tfNome.getText();
-        String sobrenome = tfSobrenome.getText();
-        String telefone = tfTelefone.getText();
-
-        String telefoneFormatado = telefone.replaceAll("[^\\d]", "");
-
-        if (nome.isEmpty() || sobrenome.isEmpty() || telefone.isEmpty()) {
-            JOptionPane.showMessageDialog(this,
-                    "Por favor, insira todos os valores do cliente!",
-                    "Erro", JOptionPane.ERROR_MESSAGE);
-        } else if (!(telefoneFormatado.length() >= 10 && telefoneFormatado.length() <= 15)) {
-            JOptionPane.showMessageDialog(this,
-                    "Por favor, insira um telefone válido!",
-                    "Erro", JOptionPane.ERROR_MESSAGE);
-        } else if (clienteController.buscarClientes().stream().anyMatch(cliente -> cliente.getTelefone().equals(telefoneFormatado))) {
-            JOptionPane.showMessageDialog(this,
-                    "Já existe um cliente com esse telefone!",
-                    "Erro", JOptionPane.ERROR_MESSAGE);
-        } else {
-            clienteController.adicionarCliente(nome, sobrenome, telefoneFormatado);
-            tfNome.setText("");
-            tfSobrenome.setText("");
-            tfTelefone.setText("");
-            tableModel.addRow(new Object[]{nome, sobrenome, telefone});
-        }
+        clienteController.adicionarCliente();
     }
 
     private void btnTrocarPaginaActionPerformed(ActionEvent e) {
@@ -228,37 +235,38 @@ public class ClienteView extends JFrame {
         int row = tabelaCliente.getSelectedRow();
 
         if(row < 0) {
-            JOptionPane.showMessageDialog(this,
-                    "Nenhum cliente selecionado para deleção!",
-                    "Erro", JOptionPane.ERROR_MESSAGE);
-        } else {
-            clienteController.removerCliente(row);
-
-            tableModel.removeRow(row);
+            exibirMensagemErro("Nenhum cliente selecionado para deleção!");
+            return;
         }
 
+            Long id = (Long) tabelaCliente.getValueAt(row, 0);
+            clienteController.removerCliente(id);
+    }
+
+    public void removerNaTabela(Long idCliente) {
+        for (int i = 0; i < tableModel.getRowCount(); i++) {
+            int idNaTabela = (int) tableModel.getValueAt(i, 0);
+            if (idNaTabela == idCliente) {
+                tableModel.removeRow(i);
+                break;
+            }
+        }
     }
 
     private void btnEditarActionPerformed(ActionEvent e) {
         int row = tabelaCliente.getSelectedRow();
-
-        if(row < 0) {
-            JOptionPane.showMessageDialog(this,
-                    "Nenhum cliente selecionado para edição!",
-                    "Erro", JOptionPane.ERROR_MESSAGE);
-        } else {
-            String nome = tabelaCliente.getValueAt(row, 0).toString();
-            String sobrenome = tabelaCliente.getValueAt(row, 1).toString();
-            String telefone = tabelaCliente.getValueAt(row, 2).toString();
-
-            clienteController.editarCliente(row, nome, sobrenome, telefone);
-            tableModel.setValueAt(nome, row, 0);
-            tableModel.setValueAt(sobrenome, row, 1);
-            tableModel.setValueAt(telefone, row, 2);
-            JOptionPane.showMessageDialog(this,
-                    new StringBuilder("Cliente ").append(nome).append(" editado com sucesso!"),
-                    "Edição", JOptionPane.PLAIN_MESSAGE);
+        if (row < 0) {
+            exibirMensagemErro("Nenhum cliente selecionado para edição!");
+            return;
         }
+
+        Long id = (Long) tabelaCliente.getValueAt(row, 0);
+        String nome = tabelaCliente.getValueAt(row, 1).toString();
+        String sobrenome = tabelaCliente.getValueAt(row, 2).toString();
+        String telefone = tabelaCliente.getValueAt(row, 3).toString();
+
+        clienteController.editarCliente(id, nome, sobrenome, telefone);
+        carregarClientes(clienteController.buscarClientes());
     }
 
     private String formatarTelefoneParaExibicao(String telefone) {

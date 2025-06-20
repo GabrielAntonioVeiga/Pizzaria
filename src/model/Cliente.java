@@ -4,27 +4,40 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Cliente {
+    private Long id;
     private String nome;
     private String sobrenome;
     private String telefone;
 
-    public void setPedidos(List<Pedido> pedidos) {
-        this.pedidos = pedidos;
-    }
-
     private List<Pedido> pedidos = new ArrayList<>();
-    private static int idCounter = 0;
-    private final int id;
+
+
+
+    public Cliente(Long id, String nome, String sobrenome, String telefone) {
+        this.nome = nome;
+        this.sobrenome = sobrenome;
+        this.telefone = telefone;
+        this.id = id;
+    }
 
     public Cliente(String nome, String sobrenome, String telefone) {
         this.nome = nome;
         this.sobrenome = sobrenome;
         this.telefone = telefone;
-        this.id = ++idCounter;
     }
 
-    public int getId() {
+    public Long getId() {
         return id;
+    }
+
+    public void setId(Long id) {this.id = id;}
+
+    public List<Pedido> getPedidos() {
+        return pedidos;
+    }
+
+    public void setPedidos(List<Pedido> pedidos) {
+        this.pedidos = pedidos;
     }
 
     public String getNome() {
@@ -49,10 +62,6 @@ public class Cliente {
 
     public void setTelefone(String telefone) {
         this.telefone = telefone;
-    }
-
-    public List<Pedido> getPedidos() {
-        return pedidos;
     }
 
     public void addPedido(Pedido pedido) {
