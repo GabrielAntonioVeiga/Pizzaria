@@ -1,32 +1,55 @@
 package controller;
 
 import dados.BancoDados;
+import dao.sabor.ITipoSaborDao;
+import dao.sabor.TipoSaborDao;
 import enums.EnTipoSabor;
+import factory.DAOFactory;
 import model.TipoSabor;
 
+import javax.swing.*;
+import java.sql.PreparedStatement;
 import java.util.List;
 
 public class TipoSaborController {
-    private final BancoDados banco = BancoDados.getInstancia();
+    private final ITipoSaborDao dao;
+    private final SaborController saborController = new SaborController(DAOFactory.getSaborDao());
+
+    public TipoSaborController(ITipoSaborDao dao) {
+        this.dao = dao;
+    }
 
     public void atualizarPreco(EnTipoSabor nomeTipoSabor, double novoPreco) {
+        TipoSabor tipoExistente = dao.buscarPorTipo(nomeTipoSabor.toString());
+        if(tipoExistente == null) {
+            JOptionPane.showMessageDialog(
+                    null,
+                    "Tipo não encontrado!",
+                    "Erro",
+                    JOptionPane.ERROR_MESSAGE
+            );
+            return;
+        }
 
-        TipoSabor tipoSaborEncontrado = banco.getTiposSabores().stream()
-                .filter(tipo -> tipo.getNome().equals(nomeTipoSabor))
-                .findFirst()
-                .orElse(null);
+        dao.atualizar(new TipoSabor(nomeTipoSabor, novoPreco));
+        atualizarPrecoSabores(nomeTipoSabor.toString(), novoPreco);
+        JOptionPane.showMessageDialog(
+                null,
+                "Preço atualizado com sucesso!",
+                "Sucesso ao atualizar preço",
+                JOptionPane.INFORMATION_MESSAGE
+        );
+    }
 
-        tipoSaborEncontrado.setPrecoCm2(novoPreco);
+    public TipoSabor buscarPorTipo(String tipo) {
+        return dao.buscarPorTipo(tipo);
     }
 
     public List<TipoSabor> carregarTipoSabores() {
-        return banco.getTiposSabores();
+        return dao.listar();
     }
 
-    public TipoSabor carregarTipoSaborPeloNome(EnTipoSabor nome) {
-        return carregarTipoSabores().stream()
-                .filter(tipoSabor -> tipoSabor.getNome() == nome)
-                .findFirst()
-                .orElse(null);
+    private void atualizarPrecoSabores(String tipo, Double preco) {
+        saborController.atualizarPrecoSabores(tipo, preco);
     }
 }
