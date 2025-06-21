@@ -7,16 +7,18 @@ import factory.DAOFactory;
 import model.SaborPizza;
 
 import javax.swing.*;
+import java.sql.PreparedStatement;
 import java.util.List;
 
 public class SaborController {
-    private final ISaborDao saborDao = DAOFactory.getSaborDao();
+    private final ISaborDao dao;
 
-    public SaborController() {
+    public SaborController(ISaborDao dao) {
+        this.dao = dao;
     }
 
     public List<SaborPizza> carregarSabores() {
-        return saborDao.listar();
+        return dao.listar();
     }
 
     public void adicionarOuEditar(SaborPizza sabor, String nomeAtual, boolean ehEdicao, int selectedRow) {
@@ -45,7 +47,7 @@ public class SaborController {
 
             atualizarSabor(sabor, nomeAtual);
         } else {
-            SaborPizza saborExistente = saborDao.buscarPorNome(sabor.getNome());
+            SaborPizza saborExistente = dao.buscarPorNome(sabor.getNome());
             if(saborExistente != null) {
                 JOptionPane.showMessageDialog(
                         null,
@@ -60,25 +62,27 @@ public class SaborController {
     }
 
     public void adicionarSabor(SaborPizza novoSabor) {
-        saborDao.salvar(novoSabor);
+        dao.salvar(novoSabor);
         JOptionPane.showMessageDialog(null,
                 "Sabor salvo com sucesso!",
                 "Sucesso!", JOptionPane.PLAIN_MESSAGE);
     }
 
     public void atualizarSabor(SaborPizza novoSabor, String nomeAtual) {
-       SaborPizza sabor = saborDao.buscarPorNome(nomeAtual);
+       SaborPizza sabor = dao.buscarPorNome(nomeAtual);
        sabor.setNome(novoSabor.getNome());
        sabor.setTipoSabor(novoSabor.getTipoSabor());
-       saborDao.atualizar(sabor);
+       dao.atualizar(sabor);
     JOptionPane.showMessageDialog(null,
             "Sabor atualizado com sucesso!",
             "Sucesso!", JOptionPane.PLAIN_MESSAGE);
     }
 
     public void deletarSabor(String nome) {
-        saborDao.removerPorNome(nome);
+        dao.removerPorNome(nome);
     }
 
-
+    public void atualizarPrecoSabores(String tipo, Double preco) {
+        dao.atualizarPrecoSabores(tipo, preco);
+    }
 }

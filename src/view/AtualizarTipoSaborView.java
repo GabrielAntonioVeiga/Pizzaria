@@ -2,6 +2,7 @@ package view;
 
 import controller.SaborController;
 import controller.TipoSaborController;
+import factory.DAOFactory;
 import model.TipoSabor;
 
 import javax.swing.*;
@@ -15,8 +16,7 @@ public class AtualizarTipoSaborView extends JFrame {
     private JTextField tfPreco;
     private JPanel tela;
     private JButton btnConfirmar;
-    private SaborController saborController = new SaborController();
-    private TipoSaborController tipoSaborController = new TipoSaborController();
+    private TipoSaborController tipoSaborController = new TipoSaborController(DAOFactory.getTipoSaborDao());
 
     public AtualizarTipoSaborView() {
         setContentPane(tela);
@@ -44,13 +44,8 @@ public class AtualizarTipoSaborView extends JFrame {
             double novoPreco = Double.parseDouble(tfPreco.getText());
             TipoSabor tipoSaborEscolhido = (TipoSabor) cbTipoSabor.getSelectedItem();
 
+            assert tipoSaborEscolhido != null;
             tipoSaborController.atualizarPreco(tipoSaborEscolhido.getNome(), novoPreco);
-            JOptionPane.showMessageDialog(
-                    tela,
-                    "Preço atualizado com sucesso!",
-                    "Sucesso ao atualizar preço",
-                    JOptionPane.INFORMATION_MESSAGE
-            );
             setVisible(false);
             new MenuView();
 

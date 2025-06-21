@@ -31,6 +31,7 @@ public class SaborDao implements ISaborDao{
             stmt.setString(2, sabor.getTipoSabor().getNome().toString());
             stmt.setDouble(3, sabor.getTipoSabor().getPrecoCm2());
             stmt.executeUpdate();
+            stmt.close();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -44,6 +45,7 @@ public class SaborDao implements ISaborDao{
             PreparedStatement stmt = con.prepareStatement(sql);
             stmt.setString(1, nome);
             stmt.executeUpdate();
+            stmt.close();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -65,6 +67,8 @@ public class SaborDao implements ISaborDao{
             if (linhasAfetadas == 0) {
                 throw new RuntimeException("Nenhum sabor foi atualizado. ID não encontrado: " + sabor.getId());
             }
+
+            stmt.close();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -127,4 +131,17 @@ public class SaborDao implements ISaborDao{
         return sabores;
     }
 
+    public void atualizarPrecoSabores(String tipo, Double preco) {
+        String sql = "UPDATE sabor SET preco_cm2 = ? WHERE tipo = ?";
+
+        try {
+            PreparedStatement stmt = con.prepareStatement(sql);
+            stmt.setDouble(1, preco);
+            stmt.setString(2, tipo);
+            stmt.executeUpdate();
+            stmt.close();
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao atualizar preco dos sabores", e);
+        }
+    }
 }

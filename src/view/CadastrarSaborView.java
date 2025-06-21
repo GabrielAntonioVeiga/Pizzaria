@@ -3,6 +3,7 @@ package view;
 import controller.SaborController;
 import controller.TipoSaborController;
 import enums.EnTipoSabor;
+import factory.DAOFactory;
 import model.SaborPizza;
 import model.TipoSabor;
 
@@ -31,8 +32,8 @@ public class CadastrarSaborView extends JFrame {
     private JButton voltaMenuButton;
 
     private DefaultTableModel tableModel;
-    private SaborController saborController = new SaborController();
-    private TipoSaborController tipoSaborController = new TipoSaborController();
+    private SaborController saborController = new SaborController(DAOFactory.getSaborDao());
+    private TipoSaborController tipoSaborController = new TipoSaborController(DAOFactory.getTipoSaborDao());
 
     public CadastrarSaborView() {
         setContentPane(CadastraPizza);
@@ -80,7 +81,7 @@ public class CadastrarSaborView extends JFrame {
     private void finalizarOperacao(boolean ehEdicao) {
         String sabor = saborPizza.getText();
         EnTipoSabor nomeTipoSaborSelecionado = (EnTipoSabor) TipoPizzaBox.getSelectedItem();
-        TipoSabor tipoSabor = this.tipoSaborController.carregarTipoSaborPeloNome(nomeTipoSaborSelecionado);
+        TipoSabor tipoSabor = this.tipoSaborController.buscarPorTipo(nomeTipoSaborSelecionado.toString());
         SaborPizza novoSabor = new SaborPizza(sabor, tipoSabor);
         String saborAtual = "";
         int selectedRow = 0;
