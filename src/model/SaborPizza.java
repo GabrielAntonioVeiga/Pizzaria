@@ -1,29 +1,40 @@
 package model;
+import enums.EnTipoSabor;
+
 import java.util.Objects;
 
 public class SaborPizza {
+    private Long id;
     private String nome;
-
-    public void setTipoSabor(TipoSabor tipoSabor) {
-        this.tipoSabor = tipoSabor;
-    }
-
     private TipoSabor tipoSabor;
+
     public SaborPizza(String nome, TipoSabor tipoSabor) {
         this.tipoSabor = tipoSabor;
         this.nome = nome;
     }
 
+    public SaborPizza(Long id, String nome, String tipo, Double precoCm2) {
+        this.id = id;
+        this.nome = nome;
+        this.tipoSabor = new TipoSabor(EnTipoSabor.valueOf(tipo), precoCm2);
+    }
+
+    public Long getId() {
+        return id;
+    }
+
     public String getNome() {
         return nome;
+    }
+    public void setNome(String nome) {
+        this.nome = nome;
     }
 
     public TipoSabor getTipoSabor() {
         return tipoSabor;
     }
-
-    public void setNome(String nome) {
-        this.nome = nome;
+    public void setTipoSabor(TipoSabor tipoSabor) {
+        this.tipoSabor = tipoSabor;
     }
 
     @Override
