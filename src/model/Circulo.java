@@ -1,5 +1,7 @@
 package model;
 
+import enums.EnForma;
+
 public class Circulo extends Forma {
     private double raio;
 
@@ -8,6 +10,10 @@ public class Circulo extends Forma {
     @Override
     public void setDimensao(double raio) {
         this.raio = raio;
+    }
+
+    public double getRaio() {
+        return raio;
     }
 
     @Override
@@ -37,6 +43,6 @@ public class Circulo extends Forma {
 
     @Override
     public String getNomeForma() {
-        return "Circulo";
+        return EnForma.CIRCULO.getNome();
     }
 }

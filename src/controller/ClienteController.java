@@ -1,29 +1,29 @@
 package controller;
 
-import dados.BancoDados;
-import dao.cliente.ClienteDao;
 import dao.cliente.IClienteDao;
+import dao.pedido.IPedidoDao;
 import factory.DAOFactory;
 import model.Cliente;
 import model.Pedido;
 import model.Pizza;
 import view.ClienteView;
 
-import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
-import javax.swing.table.TableRowSorter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class ClienteController {
-    private ClienteDao clienteDao = DAOFactory.getClienteDao();
+    private IClienteDao clienteDao = DAOFactory.getClienteDao();
     private ClienteView view;
+
+    private IPedidoDao pedidoDao = DAOFactory.getPedidoDao();
 
     public ClienteController(ClienteView view) {
         this.view = view;
+    }
+
+    public ClienteController() {
+
     }
 
     public List<Cliente> buscarClientes() {
@@ -62,15 +62,12 @@ public class ClienteController {
 
         view.exibirMensagemSucesso("Cliente cadastrado com sucesso!");
         view.limparCampos();
-        view.adicionarNaTabela(cliente);
     }
 
     public void removerCliente(Long id) {
         Cliente cliente = buscarClientePorId(id);
         if (cliente != null) {
-            pedidosController.deletarPedidoPorCliente(id);
             clienteDao.remover(id);
-            view.removerNaTabela(id);
             view.exibirMensagemSucesso("Cliente removido com sucesso!");
         } else {
             view.exibirMensagemErro("Cliente não encontrado");
@@ -111,23 +108,16 @@ public class ClienteController {
     }
 
 
-    public Cliente buscarClientePorIdPedido(int idPedido) {
-
-        Cliente clienteEncontrado = this.banco.getPedidos().stream()
-                .filter(pedido -> pedido.getId() == idPedido)
-                .findFirst()
-                .orElse(null)
-                .getCliente();
-
-        return clienteEncontrado;
+    public Cliente buscarClientePorIdPedido(Long idPedido) {
+        return clienteDao.listarPorPedido(idPedido);
     }
 
-    public int criarPedidoCliente(Long idCliente) {
+    public Long criarPedidoCliente(Long idCliente) {
 
         Cliente cliente = buscarClientePorId(idCliente);
         List<Pizza> itens = new ArrayList<>();
         Pedido pedido = new Pedido(itens, cliente);
-        banco.getPedidos().add(pedido);
+        pedidoDao.salvar(pedido);
         List<Pedido> pedidos = new ArrayList<>(Arrays.asList(pedido));
         cliente.setPedidos(pedidos);
 

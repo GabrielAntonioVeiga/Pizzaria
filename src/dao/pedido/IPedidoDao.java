@@ -1,12 +1,16 @@
 package dao.pedido;
 
 import model.Cliente;
+import model.Pedido;
 
 import java.util.List;
 
 public interface IPedidoDao {
-    void salvar (Cliente cliente);
+    void salvar (Pedido pedido);
     void remover (Long id);
-    void atualizar (Cliente cliente);
-    List<Cliente> listar();
+    void atualizar (Pedido pedido);
+    List<Pedido> listar();
+    List<Pedido> listarPorCliente(Cliente cliente);
+    Pedido listarPorId(Long id);
+    void alterarPrecoPedido(Long id, Double preco);
 }

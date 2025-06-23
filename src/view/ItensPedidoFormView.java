@@ -1,9 +1,7 @@
 package view;
 
 import controller.ItemPedidoController;
-import controller.PedidosController;
 import controller.SaborController;
-import dados.BancoDados;
 import model.*;
 
 import javax.swing.*;
@@ -29,22 +27,20 @@ public class ItensPedidoFormView extends JFrame {
     private JLabel lblPrecoPizza;
 
 
-    int idItemSelecionado = 0;
-    int idPedido = 0;
+    Long idItemSelecionado = 0L;
+    Long idPedido = 0L;
 
     boolean ehEdicao = false;
     ItemPedidoController itemPedidoController = new ItemPedidoController();
     SaborController saborController = new SaborController();
 
 
-    private BancoDados banco = BancoDados.getInstancia();
-
-    public ItensPedidoFormView(int idPedido) {
+    public ItensPedidoFormView(Long idPedido) {
         this.idPedido = idPedido;
         this.inicializarTela();
     }
 
-    public ItensPedidoFormView(int idPedido, int idItem) {
+    public ItensPedidoFormView(Long idPedido, Long idItem) {
         ehEdicao = true;
         this.idPedido = idPedido;
         this.idItemSelecionado = idItem;
@@ -332,7 +328,7 @@ public class ItensPedidoFormView extends JFrame {
             List<SaborPizza> SaboresEscolhidos = getSaboresEscolhidos(validarCampos);
 
 
-            return new Pizza(formaEscolhida, SaboresEscolhidos);
+            return new Pizza(null, formaEscolhida, SaboresEscolhidos);
         }
         catch (Exception e) {
             throw e;

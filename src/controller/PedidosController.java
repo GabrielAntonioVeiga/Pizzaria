@@ -1,67 +1,59 @@
 package controller;
 
-import dados.BancoDados;
+import dao.pedido.IPedidoDao;
+import dao.pizza.IPizzaDao;
 import enums.EnStatusPedido;
+import factory.DAOFactory;
 import model.Cliente;
 import model.Pedido;
 import model.Pizza;
+import view.PedidosView;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class PedidosController {
-    private final BancoDados banco = BancoDados.getInstancia();
+    private IPedidoDao pedidoDao = DAOFactory.getPedidoDao();
+    private IPizzaDao pizzaDao = DAOFactory.getPizzaDao();
+    private PedidosView view;
+
+    public PedidosController(PedidosView view) {
+        this.view = view;
+    }
+
+    public PedidosController() {}
 
 
     public List<Pedido> carregarPedidos() {
-        List<Pedido> pedidos = banco.getPedidos();
-        return pedidos;
+        return pedidoDao.listar();
     }
 
     public List<Pedido> carregarPedidosPorCliente(Cliente cliente) {
-        List<Pedido> pedidosCliente = new ArrayList<>();
-        for(Pedido pedido : carregarPedidos()) {
-            if(pedido.getCliente().getId() == cliente.getId()){
-                pedidosCliente.add(pedido);
-            }
-        }
-        return pedidosCliente;
+        return pedidoDao.listarPorCliente(cliente);
     }
 
 
-    public List<Pizza> carregarItensPedido(int idPedido) {
-        Pedido pedido = retornarPedidoPeloId(idPedido);
-        List<Pizza> itensPedido = new ArrayList<>();
-        if(pedido == null)
-            return itensPedido;
-
-        return pedido.getItens();
+    public List<Pizza> carregarItensPedido(Long idPedido) {
+        return pizzaDao.listarPorPedido(idPedido);
     }
 
-    public void alterarStatusPedido(int idPedido, EnStatusPedido novoStatus) {
+    public void alterarStatusPedido(Long idPedido, EnStatusPedido novoStatus) {
         Pedido pedido = retornarPedidoPeloId(idPedido);
         pedido.setStatus(novoStatus);
     }
 
-    public Pedido retornarPedidoPeloId(int idPedido) {
-        return banco.getPedidos().stream()
-                .filter(pedidoBanco -> pedidoBanco.getId() == idPedido)
-                .findFirst()
-                .orElse(null);
+    public void alterarPrecoPedido(Long idPedido, double preco) {
+        pedidoDao.alterarPrecoPedido(idPedido, preco);
+    }
+
+    public Pedido retornarPedidoPeloId(Long idPedido) {
+        Pedido pedido = pedidoDao.listarPorId(idPedido);
+        pedido.setItens(pizzaDao.listarPorPedido(idPedido));
+        return pedido;
     }
 
 
-    public void deletarPedido(int idPedido) {
-        Pedido pedido = retornarPedidoPeloId(idPedido);
-        List<Pedido> pedidos = carregarPedidos();
-        pedido.getCliente().getPedidos().remove(pedido);
-        pedidos.remove(pedido);
-    }
-
-    public void deletarPedidoPorCliente(Cliente cliente) {
-        List<Pedido> pedidos = carregarPedidosPorCliente(cliente);
-        banco.getPedidos().removeAll(pedidos);
-        pedidos.clear();
+    public void deletarPedido(Long idPedido) {
+        pedidoDao.remover(idPedido);
     }
 
 
