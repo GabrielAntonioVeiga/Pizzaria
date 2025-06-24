@@ -2,7 +2,6 @@ package view;
 
 import controller.ClienteController;
 import controller.PedidosController;
-import dados.BancoDados;
 import model.Cliente;
 
 import javax.swing.*;
@@ -27,7 +26,6 @@ public class ClienteView extends JFrame {
     private JTextField tfFiltro;
     private JButton btnIrParaPedido;
     private DefaultTableModel tableModel;
-    private final BancoDados bd = BancoDados.getInstancia();
 
     private ClienteController clienteController;
 
@@ -217,12 +215,9 @@ public class ClienteView extends JFrame {
         tfTelefone.setText("");
     }
 
-    public void adicionarNaTabela(Cliente cliente) {
-        tableModel.addRow(new Object[]{cliente.getNome(), cliente.getSobrenome(), cliente.getTelefone()});
-    }
-
     private void btnAddActionPerformed(ActionEvent e) {
         clienteController.adicionarCliente();
+        carregarClientes(clienteController.buscarClientes());
     }
 
     private void btnTrocarPaginaActionPerformed(ActionEvent e) {
@@ -241,16 +236,7 @@ public class ClienteView extends JFrame {
 
             Long id = (Long) tabelaCliente.getValueAt(row, 0);
             clienteController.removerCliente(id);
-    }
-
-    public void removerNaTabela(Long idCliente) {
-        for (int i = 0; i < tableModel.getRowCount(); i++) {
-            int idNaTabela = (int) tableModel.getValueAt(i, 0);
-            if (idNaTabela == idCliente) {
-                tableModel.removeRow(i);
-                break;
-            }
-        }
+            carregarClientes(clienteController.buscarClientes());
     }
 
     private void btnEditarActionPerformed(ActionEvent e) {

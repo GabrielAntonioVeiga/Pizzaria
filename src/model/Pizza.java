@@ -3,20 +3,20 @@ package model;
 import java.util.List;
 
 public class Pizza {
+    private Long id;
     private Forma forma;
     private List<SaborPizza> saborPizza;
-    private static int idCounter = 0;
-    private final int id;
     private double preco;
+    private Long id_pedido;
 
-    public Pizza(Forma forma, List<SaborPizza> saborPizza) {
+    public Pizza(Long id, Forma forma, List<SaborPizza> saborPizza) {
+        this.id = id;
         this.forma = forma;
         this.saborPizza = saborPizza;
-        this.id = ++idCounter;
         this.preco = calculaPreco();
     }
 
-    public int getId() {
+    public Long getId() {
         return id;
     }
 
@@ -78,5 +78,30 @@ public class Pizza {
 
     public void setPreco(double preco) {
         this.preco = preco;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getId_pedido() {
+        return id_pedido;
+    }
+
+    public void setId_pedido(Long id_pedido) {
+        this.id_pedido = id_pedido;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Pizza that = (Pizza) o;
+        return id != null ? id.equals(that.id) : that.id == null;
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
     }
 }

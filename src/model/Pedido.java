@@ -2,21 +2,29 @@ package model;
 
 import enums.EnStatusPedido;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Pedido {
     private EnStatusPedido status = EnStatusPedido.ABERTO;
-    private List<Pizza> itens;
+    private List<Pizza> itens = new ArrayList<>();
     private Double precoTotal=0.0;
-    private static int idCounter = 0;
-    private final int id;
+    private Long id;
     private Cliente cliente;
+
+    public Pedido(Long id, Cliente cliente, EnStatusPedido status, Double precoTotal) {
+        this.id = id;
+        this.cliente = cliente;
+        this.status = status;
+        this.precoTotal = precoTotal;
+    }
 
     public Pedido(List<Pizza> itens, Cliente cliente) {
         this.itens = itens;
-        this.id = ++idCounter;
         this.cliente = cliente;
     }
+
+
 
     public List<Pizza> getItens() {
         return itens;
@@ -54,7 +62,15 @@ public class Pedido {
         return cliente;
     }
 
-    public int getId() {
+    public void setCliente(Cliente cliente) {
+        this.cliente = cliente;
+    }
+
+    public Long getId() {
         return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 }

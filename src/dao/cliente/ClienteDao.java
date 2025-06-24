@@ -124,4 +124,31 @@ public class ClienteDao implements IClienteDao {
         return cliente;
     }
 
+    @Override
+    public Cliente listarPorPedido(Long idPedido) {
+        Cliente cliente = null;
+        String sql = "SELECT * FROM cliente c JOIN pedido p ON p.id_cliente = c.id WHERE p.id = ?";
+
+        try (Connection conn = ConnectionFactory.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setLong(1, idPedido);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                cliente = new Cliente(
+                        rs.getLong("id"),
+                        rs.getString("nome"),
+                        rs.getString("sobrenome"),
+                        rs.getString("telefone")
+                );
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return cliente;
+    }
+
 }

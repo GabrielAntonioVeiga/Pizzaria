@@ -1,5 +1,7 @@
 package model;
 
+import enums.EnForma;
+
 public class Triangulo extends Forma {
     private double lado;
 
@@ -12,6 +14,10 @@ public class Triangulo extends Forma {
     @Override
     public void setDimensao(double lado) {
         this.lado = lado;
+    }
+
+    public double getLado() {
+        return lado;
     }
 
     @Override
@@ -42,6 +48,6 @@ public class Triangulo extends Forma {
 
     @Override
     public String getNomeForma() {
-        return "Triangulo";
+        return EnForma.TRIANGULO.toString();
     }
 }

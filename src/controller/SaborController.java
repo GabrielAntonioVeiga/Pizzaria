@@ -1,20 +1,16 @@
 package controller;
 
-import dados.BancoDados;
 import dao.sabor.ISaborDao;
-import dao.sabor.SaborDao;
 import factory.DAOFactory;
 import model.SaborPizza;
 
 import javax.swing.*;
-import java.sql.PreparedStatement;
 import java.util.List;
 
 public class SaborController {
-    private final ISaborDao dao;
+    private final ISaborDao dao = DAOFactory.getSaborDao();
 
-    public SaborController(ISaborDao dao) {
-        this.dao = dao;
+    public SaborController() {
     }
 
     public List<SaborPizza> carregarSabores() {

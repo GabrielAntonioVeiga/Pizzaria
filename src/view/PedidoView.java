@@ -3,7 +3,6 @@ package view;
 import controller.ClienteController;
 import controller.ItemPedidoController;
 import controller.PedidosController;
-import dados.BancoDados;
 import enums.EnStatusPedido;
 import model.*;
 
@@ -24,21 +23,25 @@ public class PedidoView extends JFrame {
     private JButton deletarButton;
     private JLabel lblPrecoTotal;
     private JLabel statusPedido;
-    private ClienteController clienteController = new ClienteController();
-    private PedidosController pedidosController = new PedidosController();
-    private ItemPedidoController itemPedidoController = new ItemPedidoController();
+
+    private PedidosController pedidosController;
+    private ItemPedidoController itemPedidoController;
+    private ClienteController clienteController;
+
     private DefaultTableModel tableModel;
 
 
-    private final BancoDados bd = BancoDados.getInstancia();
     private Cliente cliente = null;
-    private int idPedido;
+    private Long idPedido;
     Pedido pedido = null;
 
-    public PedidoView(int idPedido) {
+    public PedidoView(Long idPedido) {
         this.idPedido = idPedido;
-        this.cliente = clienteController.buscarClientePorIdPedido(idPedido);
-        pedido = pedidosController.retornarPedidoPeloId(idPedido);
+        clienteController = new ClienteController();
+        pedidosController = new PedidosController();
+        itemPedidoController = new ItemPedidoController();
+        this.cliente = clienteController.buscarClientePorIdPedido(Long.valueOf(idPedido));
+        pedido = pedidosController.retornarPedidoPeloId(Long.valueOf(idPedido));
         statusPedido.setText(pedido.getStatus().toString());
         this.inicializarTela();
         renderizarItensNaTabela();
@@ -46,9 +49,11 @@ public class PedidoView extends JFrame {
     }
 
     private void renderizarItensNaTabela() {
-        List<Pizza> itensPedido = pedidosController.carregarItensPedido(this.idPedido);
+        List<Pizza> itensPedido = pedidosController.carregarItensPedido(Long.valueOf(this.idPedido));
         if(itensPedido.isEmpty()) {
+            this.tableModel.setRowCount(0);
             response.setText("Não possui pedidos.");
+            lblPrecoTotal.setText("R$ 0,00");
             return;
         }
 
@@ -126,7 +131,7 @@ public class PedidoView extends JFrame {
                 }
 
                 setVisible(false);
-                int idItem = Integer.parseInt(tableItensPedido.getValueAt(row, 0).toString());
+                Long idItem = (Long) tableItensPedido.getValueAt(row, 0);
                 new ItensPedidoFormView(idPedido, idItem);
             }
         });
@@ -171,7 +176,7 @@ public class PedidoView extends JFrame {
             return;
         }
 
-        int idItemPedido = (int)tableModel.getValueAt(selectedRow, 0);
+        Long idItemPedido = (Long) tableModel.getValueAt(selectedRow, 0);
 
         this.itemPedidoController.deletarItemPedido(this.idPedido, idItemPedido);
         JOptionPane.showMessageDialog(tela,

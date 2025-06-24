@@ -11,4 +11,5 @@ public interface IClienteDao {
     List<Cliente> listar();
     Cliente listarPorId(Long id);
     Cliente listarPorTelefone(String telefone);
+    Cliente listarPorPedido(Long idPedido);
 }

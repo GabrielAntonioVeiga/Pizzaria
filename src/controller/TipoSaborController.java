@@ -1,19 +1,15 @@
 package controller;
 
-import dados.BancoDados;
 import dao.sabor.ITipoSaborDao;
-import dao.sabor.TipoSaborDao;
 import enums.EnTipoSabor;
-import factory.DAOFactory;
 import model.TipoSabor;
 
 import javax.swing.*;
-import java.sql.PreparedStatement;
 import java.util.List;
 
 public class TipoSaborController {
     private final ITipoSaborDao dao;
-    private final SaborController saborController = new SaborController(DAOFactory.getSaborDao());
+    private final SaborController saborController = new SaborController();
 
     public TipoSaborController(ITipoSaborDao dao) {
         this.dao = dao;

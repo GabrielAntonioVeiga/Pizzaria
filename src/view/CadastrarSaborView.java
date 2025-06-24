@@ -32,7 +32,7 @@ public class CadastrarSaborView extends JFrame {
     private JButton voltaMenuButton;
 
     private DefaultTableModel tableModel;
-    private SaborController saborController = new SaborController(DAOFactory.getSaborDao());
+    private SaborController saborController = new SaborController();
     private TipoSaborController tipoSaborController = new TipoSaborController(DAOFactory.getTipoSaborDao());
 
     public CadastrarSaborView() {

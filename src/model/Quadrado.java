@@ -1,6 +1,8 @@
 package model;
 
-    public class Quadrado extends Forma {
+import enums.EnForma;
+
+public class Quadrado extends Forma {
         private double lado;
 
         public Quadrado() {}
@@ -13,6 +15,10 @@ package model;
         @Override
         public void setDimensao(double lado) {
             this.lado = lado;
+        }
+
+        public double getLado() {
+            return lado;
         }
 
         @Override
@@ -46,6 +52,6 @@ package model;
 
         @Override
         public String getNomeForma() {
-            return "Quadrado";
+            return EnForma.QUADRADO.getNome();
         }
 }

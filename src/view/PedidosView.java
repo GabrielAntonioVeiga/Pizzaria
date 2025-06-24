@@ -40,7 +40,7 @@ public class PedidosView extends JFrame{
         alterarStatusDoPedidoButton.setEnabled(false);
     }
 
-    public PedidosView(int idPedido) {
+    public PedidosView(Long idPedido) {
         Cliente clienteTelaAnterior = clienteController.buscarClientePorIdPedido(idPedido);
         textField1.setText(clienteTelaAnterior.getTelefone());
         List<Pedido> pedidosCliente = pedidosController.carregarPedidosPorCliente(clienteTelaAnterior);
@@ -99,7 +99,7 @@ public class PedidosView extends JFrame{
                     );
                     return;
                 }
-                int idPedido = (int) tableModel.getValueAt(row, 0);
+                Long idPedido = (Long) tableModel.getValueAt(row, 0);
 
                 Pedido pedido = pedidosController.retornarPedidoPeloId(idPedido);
 
@@ -183,7 +183,7 @@ public class PedidosView extends JFrame{
                     limparTabela();
                     return;
                 }
-                int idPedido = clienteController.criarPedidoCliente(cliente.getId());
+                Long idPedido = (Long) clienteController.criarPedidoCliente(cliente.getId());
                 setVisible(false);
                 new ItensPedidoFormView(idPedido);
             }
@@ -234,7 +234,7 @@ public class PedidosView extends JFrame{
 
     public void detalhesPedido() {
         int row = tablePedidos.getSelectedRow();
-        int idPedido = Integer.parseInt(tablePedidos.getValueAt(row, 0).toString());
+        Long idPedido = (Long) tablePedidos.getValueAt(row, 0);
         setVisible(false);
         new PedidoView(idPedido);
     }
@@ -252,7 +252,7 @@ public class PedidosView extends JFrame{
             return;
         }
 
-        int idPedido = (int)tableModel.getValueAt(selectedRow, 0);
+        Long idPedido = (Long) tableModel.getValueAt(selectedRow, 0);
         this.pedidosController.deletarPedido(idPedido);
         JOptionPane.showMessageDialog(tela,
                 "Pedido excluido com sucesso",
