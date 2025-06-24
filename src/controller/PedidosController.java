@@ -38,6 +38,7 @@ public class PedidosController {
 
     public void alterarStatusPedido(Long idPedido, EnStatusPedido novoStatus) {
         Pedido pedido = retornarPedidoPeloId(idPedido);
+        pedidoDao.alterarStatusPedido(idPedido, novoStatus);
         pedido.setStatus(novoStatus);
     }
 

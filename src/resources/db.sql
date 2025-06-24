@@ -22,7 +22,7 @@ CREATE TABLE pizza (
                        lado numeric(5, 2) NULL,
                        id_pedido int4 NOT NULL,
                        CONSTRAINT pizza_pkey PRIMARY KEY (id),
-                       CONSTRAINT fk_pizza_pedido FOREIGN KEY (id_pedido) REFERENCES public.pedido(id)
+                       CONSTRAINT fk_pizza_pedido FOREIGN KEY (id_pedido) REFERENCES public.pedido(id) ON DELETE CASCADE
 );
 
 CREATE TABLE pizza_sabor (

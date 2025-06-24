@@ -1,5 +1,6 @@
 package dao.pedido;
 
+import enums.EnStatusPedido;
 import model.Cliente;
 import model.Pedido;
 
@@ -13,4 +14,5 @@ public interface IPedidoDao {
     List<Pedido> listarPorCliente(Cliente cliente);
     Pedido listarPorId(Long id);
     void alterarPrecoPedido(Long id, Double preco);
+    void alterarStatusPedido(Long id, EnStatusPedido status);
 }

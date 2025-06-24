@@ -28,14 +28,32 @@ public class PedidoDao implements IPedidoDao {
     public void salvar(Pedido pedido) {
         String sql = "INSERT INTO pedido (id_cliente, status, preco_total) VALUES (?, ?, ?)";
         try {
-             PreparedStatement stmt = conn.prepareStatement(sql);
+            conn.setAutoCommit(false);
+
+            PreparedStatement stmt = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
             stmt.setLong(1, pedido.getCliente().getId());
             stmt.setString(2, pedido.getStatus().name());
             stmt.setDouble(3, pedido.getPrecoTotal());
-            stmt.executeUpdate();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+            int affectedRows = stmt.executeUpdate();
+
+            if (affectedRows == 0) {
+                conn.rollback();
+                throw new SQLException("Falha ao inserir pedido, nenhuma linha afetada.");
+            }
+
+            Long generatedPedidoId = null;
+            ResultSet rs = stmt.getGeneratedKeys();
+            if (rs.next()) {
+                generatedPedidoId = rs.getLong(1);
+                pedido.setId(generatedPedidoId);
+            }
+
+
+            conn.commit();
+
+            } catch(SQLException e){
+                throw new RuntimeException(e);
+            }
     }
 
     @Override
@@ -175,6 +193,19 @@ public class PedidoDao implements IPedidoDao {
             PreparedStatement stmt = conn.prepareStatement(sql);
             stmt.setDouble(1, preco);
             stmt.setDouble(2, id);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void alterarStatusPedido(Long id, EnStatusPedido status) {
+        String sql = "UPDATE pedido SET status = ? WHERE id = ?";
+        try {
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setString(1, status.name());
+            stmt.setLong(2, id);
             stmt.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);

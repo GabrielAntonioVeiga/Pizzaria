@@ -177,10 +177,10 @@ public class PizzaDao implements IPizzaDao {
                     String saborTipo = rs.getString("sabor_tipo");
                     Double saborPrecoCm2 = rs.getDouble("sabor_preco_cm2");
 
-                    // Crie o objeto SaborPizza
                     SaborPizza saborPizza = new SaborPizza(saborId, saborNome, saborTipo, saborPrecoCm2);
 
                     pizza.getSabores().add(saborPizza);
+                    pizza.setPreco(pizza.calculaPreco());
                 }
             }
 
