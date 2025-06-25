@@ -43,7 +43,13 @@ public class ItemPedidoController {
             view.preencherFormulario(itemExistente);
         }
 
+<<<<<<< refactor/mvc-pattern
         view.setVisible(true);
+=======
+        double novoPreco = pizza.calculaPreco();
+        pizzaBanco.setPreco(novoPreco);
+        pizzaDao.atualizar(pizzaBanco);
+>>>>>>> main
     }
 
     public void onFormChanged() {
