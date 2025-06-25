@@ -3,6 +3,7 @@ package controller;
 import dao.sabor.ITipoSaborDao;
 import enums.EnTipoSabor;
 import model.TipoSabor;
+import view.AtualizarTipoSaborView;
 
 import javax.swing.*;
 import java.util.List;
@@ -10,31 +11,29 @@ import java.util.List;
 public class TipoSaborController {
     private final ITipoSaborDao dao;
     private final SaborController saborController = new SaborController();
+    private AtualizarTipoSaborView view;
 
     public TipoSaborController(ITipoSaborDao dao) {
         this.dao = dao;
     }
 
+    public TipoSaborController(ITipoSaborDao dao, AtualizarTipoSaborView view) {
+        this.dao = dao;
+        this.view = view;
+    }
+
     public void atualizarPreco(EnTipoSabor nomeTipoSabor, double novoPreco) {
         TipoSabor tipoExistente = dao.buscarPorTipo(nomeTipoSabor.toString());
         if(tipoExistente == null) {
-            JOptionPane.showMessageDialog(
-                    null,
-                    "Tipo não encontrado!",
-                    "Erro",
-                    JOptionPane.ERROR_MESSAGE
-            );
+            view.exibirMensagemErro("Tipo não encontrado!");
             return;
         }
 
         dao.atualizar(new TipoSabor(nomeTipoSabor, novoPreco));
         atualizarPrecoSabores(nomeTipoSabor.toString(), novoPreco);
-        JOptionPane.showMessageDialog(
-                null,
-                "Preço atualizado com sucesso!",
+        view.exibirMensagemSucesso(
                 "Sucesso ao atualizar preço",
-                JOptionPane.INFORMATION_MESSAGE
-        );
+                "Preço atualizado com sucesso!");
     }
 
     public TipoSabor buscarPorTipo(String tipo) {
