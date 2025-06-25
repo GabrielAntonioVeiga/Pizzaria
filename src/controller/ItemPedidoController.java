@@ -42,14 +42,8 @@ public class ItemPedidoController {
             Pizza itemExistente = pizzaDao.listarPorId(idItemSelecionado);
             view.preencherFormulario(itemExistente);
         }
-
-<<<<<<< refactor/mvc-pattern
         view.setVisible(true);
-=======
-        double novoPreco = pizza.calculaPreco();
-        pizzaBanco.setPreco(novoPreco);
-        pizzaDao.atualizar(pizzaBanco);
->>>>>>> main
+
     }
 
     public void onFormChanged() {
