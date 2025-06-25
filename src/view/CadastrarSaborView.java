@@ -32,7 +32,7 @@ public class CadastrarSaborView extends JFrame {
     private JButton voltaMenuButton;
 
     private DefaultTableModel tableModel;
-    private SaborController saborController = new SaborController();
+    private SaborController saborController = new SaborController(this);
     private TipoSaborController tipoSaborController = new TipoSaborController(DAOFactory.getTipoSaborDao());
 
     public CadastrarSaborView() {
@@ -91,11 +91,48 @@ public class CadastrarSaborView extends JFrame {
         }
 
         saborController.adicionarOuEditar(novoSabor, saborAtual, ehEdicao, selectedRow);
-
-        this.renderizarItensNaTabela();
     }
 
-    private void renderizarItensNaTabela() {
+    private void deletarSabor() {
+        int selectedRow = PizzasCadastradas.getSelectedRow();
+
+        if(selectedRow == -1){
+            exibirMensagemErro("Selecione um tipo de sabor");
+            return;
+        }
+
+        String saborAtual = (String)tableModel.getValueAt(selectedRow, 1);
+
+        this.saborController.deletarSabor(saborAtual);
+    }
+
+    public void exibirMensagemErro(String mensagem) {
+        JOptionPane.showMessageDialog(
+                this,
+                mensagem,
+                "Erro",
+                JOptionPane.ERROR_MESSAGE
+        );
+    }
+
+    public int exibirYesNoMessage(String title, String mensagem) {
+        return JOptionPane.showConfirmDialog(this,
+                mensagem,
+                title,
+                JOptionPane.YES_NO_OPTION
+        );
+
+    }
+
+    public void exibirMensagemSucesso(String title, String mensagem) {
+        JOptionPane.showMessageDialog(this,
+                mensagem,
+                title,
+                JOptionPane.PLAIN_MESSAGE
+        );
+    }
+
+    public void renderizarItensNaTabela() {
         List<SaborPizza> sabores = this.saborController.carregarSabores();
 
         int contador = 0;
@@ -117,33 +154,4 @@ public class CadastrarSaborView extends JFrame {
         }
 
     }
-
-    private void deletarSabor() {
-        int selectedRow = PizzasCadastradas.getSelectedRow();
-
-        if(selectedRow == -1){
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Selecione um pedido para alterar!",
-                    "Erro",
-                    JOptionPane.ERROR_MESSAGE
-            );
-            return;
-        }
-
-        String saborAtual = (String)tableModel.getValueAt(selectedRow, 1);
-
-        this.saborController.deletarSabor(saborAtual);
-
-        JOptionPane.showMessageDialog(
-                this,
-                "Sabor excluído com sucesso!",
-                "Sucesso",
-                JOptionPane.INFORMATION_MESSAGE
-        );
-
-        this.renderizarItensNaTabela();
-    }
-
-
 }
