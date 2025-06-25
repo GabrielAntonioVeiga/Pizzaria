@@ -1,127 +1,142 @@
 package controller;
 
 import dao.cliente.IClienteDao;
-import dao.pedido.IPedidoDao;
 import factory.DAOFactory;
 import model.Cliente;
-import model.Pedido;
-import model.Pizza;
 import view.ClienteView;
+import view.MenuView;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import javax.swing.*;
 import java.util.List;
 
 public class ClienteController {
-    private IClienteDao clienteDao = DAOFactory.getClienteDao();
+
     private ClienteView view;
+    private IClienteDao clienteDao = DAOFactory.getClienteDao();
 
-    private IPedidoDao pedidoDao = DAOFactory.getPedidoDao();
+    public ClienteController() {}
 
-    public ClienteController(ClienteView view) {
-        this.view = view;
-    }
+    public void iniciar() {
+        this.view = new ClienteView();
+        this.view.setController(this);
 
-    public ClienteController() {
+        List<Cliente> clientes = clienteDao.listar();
+        this.view.carregarClientes(clientes);
 
-    }
-
-    public List<Cliente> buscarClientes() {
-        return clienteDao.listar();
+        this.view.setVisible(true);
     }
 
     public void adicionarCliente() {
+        String nome = view.getNome();
+        String sobrenome = view.getSobrenome();
+        String telefone = view.getTelefone().replaceAll("[^\\d]", "");
+
+        if (nome.isEmpty() || sobrenome.isEmpty() || telefone.isEmpty()) {
+            view.exibirMensagem("Por favor, preencha todos os campos.", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        if (telefone.length() < 10) {
+            view.exibirMensagem("Telefone inválido. Deve conter DDD + número.", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        if (clienteDao.listarPorTelefone(telefone) != null) {
+            view.exibirMensagem("Já existe um cliente com este telefone.", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        Cliente novoCliente = new Cliente(nome, sobrenome, telefone);
+        clienteDao.salvar(novoCliente);
+
+        view.exibirMensagem("Cliente cadastrado com sucesso!", JOptionPane.INFORMATION_MESSAGE);
+        view.limparCampos();
+        view.carregarClientes(clienteDao.listar());
+    }
+
+    public void removerCliente() {
+        Long id = view.getIdClienteSelecionado();
+        if (id == null) {
+            view.exibirMensagem("Nenhum cliente selecionado para exclusão.", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        int confirm = JOptionPane.showConfirmDialog(view,
+                "Atenção: Excluir um cliente também removerá todos os seus pedidos.\nTem certeza que deseja continuar?",
+                "Excluir Cliente",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE);
+
+        if (confirm == JOptionPane.YES_OPTION) {
+            clienteDao.remover(id);
+            view.exibirMensagem("Cliente removido com sucesso!", JOptionPane.INFORMATION_MESSAGE);
+            view.carregarClientes(clienteDao.listar());
+        }
+    }
+
+    public void carregarClienteParaEdicao() {
+        Long id = view.getIdClienteSelecionado();
+        if (id == null) {
+            view.limparCampos();
+            return;
+        }
+        Cliente cliente = clienteDao.listarPorId(id);
+        if (cliente != null) {
+            view.preencherCampos(cliente);
+        }
+    }
+
+    public void salvarEdicaoCliente() {
+        Long id = view.getIdClienteSelecionado();
+        if (id == null) {
+            view.exibirMensagem("Nenhum cliente selecionado para salvar a edição.", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
 
         String nome = view.getNome();
         String sobrenome = view.getSobrenome();
-        String telefone = view.getTelefone();
-
-
-        String telefoneFormatado = telefone.replaceAll("[^\\d]", "");
+        String telefone = view.getTelefone().replaceAll("[^\\d]", "");
 
         if (nome.isEmpty() || sobrenome.isEmpty() || telefone.isEmpty()) {
-            view.exibirMensagemErro("Por favor, insira todos os valores do cliente!");
+            view.exibirMensagem("Por favor, preencha todos os campos.", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        if (telefone.length() < 10) {
+            view.exibirMensagem("Telefone inválido. Deve conter DDD + número.", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        if (!(telefoneFormatado.length() >= 10 && telefoneFormatado.length() <= 15)) {
-            view.exibirMensagemErro("Por favor, insira um telefone válido!");
+        Cliente clienteComMesmoTelefone = clienteDao.listarPorTelefone(telefone);
+        if (clienteComMesmoTelefone != null && !clienteComMesmoTelefone.getId().equals(id)) {
+            view.exibirMensagem("Este telefone já está cadastrado para outro cliente.", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        boolean telefoneExistente = buscarClientes().stream()
-                .anyMatch(c -> c.getTelefone().equals(telefoneFormatado));
+        Cliente clienteParaAtualizar = new Cliente(id, nome, sobrenome, telefone);
+        clienteDao.atualizar(clienteParaAtualizar);
 
-        if (telefoneExistente) {
-            view.exibirMensagemErro("Já existe um cliente com esse telefone!");
-            return;
-        }
-
-        Cliente cliente = new Cliente(nome, sobrenome, telefone);
-        clienteDao.salvar(cliente);
-
-        view.exibirMensagemSucesso("Cliente cadastrado com sucesso!");
+        view.exibirMensagem("Cliente atualizado com sucesso!", JOptionPane.INFORMATION_MESSAGE);
         view.limparCampos();
+        view.carregarClientes(clienteDao.listar());
     }
 
-    public void removerCliente(Long id) {
-        Cliente cliente = buscarClientePorId(id);
-        if (cliente != null) {
-            clienteDao.remover(id);
-            view.exibirMensagemSucesso("Cliente removido com sucesso!");
-        } else {
-            view.exibirMensagemErro("Cliente não encontrado");
-        }
+    public void filtrarTabela() {
+        String filtro = view.getTextoFiltro();
+        view.aplicarFiltroNaTabela(filtro);
     }
 
-    public void editarCliente(Long idSelecionado, String nome, String sobrenome, String telefone) {
-        if (nome.isEmpty() || sobrenome.isEmpty() || telefone.isEmpty()) {
-            view.exibirMensagemErro("Todos os campos devem ser preenchidos.");
+    public void irParaPedidos() {
+        Long id = view.getIdClienteSelecionado();
+        if (id == null) {
+            view.exibirMensagem("Selecione um cliente para ver os pedidos.", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        String telefoneFormatado = telefone.replaceAll("[^\\d]", "");
-
-        if (!(telefoneFormatado.length() >= 10 && telefoneFormatado.length() <= 15)) {
-            view.exibirMensagemErro("Telefone inválido.");
-            return;
-        }
-
-        Cliente cliente = buscarClientePorId(idSelecionado);
-        if (cliente != null) {
-            cliente.setNome(nome);
-            cliente.setSobrenome(sobrenome);
-            cliente.setTelefone(telefoneFormatado);
-            clienteDao.atualizar(cliente);
-            view.exibirMensagemSucesso("Cliente editado com sucesso!");
-        } else {
-            view.exibirMensagemErro("Cliente não encontrado.");
-        }
+        view.dispose();
+        new PedidosController().iniciarParaCliente(id);
     }
 
-    public Cliente buscarClientePorTelefone(String telefone) {
-        return clienteDao.listarPorTelefone(telefone);
+    public void voltarParaMenu() {
+        view.dispose();
+        new MenuController().iniciar();
     }
-
-    public Cliente buscarClientePorId(Long id) {
-        return clienteDao.listarPorId(id);
-    }
-
-
-    public Cliente buscarClientePorIdPedido(Long idPedido) {
-        return clienteDao.listarPorPedido(idPedido);
-    }
-
-    public Long criarPedidoCliente(Long idCliente) {
-
-        Cliente cliente = buscarClientePorId(idCliente);
-        List<Pizza> itens = new ArrayList<>();
-        Pedido pedido = new Pedido(itens, cliente);
-        pedidoDao.salvar(pedido);
-        List<Pedido> pedidos = new ArrayList<>(Arrays.asList(pedido));
-        cliente.setPedidos(pedidos);
-
-        return pedido.getId();
-    }
-
 }

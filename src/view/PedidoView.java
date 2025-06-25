@@ -2,6 +2,7 @@ package view;
 
 import controller.ClienteController;
 import controller.ItemPedidoController;
+import controller.PedidoDetailController;
 import controller.PedidosController;
 import enums.EnStatusPedido;
 import model.*;
@@ -23,64 +24,26 @@ public class PedidoView extends JFrame {
     private JButton deletarButton;
     private JLabel lblPrecoTotal;
     private JLabel statusPedido;
-
-    private PedidosController pedidosController;
-    private ItemPedidoController itemPedidoController;
-    private ClienteController clienteController;
-
     private DefaultTableModel tableModel;
 
 
-    private Cliente cliente = null;
-    private Long idPedido;
-    Pedido pedido = null;
-
-    public PedidoView(Long idPedido) {
-        this.idPedido = idPedido;
-        clienteController = new ClienteController();
-        pedidosController = new PedidosController();
-        itemPedidoController = new ItemPedidoController();
-        this.cliente = clienteController.buscarClientePorIdPedido(Long.valueOf(idPedido));
-        pedido = pedidosController.retornarPedidoPeloId(Long.valueOf(idPedido));
-        statusPedido.setText(pedido.getStatus().toString());
-        this.inicializarTela();
-        renderizarItensNaTabela();
-
+    
+    private PedidoDetailController controller;
+    
+    public PedidoView() {
+        inicializarTela();
     }
 
-    private void renderizarItensNaTabela() {
-        List<Pizza> itensPedido = pedidosController.carregarItensPedido(Long.valueOf(this.idPedido));
-        if(itensPedido.isEmpty()) {
-            this.tableModel.setRowCount(0);
-            response.setText("Não possui pedidos.");
-            lblPrecoTotal.setText("R$ 0,00");
-            return;
-        }
-
-        lblPrecoTotal.setText(String.format("%.2f", getPrecoTotal(itensPedido)));
-        int contador = 0;
-        for (Pizza pizza : itensPedido) {
-            String valorTamanhoFormatado = String.format("%.2fcm²", pizza.getTamanho());
-
-            String valorPrecoFormatado = String.format("R$%.2f", pizza.calculaPreco());
-            this.tableModel.setRowCount(contador);
-            tableModel.addRow(new Object[]{
-                    pizza.getId(),
-                    pizza.getForma().toString(),
-                    valorTamanhoFormatado,
-                    pizza.getNomeSabores(),
-                    valorPrecoFormatado
-            });
-            contador++;
-        }
-
+    public void setController(PedidoDetailController controller) {
+        this.controller = controller;
     }
 
     private void inicializarTela() {
         setContentPane(tela);
-        setTitle("Pedido");
+        setTitle("Detalhes do Pedido");
         setSize(800, 600);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
         this.tableModel = new DefaultTableModel(
                 new Object[][]{},
@@ -88,101 +51,65 @@ public class PedidoView extends JFrame {
         );
         tableItensPedido.setModel(tableModel);
 
-        if(!pedido.getStatus().toString().equals(EnStatusPedido.ABERTO.toString())) {
-            btnEditar.setEnabled(false);
-            adicionarButton.setEnabled(false);
-            deletarButton.setEnabled(false);
-        }
-
         inicializarListeners();
-
         pack();
-        setVisible(true);
+        setLocationRelativeTo(null); 
     }
+
+    public void renderizarItensNaTabela(List<Pizza> itensPedido) {
+        tableModel.setRowCount(0); 
+        response.setText("");
+
+        for (Pizza pizza : itensPedido) {
+            String valorTamanhoFormatado = String.format("%.2fcm²", pizza.getTamanho());
+            String valorPrecoFormatado = String.format("R$%.2f", pizza.getPreco());
+            tableModel.addRow(new Object[]{
+                    pizza.getId(),
+                    pizza.getForma().toString(),
+                    valorTamanhoFormatado,
+                    pizza.getNomeSabores(),
+                    valorPrecoFormatado
+            });
+        }
+    }
+
+   
 
     private void inicializarListeners() {
-
-        voltarButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                setVisible(false);
-                new PedidosView(idPedido);
-            }
-        });
-
-        deletarButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                deletarItemPedido();
-            }
-        });
-
-        btnEditar.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                int row = tableItensPedido.getSelectedRow();
-
-                if(row < 0) {
-                    JOptionPane.showMessageDialog(tela,
-                            "Nenhum Item selecionado para edição!",
-                            "Erro", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-
-                setVisible(false);
-                Long idItem = (Long) tableItensPedido.getValueAt(row, 0);
-                new ItensPedidoFormView(idPedido, idItem);
-            }
-        });
-
-        adicionarButton.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if(cliente == null) {
-                    JOptionPane.showMessageDialog(tela,
-                            "Nenhum Cliente encontrado para adicionar pedido!",
-                            "Erro", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-
-                setVisible(false);
-                new ItensPedidoFormView(idPedido);
-
-
-            }
-        });
+        adicionarButton.addActionListener(e -> controller.adicionarItem());
+        btnEditar.addActionListener(e -> controller.editarItem());
+        deletarButton.addActionListener(e -> controller.deletarItem());
+        voltarButton.addActionListener(e -> controller.voltar());
+    }
+    
+    public void setPrecoTotal(String preco) {
+        lblPrecoTotal.setText(preco);
     }
 
-    private Double getPrecoTotal(List<Pizza> itens){
-        Double precoTotal = 0.0;
-        for(Pizza pizza : itens){
-            precoTotal += pizza.calculaPreco();
-        }
-        return precoTotal;
+    public void setStatus(String status) {
+        statusPedido.setText(status);
     }
 
-    private void deletarItemPedido() {
-        int selectedRow = tableItensPedido.getSelectedRow();
+    public void setBotoesEdicaoEnabled(boolean enabled) {
+        btnEditar.setEnabled(enabled);
+        adicionarButton.setEnabled(enabled);
+        deletarButton.setEnabled(enabled);
+    }
 
-        if(selectedRow == -1){
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Selecione um pedido para alterar!",
-                    "Erro",
-                    JOptionPane.ERROR_MESSAGE
-            );
-            return;
+    public void mostrarMensagemVazio(String mensagem) {
+        tableModel.setRowCount(0);
+        response.setText(mensagem);
+    }
+
+    public void exibirMensagem(String titulo, String mensagem, int tipo) {
+        JOptionPane.showMessageDialog(this.tela, mensagem, titulo, tipo);
+    }
+
+    public Long getIdItemSelecionado() {
+        int row = tableItensPedido.getSelectedRow();
+        if (row < 0) {
+            return null; 
         }
-
-        Long idItemPedido = (Long) tableModel.getValueAt(selectedRow, 0);
-
-        this.itemPedidoController.deletarItemPedido(this.idPedido, idItemPedido);
-        JOptionPane.showMessageDialog(tela,
-                "Pedido excluido com sucesso",
-                "Sucesso", JOptionPane.INFORMATION_MESSAGE);
-
-        this.renderizarItensNaTabela();
+        return (Long) tableModel.getValueAt(row, 0);
     }
 }

@@ -8,15 +8,18 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 import javax.swing.text.MaskFormatter;
-import java.awt.event.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.text.ParseException;
 import java.util.List;
 
 public class ClienteView extends JFrame {
+
     private JPanel panelCliente;
     private JTextField tfSobrenome;
     private JFormattedTextField tfTelefone;
-    private JPanel panelCadastroCliente;
     private JButton btnCriar;
     private JTextField tfNome;
     private JButton btnDeletar;
@@ -26,151 +29,59 @@ public class ClienteView extends JFrame {
     private JButton btnIrParaPedido;
     private JButton btnVoltar;
     private DefaultTableModel tableModel;
-
-    private ClienteController clienteController;
+    private JPanel panelCadastroCliente;
+    private ClienteController controller;
 
     public ClienteView() {
+        inicializarTela();
+    }
+
+    public void setController(ClienteController controller) {
+        this.controller = controller;
+    }
+
+    private void inicializarTela() {
         setContentPane(panelCliente);
-        setTitle("Cadastrar Cliente");
-        setSize(450, 300);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setTitle("Gerenciamento de Clientes");
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-        clienteController = new ClienteController(this);
+        this.tableModel = new DefaultTableModel(new Object[][]{}, new String[]{"ID", "Nome", "Sobrenome", "Telefone"}) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+        tabelaCliente.setModel(tableModel);
 
-        btnCriar.addActionListener(this::btnAddActionPerformed);
-        btnDeletar.addActionListener(this::btnDeleteActionPerformed);
-        btnEditar.addActionListener(this::btnEditarActionPerformed);
-        btnIrParaPedido.addActionListener(this::btnTrocarPaginaActionPerformed);
-        this.inicializarTabela();
-
+        adicionarListeners();
         pack();
-        setVisible(true);
+        setSize(700, 500);
+        setLocationRelativeTo(null);
+    }
+
+    private void adicionarListeners() {
+        btnCriar.addActionListener(e -> controller.adicionarCliente());
+        btnDeletar.addActionListener(e -> controller.removerCliente());
+        btnEditar.addActionListener(e -> controller.salvarEdicaoCliente());
+        btnIrParaPedido.addActionListener(e -> controller.irParaPedidos());
+        btnVoltar.addActionListener(e -> controller.voltarParaMenu());
+
+        tabelaCliente.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                controller.carregarClienteParaEdicao();
+            }
+        });
 
         tfFiltro.addKeyListener(new KeyAdapter() {
-            @Override
             public void keyReleased(KeyEvent e) {
-                tfPesquisarCliente();
+                controller.filtrarTabela();
             }
         });
-
-        tfFiltro.addFocusListener(new FocusAdapter() {
-            @Override
-            public void focusGained(FocusEvent e) {
-                if (tfFiltro.getText().equalsIgnoreCase("Pesquisar")) {
-                    tfFiltro.setText("");
-                }
-            }
-
-            @Override
-            public void focusLost(FocusEvent e) {
-                if (tfFiltro.getText().isEmpty()) {
-                    tfFiltro.setText("Pesquisar");
-                }
-            }
-
-        });
-
-        panelCliente.addMouseListener(new MouseAdapter() {
-            public void mousePressed(MouseEvent e) {
-                if (!tabelaCliente.getBounds().contains(e.getPoint())) {
-                    tabelaCliente.clearSelection();
-                }
-            }
-        });
-
-        tfTelefone.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyPressed(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE) {
-                    int caretPosition = tfTelefone.getCaretPosition();
-                    String text = tfTelefone.getText();
-
-                    if (caretPosition > 0) {
-                        int deleteIndex = caretPosition - 1;
-
-                        while (deleteIndex > 0 && !Character.isDigit(text.charAt(deleteIndex))) {
-                            deleteIndex--;
-                        }
-
-                        if (deleteIndex >= 0 && Character.isDigit(text.charAt(deleteIndex))) {
-                            StringBuilder newText = new StringBuilder(text);
-                            newText.deleteCharAt(deleteIndex);
-
-                            e.consume();
-                            updateTextField(newText.toString(), deleteIndex);
-                        }
-                    }
-                }
-            }
-        });
-
-        tfTelefone.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyReleased(KeyEvent e) {
-                formatarTelefone();
-            }
-        });
-
-        btnVoltar.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                voltar();
-            }
-        });
-    }
-
-    public void voltar() {
-        setVisible(false);
-        new MenuView();
-    }
-
-    private void updateTextField(String rawText, int caretPosition) {
-        try {
-            rawText = rawText.replaceAll("[^\\d]", "");
-            MaskFormatter phoneMask = new MaskFormatter("(##) #####-####");
-            phoneMask.setPlaceholderCharacter('_');
-            phoneMask.setValueContainsLiteralCharacters(false);
-
-            String formattedTelefone = phoneMask.valueToString(rawText);
-
-            tfTelefone.setText(formattedTelefone);
-            tfTelefone.setCaretPosition(Math.min(caretPosition, formattedTelefone.length()));
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void formatarTelefone() {
-        String telefone = tfTelefone.getText();
-
-        try {
-            telefone = telefone.replaceAll("[^\\d]", "");
-            MaskFormatter phoneMask = new MaskFormatter("(##) #####-####");
-            phoneMask.setPlaceholderCharacter('_');
-            phoneMask.setValueContainsLiteralCharacters(false);
-
-            String formattedTelefone = phoneMask.valueToString(telefone);
-
-            if (!tfTelefone.getText().equals(formattedTelefone)) {
-                tfTelefone.setText(formattedTelefone);
-            }
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void inicializarTabela() {
-        this.tableModel = new DefaultTableModel(
-                new Object[][]{},
-                new String[]{"ID", "Nome", "Sobrenome", "Telefone"}
-        );
-        tabelaCliente.setModel(tableModel);
-        this.carregarClientes(clienteController.buscarClientes());
     }
 
     public void carregarClientes(List<Cliente> clientes) {
-        this.tableModel.setRowCount(0);
-
+        tableModel.setRowCount(0);
         for (Cliente cliente : clientes) {
             tableModel.addRow(new Object[]{
                     cliente.getId(),
@@ -181,100 +92,59 @@ public class ClienteView extends JFrame {
         }
     }
 
-    private void tfPesquisarCliente() {
-        String textoFiltro = tfFiltro.getText().trim();
-        if (!textoFiltro.isEmpty()) {
-            filtrarTabela(textoFiltro);
-        } else {
-            TableRowSorter<TableModel> sorter = new TableRowSorter<>(tabelaCliente.getModel());
-            tabelaCliente.setRowSorter(sorter);
-            sorter.setRowFilter(null);
+    public void exibirMensagem(String mensagem, int tipo) {
+        String titulo = "";
+        switch (tipo) {
+            case JOptionPane.INFORMATION_MESSAGE:
+                titulo = "Sucesso";
+                break;
+            case JOptionPane.WARNING_MESSAGE:
+                titulo = "Aviso";
+                break;
+            case JOptionPane.ERROR_MESSAGE:
+                titulo = "Erro";
+                break;
         }
-    }
-
-    private void filtrarTabela(String textoFiltro) {
-        TableRowSorter<TableModel> sorter = new TableRowSorter<>(tabelaCliente.getModel());
-        tabelaCliente.setRowSorter(sorter);
-
-        RowFilter<TableModel, Object> rowFilter = RowFilter.regexFilter("(?i)" + textoFiltro);
-        sorter.setRowFilter(rowFilter);
-    }
-
-    public String getNome() {
-        return tfNome.getText();
-    }
-
-    public String getSobrenome() {
-        return tfSobrenome.getText();
-    }
-
-    public String getTelefone() {
-        return tfTelefone.getText();
-    }
-
-    public void exibirMensagemErro(String mensagem) {
-        JOptionPane.showMessageDialog(this, mensagem, "Erro", JOptionPane.ERROR_MESSAGE);
-    }
-
-    public void exibirMensagemSucesso(String mensagem) {
-        JOptionPane.showMessageDialog(this, mensagem, "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(this, mensagem, titulo, tipo);
     }
 
     public void limparCampos() {
         tfNome.setText("");
         tfSobrenome.setText("");
         tfTelefone.setText("");
+        tabelaCliente.clearSelection();
     }
 
-    private void btnAddActionPerformed(ActionEvent e) {
-        clienteController.adicionarCliente();
-        carregarClientes(clienteController.buscarClientes());
+    public void preencherCampos(Cliente cliente) {
+        tfNome.setText(cliente.getNome());
+        tfSobrenome.setText(cliente.getSobrenome());
+        tfTelefone.setText(formatarTelefoneParaExibicao(cliente.getTelefone()));
     }
 
-    private void btnTrocarPaginaActionPerformed(ActionEvent e) {
-        this.setVisible(false);
-        new PedidosView();
+    public void aplicarFiltroNaTabela(String textoFiltro) {
+        TableRowSorter<TableModel> sorter = new TableRowSorter<>(tabelaCliente.getModel());
+        tabelaCliente.setRowSorter(sorter);
+        sorter.setRowFilter(RowFilter.regexFilter("(?i)" + textoFiltro));
     }
 
+    public String getNome() { return tfNome.getText().trim(); }
+    public String getSobrenome() { return tfSobrenome.getText().trim(); }
+    public String getTelefone() { return tfTelefone.getText(); }
+    public String getTextoFiltro() { return tfFiltro.getText().trim(); }
 
-    private void btnDeleteActionPerformed(ActionEvent e) {
+    public Long getIdClienteSelecionado() {
         int row = tabelaCliente.getSelectedRow();
-
-        if(row < 0) {
-            exibirMensagemErro("Nenhum cliente selecionado para deleção!");
-            return;
-        }
-
-            Long id = (Long) tabelaCliente.getValueAt(row, 0);
-            clienteController.removerCliente(id);
-            carregarClientes(clienteController.buscarClientes());
-    }
-
-    private void btnEditarActionPerformed(ActionEvent e) {
-        int row = tabelaCliente.getSelectedRow();
-        if (row < 0) {
-            exibirMensagemErro("Nenhum cliente selecionado para edição!");
-            return;
-        }
-
-        Long id = (Long) tabelaCliente.getValueAt(row, 0);
-        String nome = tabelaCliente.getValueAt(row, 1).toString();
-        String sobrenome = tabelaCliente.getValueAt(row, 2).toString();
-        String telefone = tabelaCliente.getValueAt(row, 3).toString();
-
-        clienteController.editarCliente(id, nome, sobrenome, telefone);
-        carregarClientes(clienteController.buscarClientes());
+        if (row < 0) return null;
+        return (Long) tableModel.getValueAt(row, 0);
     }
 
     private String formatarTelefoneParaExibicao(String telefone) {
         try {
-            telefone = telefone.replaceAll("[^\\d]", "");
             MaskFormatter phoneMask = new MaskFormatter("(##) #####-####");
             phoneMask.setValueContainsLiteralCharacters(false);
-            return phoneMask.valueToString(telefone);
+            return phoneMask.valueToString(telefone.replaceAll("[^\\d]", ""));
         } catch (ParseException e) {
-            e.printStackTrace();
-            return telefone;
+            return telefone; 
         }
     }
 }

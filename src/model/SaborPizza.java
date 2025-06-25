@@ -19,6 +19,10 @@ public class SaborPizza {
         this.tipoSabor = new TipoSabor(EnTipoSabor.valueOf(tipo), precoCm2);
     }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public Long getId() {
         return id;
     }
@@ -47,12 +51,15 @@ public class SaborPizza {
         if (this == obj) return true;
         if (obj == null || getClass() != obj.getClass()) return false;
         SaborPizza that = (SaborPizza) obj;
+        if (id != null && that.id != null) {
+            return Objects.equals(id, that.id);
+        }
         return Objects.equals(nome, that.nome);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(nome);
+        return Objects.hash(id, nome);
     }
 
 }

@@ -1,157 +1,121 @@
 package view;
 
 import controller.SaborController;
-import controller.TipoSaborController;
-import enums.EnTipoSabor;
-import factory.DAOFactory;
 import model.SaborPizza;
 import model.TipoSabor;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.List;
 
 public class CadastrarSaborView extends JFrame {
     private JPanel CadastraPizza;
-    private JPanel PanelTitle;
-    private JLabel CadastrarPizza;
-    private JPanel PanelEdicao;
     private JButton deletarButton;
     private JButton editarButton;
-    private JButton carregarButton;
-    private JPanel LabelPizzas;
     private JTable PizzasCadastradas;
-    private JPanel LabelCadastraPizza;
-    private JLabel BntTipoPizza;
-    private JComboBox<EnTipoSabor> TipoPizzaBox;
-    private JLabel BntSaborPizza;
+    private JComboBox<TipoSabor> TipoPizzaBox;
     private JTextField saborPizza;
     private JButton ConfirmarButton;
     private JButton voltaMenuButton;
-
     private DefaultTableModel tableModel;
-    private SaborController saborController = new SaborController(this);
-    private TipoSaborController tipoSaborController = new TipoSaborController(DAOFactory.getTipoSaborDao());
+
+    private SaborController controller;
 
     public CadastrarSaborView() {
         setContentPane(CadastraPizza);
-        setTitle("Pedidos");
-        setSize(450, 300);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setVisible(true);
+        setTitle("Gerenciamento de Sabores");
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-        this.tableModel = new DefaultTableModel(
-                new Object[][]{},
-                new String[]{"Tipo", "Sabor"}
-        );
+        this.tableModel = new DefaultTableModel(new Object[][]{}, new String[]{"ID", "Sabor", "Tipo"}) {
+            @Override
+            public boolean isCellEditable(int row, int column) { return false; }
+        };
         PizzasCadastradas.setModel(tableModel);
 
-        this.renderizarItensNaTabela();
+        adicionarListeners();
+        pack();
+        setSize(600, 500);
+        setLocationRelativeTo(null);
+    }
 
-        TipoPizzaBox.setModel(new DefaultComboBoxModel<>(EnTipoSabor.values()));
+    public void setController(SaborController controller) {
+        this.controller = controller;
+    }
 
+    private void adicionarListeners() {
+        ConfirmarButton.addActionListener(e -> controller.adicionarSabor());
+        editarButton.addActionListener(e -> controller.salvarEdicaoSabor());
+        deletarButton.addActionListener(e -> controller.deletarSabor());
+        voltaMenuButton.addActionListener(e -> controller.voltarParaMenu());
 
-        ConfirmarButton.addActionListener(e -> {
-          finalizarOperacao(false);
-        });
-
-
-        deletarButton.addActionListener(e -> {
-          this.deletarSabor();
-        });
-
-
-        editarButton.addActionListener(e -> {
-            this.finalizarOperacao(true);
-        });
-
-
-        voltaMenuButton.addActionListener(new ActionListener() {
+        PizzasCadastradas.addMouseListener(new MouseAdapter() {
             @Override
-            public void actionPerformed(ActionEvent e) {
-                setVisible(false);
-                new MenuView();
+            public void mouseClicked(MouseEvent e) {
+                controller.carregarSaborParaEdicao();
             }
         });
     }
 
 
-    private void finalizarOperacao(boolean ehEdicao) {
-        String sabor = saborPizza.getText();
-        EnTipoSabor nomeTipoSaborSelecionado = (EnTipoSabor) TipoPizzaBox.getSelectedItem();
-        TipoSabor tipoSabor = this.tipoSaborController.buscarPorTipo(nomeTipoSaborSelecionado.toString());
-        SaborPizza novoSabor = new SaborPizza(sabor, tipoSabor);
-        String saborAtual = "";
-        int selectedRow = 0;
-        if(ehEdicao) {
-            selectedRow = PizzasCadastradas.getSelectedRow();
-            saborAtual = (String)tableModel.getValueAt(selectedRow, 1);
-        }
-
-        saborController.adicionarOuEditar(novoSabor, saborAtual, ehEdicao, selectedRow);
-    }
-
-    private void deletarSabor() {
-        int selectedRow = PizzasCadastradas.getSelectedRow();
-
-        if(selectedRow == -1){
-            exibirMensagemErro("Selecione um tipo de sabor");
-            return;
-        }
-
-        String saborAtual = (String)tableModel.getValueAt(selectedRow, 1);
-
-        this.saborController.deletarSabor(saborAtual);
-    }
-
-    public void exibirMensagemErro(String mensagem) {
-        JOptionPane.showMessageDialog(
-                this,
-                mensagem,
-                "Erro",
-                JOptionPane.ERROR_MESSAGE
-        );
-    }
-
-    public int exibirYesNoMessage(String title, String mensagem) {
-        return JOptionPane.showConfirmDialog(this,
-                mensagem,
-                title,
-                JOptionPane.YES_NO_OPTION
-        );
-
-    }
-
-    public void exibirMensagemSucesso(String title, String mensagem) {
-        JOptionPane.showMessageDialog(this,
-                mensagem,
-                title,
-                JOptionPane.PLAIN_MESSAGE
-        );
-    }
-
-    public void renderizarItensNaTabela() {
-        List<SaborPizza> sabores = this.saborController.carregarSabores();
-
-        int contador = 0;
-
-        if(sabores.isEmpty()) {
-            for(int i =0; i<tableModel.getRowCount(); i++){
-                tableModel.removeRow(i);
-            }
-            return;
-        }
-
+    public void renderizarItensNaTabela(List<SaborPizza> sabores) {
+        tableModel.setRowCount(0);
+        if (sabores == null) return;
         for (SaborPizza sabor : sabores) {
-            this.tableModel.setRowCount(contador);
             tableModel.addRow(new Object[]{
-                    sabor.getTipoSabor().toString(),
+                    sabor.getId(),
                     sabor.getNome(),
+                    sabor.getTipoSabor().getNome().toString()
             });
-            contador++;
         }
+    }
 
+    public void popularTiposDeSabor(List<TipoSabor> tipos) {
+        DefaultComboBoxModel<TipoSabor> model = new DefaultComboBoxModel<>(tipos.toArray(new TipoSabor[0]));
+        TipoPizzaBox.setModel(model);
+        limparCampos();
+    }
+
+    public void exibirMensagem(String mensagem, int tipo) {
+        String titulo = (tipo == JOptionPane.ERROR_MESSAGE) ? "Erro" : "Sucesso";
+        JOptionPane.showMessageDialog(this, mensagem, titulo, tipo);
+    }
+
+    public void limparCampos() {
+        saborPizza.setText("");
+        TipoPizzaBox.setSelectedItem(null);
+        PizzasCadastradas.clearSelection();
+    }
+
+    public void preencherCampos(SaborPizza sabor) {
+        saborPizza.setText(sabor.getNome());
+        for (int i = 0; i < TipoPizzaBox.getItemCount(); i++) {
+            if (TipoPizzaBox.getItemAt(i).equals(sabor.getTipoSabor())) {
+                TipoPizzaBox.setSelectedIndex(i);
+                break;
+            }
+        }
+    }
+
+
+    public String getNomeSabor() {
+        return saborPizza.getText().trim();
+    }
+
+    public TipoSabor getTipoSaborSelecionado() {
+        return (TipoSabor) TipoPizzaBox.getSelectedItem();
+    }
+
+    public SaborPizza getSaborSelecionadoDaTabela() {
+        int selectedRow = PizzasCadastradas.getSelectedRow();
+        if (selectedRow < 0) return null;
+
+        Long id = (Long) tableModel.getValueAt(selectedRow, 0);
+        String nome = (String) tableModel.getValueAt(selectedRow, 1);
+
+        SaborPizza sabor = new SaborPizza(nome, null);
+        sabor.setId(id);
+        return sabor;
     }
 }

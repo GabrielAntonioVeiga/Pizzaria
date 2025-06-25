@@ -7,6 +7,10 @@ public class Circulo extends Forma {
 
     public Circulo() { }
 
+    public Circulo(double raio) {
+        setDimensao(raio); // Usa o setter que já contém a validação.
+    }
+
     @Override
     public void setDimensao(double raio) {
         this.raio = raio;
@@ -15,6 +19,7 @@ public class Circulo extends Forma {
     public double getRaio() {
         return raio;
     }
+    
 
     @Override
     public double calcularDimensao(double area) {

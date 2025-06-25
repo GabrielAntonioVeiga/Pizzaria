@@ -1,98 +1,141 @@
 package controller;
 
+import dao.cliente.IClienteDao;
 import dao.pedido.IPedidoDao;
-import dao.pizza.IPizzaDao;
-import enums.EnStatusPedido;
 import factory.DAOFactory;
 import model.Cliente;
 import model.Pedido;
-import model.Pizza;
-import view.ItensPedidoFormView;
+import enums.EnStatusPedido;
+import view.MenuView;
 import view.PedidosView;
 
+import javax.swing.*;
 import java.util.List;
 
 public class PedidosController {
-    private IPedidoDao pedidoDao = DAOFactory.getPedidoDao();
-    private IPizzaDao pizzaDao = DAOFactory.getPizzaDao();
-    private ClienteController clienteController = new ClienteController();
-    private PedidosView view;
 
-    public PedidosController(PedidosView view) {
-        this.view = view;
-    }
+    private PedidosView view;
+    private IPedidoDao pedidoDao = DAOFactory.getPedidoDao();
+    private IClienteDao clienteDao = DAOFactory.getClienteDao();
 
     public PedidosController() {}
 
-
-    public List<Pedido> carregarPedidos() {
-        return pedidoDao.listar();
+    public void iniciar() {
+        this.view = new PedidosView();
+        this.view.setController(this);
+        this.view.renderizarItensNaTabela(carregarTodosPedidos());
+        this.view.setVisible(true);
     }
 
-    public List<Pedido> carregarPedidosPorCliente(Cliente cliente) {
-        return pedidoDao.listarPorCliente(cliente);
+    public void iniciarParaCliente(Long clienteId) {
+        this.view = new PedidosView();
+        this.view.setController(this);
+
+        Cliente cliente = clienteDao.listarPorId(clienteId);
+        if (cliente != null) {
+            List<Pedido> pedidosDoCliente = pedidoDao.listarPorCliente(cliente);
+            this.view.renderizarItensNaTabela(pedidosDoCliente);
+             this.view.setTelefoneBusca(cliente.getTelefone()); 
+        } else {
+            this.view.renderizarItensNaTabela(List.of());
+            this.view.exibirMensagem("Erro", "Cliente com ID " + clienteId + " não foi encontrado.", JOptionPane.ERROR_MESSAGE);
+        }
+
+        this.view.setVisible(true);
     }
 
+    public void buscarPedidosPorCliente() {
+        String telefoneView = view.getTelefoneBusca();
+        if (telefoneView == null || telefoneView.trim().isEmpty()) {
+            view.exibirMensagem("Aviso", "Por favor, digite um telefone para buscar.", javax.swing.JOptionPane.WARNING_MESSAGE);
+            view.renderizarItensNaTabela(carregarTodosPedidos());
+            return;
+        }
 
-    public List<Pizza> carregarItensPedido(Long idPedido) {
-        return pizzaDao.listarPorPedido(idPedido);
+        String telefone = telefoneView.replaceAll("[^\\d]", "");
+
+        Cliente cliente = clienteDao.listarPorTelefone(telefone);
+
+        if (cliente == null) {
+            view.exibirMensagem("Não Encontrado", "Nenhum cliente encontrado com este telefone.", JOptionPane.WARNING_MESSAGE);
+            view.renderizarItensNaTabela(List.of());
+            return;
+        }
+
+        List<Pedido> pedidosDoCliente = pedidoDao.listarPorCliente(cliente);
+        view.renderizarItensNaTabela(pedidosDoCliente);
     }
 
-    public void alterarStatusPedido(Long idPedido, EnStatusPedido novoStatus) {
-        Pedido pedido = retornarPedidoPeloId(idPedido);
+    public void deletarPedido() {
+        Long idPedido = view.getSelectedPedidoId();
+        if (idPedido == null) {
+            view.exibirMensagem("Aviso", "Por favor, selecione um pedido para excluir.", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
 
-        view.setStatusPedidoField(pedido.getStatus().toString());
+        int confirm = JOptionPane.showConfirmDialog(view,
+                "Tem certeza que deseja excluir o pedido " + idPedido + "?",
+                "Confirmação de Exclusão", JOptionPane.YES_NO_OPTION);
+
+        if (confirm == JOptionPane.YES_OPTION) {
+            pedidoDao.remover(idPedido);
+            view.exibirMensagem("Sucesso", "Pedido removido com sucesso.", JOptionPane.INFORMATION_MESSAGE);
+            view.renderizarItensNaTabela(carregarTodosPedidos());
+        }
+    }
+
+    public void alterarStatusPedido() {
+        Long idPedido = view.getSelectedPedidoId();
+        EnStatusPedido novoStatus = view.getStatusSelecionado();
+
+        if (idPedido == null || novoStatus == null) {
+            view.exibirMensagem("Aviso", "Por favor, selecione um pedido e um status para alterar.", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
 
         pedidoDao.alterarStatusPedido(idPedido, novoStatus);
-        pedido.setStatus(novoStatus);
-        view.renderizarItensNaTabela(carregarPedidos());
+        view.renderizarItensNaTabela(carregarTodosPedidos());
     }
 
-    public void alterarPrecoPedido(Long idPedido, double preco) {
-        pedidoDao.alterarPrecoPedido(idPedido, preco);
+    public void verDetalhesPedido() {
+        Long idPedido = view.getSelectedPedidoId();
+        if (idPedido == null) return;
+
+        view.dispose();
+        new PedidoDetailController(idPedido).iniciar();
     }
 
-    public Pedido retornarPedidoPeloId(Long idPedido) {
-        Pedido pedido = pedidoDao.listarPorId(idPedido);
-        pedido.setItens(pizzaDao.listarPorPedido(idPedido));
-        return pedido;
-    }
+    public void criarNovoPedido() {
+        String telefone = view.getTelefoneBusca();
+        if (telefone == null || telefone.trim().isEmpty()) {
+            view.exibirMensagem("Aviso", "Busque por um cliente antes de criar um novo pedido.", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
 
-    public void adicionarPedido(String telefone) {
-        Cliente cliente = clienteController.buscarClientePorTelefone(telefone);
+        Cliente cliente = clienteDao.listarPorTelefone(telefone);
+
         if (cliente == null) {
-            view.exibirMensagemErro("É necessário buscar um cliente para adicionar um pedido!");
-            view.limparTabela();
-            return;
-        }
-        Long idPedido = clienteController.criarPedidoCliente(cliente.getId());
-        new ItensPedidoFormView(idPedido);
-    }
-
-    public void deletarPedido(Long idPedido) {
-        pedidoDao.remover(idPedido);
-        view.exibirMensagemSucesso("Sucesso", "Pedido removido com sucesso");
-        view.renderizarItensNaTabela(carregarPedidos());
-    }
-
-    public void buscarPedidosClientePorNumero(String numero) {
-        Cliente clienteEncontrado = clienteController.buscarClientePorTelefone(numero);
-
-        if(clienteEncontrado == null) {
-            view.exibirMensagemErro("Cliente com o número digitado não encontrado!");
+            view.exibirMensagem("Erro", "Cliente não encontrado. Verifique o telefone e busque novamente.", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        List<Pedido> pedidos = carregarPedidosPorCliente(clienteEncontrado);
-        view.renderizarItensNaTabela(pedidos);
+        Pedido pedidoParaSalvar = new Pedido(cliente);
+        Pedido pedidoSalvo = pedidoDao.salvar(pedidoParaSalvar);
 
-        view.exibirMensagemSucesso("Busca","Cliente encontrado!");
-        view.habilitarAlterarStatusPedido();
-
-        if(pedidos.isEmpty()) {
-            view.exibirMensagemInfo("Cliente sem pedidos.","O cliente encontrado não possui pedidos, adicione um pedido!");
+        if (pedidoSalvo != null && pedidoSalvo.getId() != null) {
+            view.dispose();
+            new ItemPedidoController(pedidoSalvo.getId(), null).iniciar();
+        } else {
+            view.exibirMensagem("Erro", "Falha ao criar o pedido no banco de dados.", JOptionPane.ERROR_MESSAGE);
         }
-
     }
 
+    public void voltarParaMenu() {
+        view.dispose();
+        new MenuController().iniciar();
+    }
+
+    private List<Pedido> carregarTodosPedidos() {
+        return pedidoDao.listar();
+    }
 }

@@ -1,20 +1,17 @@
 package view;
 
 import controller.ItemPedidoController;
-import controller.SaborController;
 import model.*;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.IntStream;
 
 public class ItensPedidoFormView extends JFrame {
+
     private JComboBox<Forma> cbForma;
     private JTextField tfDimensao;
     private JCheckBox cbxEhArea;
@@ -26,350 +23,195 @@ public class ItensPedidoFormView extends JFrame {
     private JLabel lblValorLado;
     private JLabel lblPrecoPizza;
 
+    private ItemPedidoController controller;
+    private SaborPizza[] todosOsSabores; 
 
-    Long idItemSelecionado = 0L;
-    Long idPedido = 0L;
+    private boolean isUpdatingSabores = false;
 
-    boolean ehEdicao = false;
-    ItemPedidoController itemPedidoController = new ItemPedidoController();
-    SaborController saborController = new SaborController();
-
-
-    public ItensPedidoFormView(Long idPedido) {
-        this.idPedido = idPedido;
-        this.inicializarTela();
+    private ActionListener sabor1Listener;
+    private ActionListener sabor2Listener;
+    public ItensPedidoFormView() {
+        inicializarTela();
     }
 
-    public ItensPedidoFormView(Long idPedido, Long idItem) {
-        ehEdicao = true;
-        this.idPedido = idPedido;
-        this.idItemSelecionado = idItem;
-        this.inicializarTela();
-        Pizza itemSelecionado = itemPedidoController.retornarItemPedido(idPedido, idItem);
-        setarDadosPizza(itemSelecionado);
+    public void setController(ItemPedidoController controller) {
+        this.controller = controller;
     }
-
 
     private void inicializarTela() {
         setContentPane(tela);
-        String actionMode = ehEdicao ? "Editar" : "Criar";
-        setTitle(actionMode + " Item no Pedido");
-
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setSize(800, 600);
-
-
-        cbForma.setModel(new DefaultComboBoxModel<>(getFormas()));
-        cbSabor1.setModel(new DefaultComboBoxModel<>(getSabores()));
-        cbSabor2.setModel(new DefaultComboBoxModel<>(getSabores()));
+        setLocationRelativeTo(null);
 
         cbxDesativarSegundoSabor.setSelected(true);
-        cbSabor2.setSelectedItem(null);
         cbSabor2.setEnabled(false);
-        setVisible(true);
 
-        btnConfirmar.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                finalizarOperacao();
-            }
-        });
+        adicionarListeners();
+    }
 
-        tfDimensao.getDocument().addDocumentListener(new DocumentListener() {
-            @Override
-            public void insertUpdate(DocumentEvent e) {
-                alterarLabelValorCalculadoDimensao();
-                calcularPrecoEstimado();
-            }
+    private void adicionarListeners() {
+        btnConfirmar.addActionListener(e -> { if (controller != null) controller.confirmar(); });
 
-            @Override
-            public void removeUpdate(DocumentEvent e) {
-                alterarLabelValorCalculadoDimensao();
-                calcularPrecoEstimado();
-            }
+        DocumentListener listenerDocumento = new DocumentListener() {
+            public void insertUpdate(DocumentEvent e) { if (controller != null) controller.onFormChanged(); }
+            public void removeUpdate(DocumentEvent e) { if (controller != null) controller.onFormChanged(); }
+            public void changedUpdate(DocumentEvent e) { if (controller != null) controller.onFormChanged(); }
+        };
 
-            @Override
-            public void changedUpdate(DocumentEvent e) {
-                alterarLabelValorCalculadoDimensao();
-                calcularPrecoEstimado();
-            }
+        tfDimensao.getDocument().addDocumentListener(listenerDocumento);
+        cbForma.addActionListener(e -> { if (controller != null) controller.onFormChanged(); });
+        cbxEhArea.addActionListener(e -> { if (controller != null) controller.onFormChanged(); });
 
-        });
-
-        cbxEhArea.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                alterarLabelValorCalculadoDimensao();
-            }
-        });
-
-        cbxEhArea.addItemListener(e -> {
-            calcularPrecoEstimado();
-        });
-
-
-        cbxDesativarSegundoSabor.addItemListener(e -> {
-            calcularPrecoEstimado();
-            boolean selecionado = cbxDesativarSegundoSabor.isSelected();
-            cbSabor2.setEnabled(!selecionado);
-            if (!selecionado)
+        cbxDesativarSegundoSabor.addActionListener(e -> {
+            cbSabor2.setEnabled(!cbxDesativarSegundoSabor.isSelected());
+            if (cbxDesativarSegundoSabor.isSelected()) {
                 cbSabor2.setSelectedItem(null);
-            this.atualizarDisponibilidadeSabores();
-
+            }
+            if (controller != null) controller.onFormChanged();
         });
 
-        cbSabor1.addActionListener(e ->
-        {
-            calcularPrecoEstimado();
-            atualizarDisponibilidadeSabores();
-        });
-        cbSabor2.addActionListener(e -> {
-            calcularPrecoEstimado();
-            atualizarDisponibilidadeSabores();
-        });
+        sabor1Listener = e -> { if (controller != null) controller.onFormChanged(); };
+        sabor2Listener = e -> { if (controller != null) controller.onFormChanged(); };
 
-        cbForma.addActionListener(e -> {
-            alterarLabelValorCalculadoDimensao();
-            calcularPrecoEstimado();
-        });
-
+        cbSabor1.addActionListener(sabor1Listener);
+        cbSabor2.addActionListener(sabor2Listener);
     }
 
-    private void atualizarDisponibilidadeSabores() {
-        SaborPizza[] todosSabores = getSabores();
+    public void setTitulo(String titulo) {
+        setTitle(titulo);
+    }
 
-        SaborPizza saborSelecionado1 = (SaborPizza) cbSabor1.getSelectedItem();
-        SaborPizza saborSelecionado2 = (SaborPizza) cbSabor2.getSelectedItem();
+    public void popularSabores(SaborPizza[] sabores) {
+        this.todosOsSabores = sabores;
+        atualizarDisponibilidadeSabores(); 
+    }
 
-        if(!cbSabor2.isEnabled()) {
-            cbSabor1.setModel(new DefaultComboBoxModel<>(todosSabores));
-            cbSabor1.setSelectedItem(saborSelecionado1);
-            return;
-        }
+    public void popularFormas(Forma[] formas) {
+        cbForma.setModel(new DefaultComboBoxModel<>(formas));
+    }
 
-        DefaultComboBoxModel<SaborPizza> modeloSabor1 = new DefaultComboBoxModel<>();
-        for (SaborPizza sabor : todosSabores) {
-            if (!sabor.equals(saborSelecionado2)) {
-                modeloSabor1.addElement(sabor);
+    public void preencherFormulario(Pizza pizza) {
+        for (int i = 0; i < cbForma.getItemCount(); i++) {
+            if (cbForma.getItemAt(i).getClass().equals(pizza.getForma().getClass())) {
+                cbForma.setSelectedIndex(i);
+                break;
             }
         }
-        cbSabor1.setModel(modeloSabor1);
-        cbSabor1.setSelectedItem(saborSelecionado1);
 
-
-        DefaultComboBoxModel<SaborPizza> modeloSabor2 = new DefaultComboBoxModel<>();
-        for (SaborPizza sabor : todosSabores) {
-            if (!sabor.equals(saborSelecionado1)) {
-                modeloSabor2.addElement(sabor);
-            }
-        }
-        cbSabor2.setModel(modeloSabor2);
-        cbSabor2.setSelectedItem(saborSelecionado2);
-    }
-
-    private void setarDadosPizza(Pizza pizza) {
-        cbForma.setSelectedItem(pizza.getForma());
-        setarSaboresPizza(pizza);
-        double dimensao = pizza.getTamanho();
-        String dimensaoFormatada = String.format("%.2f", dimensao).replace(',', '.');
-        tfDimensao.setText(dimensaoFormatada);
-        cbxEhArea.setSelected(true);
-        alterarLabelValorCalculadoDimensao();
-        calcularPrecoEstimado();
-
-    }
-
-    private void setarSaboresPizza(Pizza pizza) {
         List<SaborPizza> sabores = pizza.getSabores();
-        List<JComboBox<SaborPizza>> cbSabores = List.of(cbSabor1, cbSabor2);
-        List<JCheckBox> cbxDesativarSabores = new ArrayList<>(Arrays.asList(null, cbxDesativarSegundoSabor));
+        if (!sabores.isEmpty()) {
+            selecionarItemNoCombo(cbSabor1, sabores.get(0));
+        }
+        if (sabores.size() > 1) {
+            cbxDesativarSegundoSabor.setSelected(false);
+            cbSabor2.setEnabled(true);
+            selecionarItemNoCombo(cbSabor2, sabores.get(1));
+        }
 
-        IntStream.range(0, cbSabores.size())
-                .forEach(i -> {
-                    JComboBox<SaborPizza> cbSabor = cbSabores.get(i);
+        tfDimensao.setText(String.format("%.2f", pizza.getTamanho()).replace(',', '.'));
+        cbxEhArea.setSelected(true);
 
-                    boolean hasSabor = i <= sabores.size() - 1;
-
-                    if(hasSabor) {
-                        SaborPizza saborPizzaSelecionada = sabores.get(i);
-                        SaborPizza saborCorrespondenteNaCombobox = Arrays.stream(getSabores())
-                                .filter(saborPizza -> saborPizza.equals(saborPizzaSelecionada))
-                                .findFirst()
-                                .orElse(null);
-                        cbSabor.setSelectedItem(saborCorrespondenteNaCombobox);
-                    }
-                    else cbxDesativarSabores.get(i).setSelected(true);
-                });
+        if (controller != null) controller.onFormChanged();
     }
 
-    private SaborPizza[] getSabores() {
-      List<SaborPizza> sabores = this.saborController.carregarSabores();
-      return sabores.toArray(new SaborPizza[0]);
-    }
-
-    private Forma[] getFormas() {
-        Quadrado quadrado = new Quadrado();
-        Triangulo triangulo = new Triangulo();
-        Circulo circulo = new Circulo();
-        return new Forma[]{quadrado, triangulo, circulo};
-    }
-
-     private void finalizarOperacao() {
-        try {
-            Pizza novaPizza = this.montarNovaPizza(true);
-            List<Pizza> itens = List.of(novaPizza);
-            String acaoAtualMensagem = "";
-            String acaoConcluidaMensagem = "";
-            if(ehEdicao) {
-                itemPedidoController.editarItemPedido(idPedido, novaPizza, this.idItemSelecionado);
-                acaoAtualMensagem = "editar";
-                acaoConcluidaMensagem = "editado";
-            }
-            else {
-                itemPedidoController.adicionarItemPedido(idPedido, novaPizza);
-                acaoAtualMensagem = "salvar";
-                acaoConcluidaMensagem = "salvo";
-            }
-
-
-            JOptionPane.showMessageDialog(
-                    tela,
-                    "Item " + acaoConcluidaMensagem +  " no pedido com sucesso!",
-                    "Sucesso ao " + acaoAtualMensagem,
-                    JOptionPane.INFORMATION_MESSAGE
-            );
-            setVisible(false);
-            new PedidoView(idPedido);
-
-        }
-        catch (Exception e) {
-            String mensagemDeErro = "Houve um erro ao salvar este pedido!";
-
-            boolean mensagemDeErroFoiTratada = e instanceof NullPointerException || e instanceof IllegalArgumentException;
-
-            if(mensagemDeErroFoiTratada) {
-                mensagemDeErro = e.getMessage();
-            }
-
-            JOptionPane.showMessageDialog(
-                    tela,
-                    mensagemDeErro,
-                    "Erro ao salvar",
-                    JOptionPane.ERROR_MESSAGE
-            );
-        }
-
-    }
-
-
-    private List<SaborPizza> getSaboresEscolhidos(boolean validarSabores) {
-
-        boolean saborInvalido = cbSabor2.getSelectedItem() == null && !cbxDesativarSegundoSabor.isSelected();
-        if(saborInvalido && validarSabores)
-            throw new NullPointerException("Você não selecionou o segundo sabor.");
-
-        if(cbxDesativarSegundoSabor.isSelected()) {
-            return List.of((SaborPizza) cbSabor1.getSelectedItem());
-        }
-
-        return  List.of((SaborPizza) cbSabor1.getSelectedItem(), (SaborPizza) cbSabor2.getSelectedItem());
-    }
-    private Forma getFormaEscolhida(boolean validarForma) {
-        Forma formaEscolhida = (Forma) cbForma.getSelectedItem();
-
-        if(!validarForma)
-        {
-            double dimensao;
-
-            try {
-               dimensao = Double.parseDouble(tfDimensao.getText());
-            }
-            catch (Exception e) {
-                dimensao = 0;
-            }
-
-            if (cbxEhArea.isSelected()) {
-                dimensao = formaEscolhida.calcularDimensao(dimensao);
-            }
-
-            formaEscolhida.setDimensao(dimensao);
-
-            return formaEscolhida;
-
-        }
-
-        double dimensao = 0;
-        try {
-            dimensao = Double.parseDouble(tfDimensao.getText());
-
-            if (cbxEhArea.isSelected()) {
-                dimensao = formaEscolhida.calcularDimensao(dimensao);
-            }
-
-            boolean deveMostrarErroDeArea = this.cbxEhArea.isSelected();
-            formaEscolhida.validarDimensao(dimensao, deveMostrarErroDeArea);
-
-        }    catch (Exception e) {
-            if (e instanceof NumberFormatException) {
-                throw new NumberFormatException("A dimensão deve ser um número válido!");
-            }
-            throw e;
-        }
-
-
-        formaEscolhida.setDimensao(dimensao);
-
-        return formaEscolhida;
-    }
-
-    private Pizza montarNovaPizza(boolean validarCampos) {
-        try {
-            Forma formaEscolhida = this.getFormaEscolhida(validarCampos);
-            List<SaborPizza> SaboresEscolhidos = getSaboresEscolhidos(validarCampos);
-
-
-            return new Pizza(null, formaEscolhida, SaboresEscolhidos);
-        }
-        catch (Exception e) {
-            throw e;
-        }
-    }
-
-    private void calcularPrecoEstimado() {
-        try {
-
-            Pizza pizza = montarNovaPizza(false);
-            double preco = pizza.getPreco();
-            lblPrecoPizza.setText(String.format("%.2f R$", preco));
-        }
-        catch (Exception e) {
-            lblPrecoPizza.setText("Formulário incompleto para estimar preço");
-        }
-    }
-
-    private void alterarLabelValorCalculadoDimensao() {
-
-        try {
-            if(!cbxEhArea.isSelected() || tfDimensao.getText().equals("")) {
-                lblValorLado.setText("");
+    private void selecionarItemNoCombo(JComboBox<SaborPizza> comboBox, SaborPizza saborParaSelecionar) {
+        for (int i = 0; i < comboBox.getItemCount(); i++) {
+            if (comboBox.getItemAt(i).equals(saborParaSelecionar)) {
+                comboBox.setSelectedIndex(i);
                 return;
             }
-
-            double dimensao = Double.parseDouble(tfDimensao.getText());
-            Forma formaEscolhida = (Forma) cbForma.getSelectedItem();
-            double ladoForma = formaEscolhida.calcularDimensao(dimensao);
-
-            String nomeMedida = "lado";
-
-            if (formaEscolhida instanceof Circulo)
-                nomeMedida = "raio";
-
-            lblValorLado.setText(String.format("A medida do %s correspondente é: %.2f cm", nomeMedida, ladoForma));
-
-
-        }
-        catch (Exception e) {
-            lblValorLado.setText("");
         }
     }
+
+    public void setPrecoEstimado(String preco) {
+        lblPrecoPizza.setText(preco);
+    }
+
+    public void setDimensaoCalculada(String texto) {
+        lblValorLado.setText(texto);
+    }
+
+    public void exibirMensagem(String titulo, String mensagem, int tipo) {
+        JOptionPane.showMessageDialog(this.tela, mensagem, titulo, tipo);
+    }
+
+
+    public Forma getFormaEscolhida(boolean validar) {
+        Forma forma = (Forma) cbForma.getSelectedItem();
+        double dimensao = getDimensao();
+        if (isArea()) {
+            dimensao = forma.calcularDimensao(dimensao);
+        }
+        if (validar) {
+            forma.validarDimensao(dimensao, isArea());
+        }
+        forma.setDimensao(dimensao);
+        return forma;
+    }
+
+    public List<SaborPizza> getSaboresSelecionados(boolean validar) {
+        List<SaborPizza> sabores = new ArrayList<>();
+        if (cbSabor1.getSelectedItem() != null) {
+            sabores.add((SaborPizza) cbSabor1.getSelectedItem());
+        }
+        if (!cbxDesativarSegundoSabor.isSelected() && cbSabor2.getSelectedItem() != null) {
+            sabores.add((SaborPizza) cbSabor2.getSelectedItem());
+        }
+
+        if (validar) {
+            if (sabores.isEmpty()) throw new IllegalArgumentException("Selecione pelo menos um sabor.");
+            if (!cbxDesativarSegundoSabor.isSelected() && cbSabor2.getSelectedItem() == null) {
+                throw new IllegalArgumentException("O segundo sabor está ativado mas não foi selecionado.");
+            }
+        }
+        return sabores;
+    }
+
+    public double getDimensao() {
+        try {
+            return Double.parseDouble(tfDimensao.getText().replace(',', '.'));
+        } catch (NumberFormatException e) {
+            return 0;
+        }
+    }
+
+    public boolean isArea() {
+        return cbxEhArea.isSelected();
+    }
+
+    public void atualizarDisponibilidadeSabores() {
+        cbSabor1.removeActionListener(sabor1Listener);
+        cbSabor2.removeActionListener(sabor2Listener);
+
+        try {
+            SaborPizza selecionado1 = (SaborPizza) cbSabor1.getSelectedItem();
+            SaborPizza selecionado2 = (SaborPizza) cbSabor2.getSelectedItem();
+
+            if (todosOsSabores == null) return;
+
+            DefaultComboBoxModel<SaborPizza> model1 = new DefaultComboBoxModel<>();
+            DefaultComboBoxModel<SaborPizza> model2 = new DefaultComboBoxModel<>();
+
+            for (SaborPizza s : todosOsSabores) {
+                if (selecionado2 == null || !s.equals(selecionado2)) {
+                    model1.addElement(s);
+                }
+                if (selecionado1 == null || !s.equals(selecionado1)) {
+                    model2.addElement(s);
+                }
+            }
+
+            cbSabor1.setModel(model1);
+            cbSabor2.setModel(model2);
+
+            cbSabor1.setSelectedItem(selecionado1);
+            cbSabor2.setSelectedItem(selecionado2);
+
+        } finally {
+            cbSabor1.addActionListener(sabor1Listener);
+            cbSabor2.addActionListener(sabor2Listener);
+        }
+    }
+
 }

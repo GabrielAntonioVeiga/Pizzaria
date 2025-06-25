@@ -8,6 +8,10 @@ public interface IPizzaDao {
     public void salvar(Pizza pizza);
     public void deletar(Long id);
     public void atualizar(Pizza pizza);
-    public Pizza listarPorId(int id);
+
+    Pizza listarPorId(Long id);
+
     public List<Pizza> listarPorPedido(Long idPedido);
+    
+    public void removerDoPedido(Long idPedido, Long idPizza);
 }
