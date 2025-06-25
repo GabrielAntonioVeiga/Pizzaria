@@ -35,7 +35,7 @@ public class PedidosController {
         if (cliente != null) {
             List<Pedido> pedidosDoCliente = pedidoDao.listarPorCliente(cliente);
             this.view.renderizarItensNaTabela(pedidosDoCliente);
-            // this.view.setTelefoneBusca(cliente.getTelefone()); 
+             this.view.setTelefoneBusca(cliente.getTelefone()); 
         } else {
             this.view.renderizarItensNaTabela(List.of());
             this.view.exibirMensagem("Erro", "Cliente com ID " + clienteId + " não foi encontrado.", JOptionPane.ERROR_MESSAGE);

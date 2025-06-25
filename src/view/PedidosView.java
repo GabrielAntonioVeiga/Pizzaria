@@ -62,6 +62,9 @@ public class PedidosView extends JFrame {
         setLocationRelativeTo(null);
     }
 
+    public void setTelefoneBusca(String telefone) {
+        tfTelefoneCliente.setText(telefone);
+    }
     private void adicionarListeners() {
         buscarButton.addActionListener(e -> controller.buscarPedidosPorCliente());
         adicionarPedidoButton.addActionListener(e -> controller.criarNovoPedido());
