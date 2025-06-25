@@ -158,10 +158,66 @@ public class PizzaDao implements IPizzaDao {
     }
 
     @Override
-    public Pizza listarPorId(long id) {
-        return null;
-    }
+    public Pizza listarPorId(Long id) {
+        Pizza pizza = null;
+        String sql = "SELECT " +
+                "p.id AS pizza_id, p.id_pedido, p.forma, p.raio, p.lado, " +
+                "s.id AS sabor_id, s.nome AS sabor_nome, s.tipo AS sabor_tipo, s.preco_cm2 AS sabor_preco_cm2 " +
+                "FROM pizza p " +
+                "LEFT JOIN pizza_sabor ps ON p.id = ps.id_pizza " +
+                "LEFT JOIN sabor s ON ps.id_sabor = s.id " +
+                "WHERE p.id = ?";
 
+        try (PreparedStatement stmt = this.conn.prepareStatement(sql)) {
+            stmt.setLong(1, id);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    if (pizza == null) {
+                        String nomeForma = rs.getString("forma");
+                        EnForma enForma = EnForma.findByNome(nomeForma);
+                        Double raio = rs.getObject("raio") != null ? rs.getDouble("raio") : null;
+                        Double lado = rs.getObject("lado") != null ? rs.getDouble("lado") : null;
+
+                        Forma forma = null;
+                        switch (enForma) {
+                            case CIRCULO:
+                                forma = new Circulo(raio != null ? raio : 0);
+                                break;
+                            case TRIANGULO:
+                                forma = new Triangulo(lado != null ? lado : 0);
+                                break;
+                            case QUADRADO:
+                                forma = new Quadrado(lado != null ? lado : 0);
+                                break;
+                        }
+
+                        Long idPedido = rs.getLong("id_pedido");
+                        pizza = new Pizza(id, forma, new ArrayList<>());
+                        pizza.setId_pedido(idPedido);
+                    }
+
+                    Long saborId = rs.getObject("sabor_id") != null ? rs.getLong("sabor_id") : null;
+                    if (saborId != null) {
+                        SaborPizza saborPizza = new SaborPizza(
+                                saborId,
+                                rs.getString("sabor_nome"),
+                                rs.getString("sabor_tipo"),
+                                rs.getDouble("sabor_preco_cm2")
+                        );
+                        pizza.getSabores().add(saborPizza);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao buscar pizza por ID: " + e.getMessage(), e);
+        }
+
+        if (pizza != null) {
+            pizza.setPreco(pizza.calculaPreco());
+        }
+
+        return pizza;
+    }
     @Override
     public List<Pizza> listarPorPedido(Long idPedido) {
         Map<Long, Pizza> pizzasMap = new HashMap<>();

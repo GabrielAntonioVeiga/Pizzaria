@@ -9,7 +9,7 @@ public interface IPizzaDao {
     public void deletar(Long id);
     public void atualizar(Pizza pizza);
 
-    Pizza listarPorId(long id);
+    Pizza listarPorId(Long id);
 
     public List<Pizza> listarPorPedido(Long idPedido);
     
