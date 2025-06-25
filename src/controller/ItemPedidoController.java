@@ -1,59 +1,110 @@
 package controller;
 
+import dao.pedido.IPedidoDao;
 import dao.pizza.IPizzaDao;
+import dao.sabor.ISaborDao;
 import factory.DAOFactory;
 import model.*;
-import view.PedidosView;
+import view.ItensPedidoFormView;
+
+import javax.swing.*;
+import java.util.List;
 
 public class ItemPedidoController {
+
+    private final ItensPedidoFormView view;
+    private final Long idPedido;
+    private final Long idItemSelecionado;
+    private final boolean ehEdicao;
+
     private IPizzaDao pizzaDao = DAOFactory.getPizzaDao();
-    private PedidosView pedidosView;
-    private final PedidosController pedidosController = new PedidosController();
+    private IPedidoDao pedidoDao = DAOFactory.getPedidoDao();
+    private ISaborDao saborDao = DAOFactory.getSaborDao();
 
-    public ItemPedidoController() {
+    public ItemPedidoController(Long idPedido, Long idItemSelecionado) {
+        this.idPedido = idPedido;
+        this.idItemSelecionado = idItemSelecionado;
+        this.ehEdicao = (idItemSelecionado != null);
 
+        this.view = new ItensPedidoFormView();
+        this.view.setController(this);
     }
 
+    public void iniciar() {
+        String titulo = ehEdicao ? "Editar Item no Pedido" : "Adicionar Item no Pedido";
+        view.setTitulo(titulo);
 
-    public void editarItemPedido(Long idPedido, Pizza pizza, Long idItem) {
-        Pizza pizzaBanco = retornarItemPedido(idPedido, idItem);
+        List<SaborPizza> todosSabores = saborDao.listar();
+        view.popularSabores(todosSabores.toArray(new SaborPizza[0]));
+        view.popularFormas(new Forma[]{new Circulo(), new Quadrado(), new Triangulo()});
 
-        pizzaBanco.setForma(pizza.getForma());
-        pizzaBanco.setSabores(pizza.getSabores());
+        if (ehEdicao) {
+            Pizza itemExistente = pizzaDao.listarPorId(idItemSelecionado);
+            view.preencherFormulario(itemExistente);
+        }
 
-        double novoPreco = pizza.calculaPreco();
-        pizzaBanco.setPreco(novoPreco);
+        view.setVisible(true);
     }
 
-    public Pizza retornarItemPedido(Long idPedido, Long idItem) {
-        Pedido pedido = pedidosController.retornarPedidoPeloId(idPedido);
+    public void onFormChanged() {
+        try {
+            Forma forma = view.getFormaEscolhida(false);
+            double dimensao = view.getDimensao();
+            boolean ehArea = view.isArea();
 
-        return pedido.getItens().stream().filter(itemPedido -> itemPedido.getId() == idItem)
-               .findFirst()
-               .orElse(null);
+            if (ehArea && dimensao > 0) {
+                double ladoCalculado = forma.calcularDimensao(dimensao);
+                String nomeMedida = (forma instanceof Circulo) ? "raio" : "lado";
+                view.setDimensaoCalculada(String.format("A medida do %s correspondente é: %.2f cm", nomeMedida, ladoCalculado));
+            } else {
+                view.setDimensaoCalculada("");
+            }
+
+            List<SaborPizza> sabores = view.getSaboresSelecionados(false);
+            Forma formaParaCalculo = view.getFormaEscolhida(false);
+            Pizza pizzaRascunho = new Pizza(null, formaParaCalculo, sabores);
+            view.setPrecoEstimado(String.format("R$ %.2f", pizzaRascunho.getPreco()));
+
+        } catch (Exception e) {
+            view.setPrecoEstimado("Dados incompletos");
+        }
+        view.atualizarDisponibilidadeSabores();
     }
 
-    public void adicionarItemPedido(Long idPedido, Pizza pizza) {
-        Pedido pedido = pedidosController.retornarPedidoPeloId(idPedido);
-        pizza.setId_pedido(pedido.getId());
-        pizzaDao.salvar(pizza);
-        pedido.getItens().add(pizza);
+    public void confirmar() {
+        try {
+            Forma forma = view.getFormaEscolhida(true);
+            List<SaborPizza> sabores = view.getSaboresSelecionados(true);
+            Pizza novaPizza = new Pizza(null, forma, sabores);
 
-        double precoTotal = pedido.calculaPrecoTotal();
-        pedidosController.alterarPrecoPedido(idPedido, precoTotal);
-        pedido.setPrecoTotal(precoTotal);
+            if (ehEdicao) {
+                novaPizza.setId(idItemSelecionado);
+                pizzaDao.atualizar(novaPizza);
+                view.exibirMensagem("Sucesso", "Item atualizado com sucesso!", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                novaPizza.setId_pedido(idPedido);
+                pizzaDao.salvar(novaPizza);
+                view.exibirMensagem("Sucesso", "Item salvo com sucesso!", JOptionPane.INFORMATION_MESSAGE);
+            }
+
+            atualizarPrecoTotalPedido();
+
+            view.dispose();
+            new PedidoDetailController(idPedido).iniciar();
+
+        } catch (Exception e) {
+            view.exibirMensagem("Erro de Validação", e.getMessage(), JOptionPane.ERROR_MESSAGE);
+        }
     }
 
-    public void deletarItemPedido(Long idPedido, Long idItem) {
-        Pedido pedido = pedidosController.retornarPedidoPeloId(idPedido);
-        Pizza itemPedido = retornarItemPedido(idPedido, idItem);
-        pizzaDao.deletar(itemPedido.getId());
-        pedido.getItens().remove(itemPedido);
+    private void atualizarPrecoTotalPedido() {
+        List<Pizza> itensAtuais = pizzaDao.listarPorPedido(idPedido);
 
-        double precoTotal = pedido.calculaPrecoTotal();
-        pedidosController.alterarPrecoPedido(idPedido, precoTotal);
-        pedido.setPrecoTotal(precoTotal);
+        Pedido pedidoTemporario = new Pedido(null); 
+        pedidoTemporario.setItens(itensAtuais);
+        double novoPrecoTotal = pedidoTemporario.getPrecoTotal();
+
+        pedidoDao.alterarPrecoPedido(idPedido, novoPrecoTotal);
     }
-
 
 }

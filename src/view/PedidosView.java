@@ -1,259 +1,113 @@
 package view;
 
-import controller.ClienteController;
-import controller.ItemPedidoController;
 import controller.PedidosController;
 import enums.EnStatusPedido;
-import model.Cliente;
 import model.Pedido;
 import renderer.ButtonEditor;
 import renderer.ButtonRenderer;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
-public class PedidosView extends JFrame{
+public class PedidosView extends JFrame {
+
     private JPanel tela;
-    private JTextField textField1;
+    private JTextField tfTelefoneCliente; 
     private JTable tablePedidos;
     private JButton adicionarPedidoButton;
     private JButton voltarButton;
     private JButton buscarButton;
-    private JComboBox cbStatus;
+    private JComboBox<EnStatusPedido> cbStatus;
     private JButton alterarStatusDoPedidoButton;
     private JButton deletarPedidoButton;
     private DefaultTableModel tableModel;
-    private final PedidosController pedidosController = new PedidosController(this);
-    private final ClienteController clienteController = new ClienteController();
-    private final ItemPedidoController itemPedidoController = new ItemPedidoController();
-    private List<Pedido> pedidos;
-    private Cliente cliente;
+
+    private PedidosController controller;
 
     public PedidosView() {
-        this.inicializarTela();
-        cbStatus.setEnabled(false);
-        alterarStatusDoPedidoButton.setEnabled(false);
+        inicializarTela();
     }
 
-    public PedidosView(Long idPedido) {
-        Cliente clienteTelaAnterior = clienteController.buscarClientePorIdPedido(idPedido);
-        textField1.setText(clienteTelaAnterior.getTelefone());
-        List<Pedido> pedidosCliente = pedidosController.carregarPedidosPorCliente(clienteTelaAnterior);
-        cbStatus.setEnabled(false);
-        alterarStatusDoPedidoButton.setEnabled(false);
-        this.inicializarTela();
-        renderizarItensNaTabela(pedidosCliente);
-
+    public void setController(PedidosController controller) {
+        this.controller = controller;
     }
 
     private void inicializarTela() {
         setContentPane(tela);
-        setTitle("Pedidos");
+        setTitle("Gerenciamento de Pedidos");
         setSize(800, 600);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
         this.tableModel = new DefaultTableModel(
                 new Object[][]{},
-                new String[]{"ID Pedido", "Cliente", "Status", "Preco Total", "Detalhes"}
-        );
+                new String[]{"ID Pedido", "Cliente", "Status", "Preço Total", "Ações"}
+        ) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return column == 4;
+            }
+        };
 
         tablePedidos.setModel(tableModel);
-        tablePedidos.getColumnModel().getColumn(4).setCellRenderer(new ButtonRenderer("Ver"));
+        tablePedidos.getColumnModel().getColumn(4).setCellRenderer(new ButtonRenderer("Ver Detalhes"));
         tablePedidos.getColumnModel().getColumn(4).setCellEditor(
-                new ButtonEditor(new JCheckBox(), () -> detalhesPedido())  // Pass the method as a Runnable
+                new ButtonEditor(new JCheckBox(), () -> controller.verDetalhesPedido())
         );
 
-        renderizarItensNaTabela();
+        cbStatus.setModel(new DefaultComboBoxModel<>(EnStatusPedido.values()));
 
-        if(!pedidos.isEmpty()){
-            cbStatus.setEnabled(true);
-            cbStatus.setModel(new DefaultComboBoxModel<>(EnStatusPedido.values()));
-            alterarStatusDoPedidoButton.setEnabled(true);
-        }
-
+        adicionarListeners();
         pack();
-        setVisible(true);
-        this.inicializarListeners();
+        setLocationRelativeTo(null);
     }
 
-    private void inicializarListeners(){
-
-        alterarStatusDoPedidoButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                alterarStatusPedido();
-            }
-        });
-
-        voltarButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                voltar();
-            }
-        });
-
-        deletarPedidoButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                deletarPedido();
-            }
-        });
-
-        buscarButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                buscarPedido();
-            }
-        });
-
-        adicionarPedidoButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                adicionarPedido();
-            }
-        });
-
+    private void adicionarListeners() {
+        buscarButton.addActionListener(e -> controller.buscarPedidosPorCliente());
+        adicionarPedidoButton.addActionListener(e -> controller.criarNovoPedido());
+        deletarPedidoButton.addActionListener(e -> controller.deletarPedido());
+        alterarStatusDoPedidoButton.addActionListener(e -> controller.alterarStatusPedido());
+        voltarButton.addActionListener(e -> controller.voltarParaMenu());
     }
 
-    private void adicionarPedido() {
-        pedidosController.adicionarPedido(textField1.getText());
-    }
-
-    private void voltar(){
-        setVisible(false);
-        new MenuView();
-    }
-
-    public void limparTabela() {
-        this.pedidos = new ArrayList<>();
-
-        for(int i =0; i < tableModel.getRowCount(); i++){
-            tableModel.removeRow(i);
-        }
-    }
-
-    private void alterarStatusPedido(){
-        int row = tablePedidos.getSelectedRow();
-
-        if(row == -1){
-            JOptionPane.showMessageDialog(
-                    tela,
-                    "Selecione um pedido para alterar o status!",
-                    "Erro ao busar",
-                    JOptionPane.ERROR_MESSAGE
-            );
-            return;
-        }
-        Long idPedido = (Long) tableModel.getValueAt(row, 0);
-
-        pedidosController.alterarStatusPedido(idPedido, EnStatusPedido.valueOf(cbStatus.getSelectedItem().toString()));
-    }
-
-    private void renderizarItensNaTabela() {
-        this.pedidos = pedidosController.carregarPedidos();
-        this.renderizarItens();
-    }
 
     public void renderizarItensNaTabela(List<Pedido> pedidos) {
-        this.pedidos = pedidos;
-        this.renderizarItens();
-    }
+        tableModel.setRowCount(0);
 
-    private void renderizarItens() {
-        int contador = 0;
-
-        if(pedidos.isEmpty()) {
-            this.limparTabela();
+        if (pedidos == null || pedidos.isEmpty()) {
             return;
         }
 
         for (Pedido pedido : pedidos) {
-            this.tableModel.setRowCount(contador);
             String valorTotalFormatado = String.format("R$%.2f", pedido.getPrecoTotal());
             tableModel.addRow(new Object[]{
                     pedido.getId(),
                     pedido.getCliente().getNome(),
                     pedido.getStatus(),
                     valorTotalFormatado,
-                    "Ver Detalhes",
+                    "Ver Detalhes" 
             });
-            contador++;
         }
-
     }
 
-    public void detalhesPedido() {
-        int row = tablePedidos.getSelectedRow();
-        Long idPedido = (Long) tablePedidos.getValueAt(row, 0);
-        setVisible(false);
-        new PedidoView(idPedido);
+    public void exibirMensagem(String titulo, String mensagem, int tipo) {
+        JOptionPane.showMessageDialog(this, mensagem, titulo, tipo);
     }
 
-    private void buscarPedido() {
-        String numeroCliente = textField1.getText();
 
-        if(Objects.equals(numeroCliente, "")){
-            renderizarItensNaTabela();
-            return;
-        }
-
-        pedidosController.buscarPedidosClientePorNumero(numeroCliente);
-    }
-
-    private void deletarPedido() {
+    public Long getSelectedPedidoId() {
         int selectedRow = tablePedidos.getSelectedRow();
-
-        if(selectedRow == -1){
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Selecione um pedido para excluir!",
-                    "Erro",
-                    JOptionPane.ERROR_MESSAGE
-            );
-            return;
+        if (selectedRow < 0) {
+            return null;
         }
-
-        Long idPedido = (Long) tableModel.getValueAt(selectedRow, 0);
-
-        pedidosController.deletarPedido(idPedido);
+        return (Long) tableModel.getValueAt(selectedRow, 0);
     }
 
-    public void exibirMensagemErro(String mensagem) {
-        JOptionPane.showMessageDialog(
-                this,
-                mensagem,
-                "Erro",
-                JOptionPane.ERROR_MESSAGE
-        );
+    public String getTelefoneBusca() {
+        return tfTelefoneCliente.getText();
     }
 
-    public void exibirMensagemInfo(String title, String mensagem) {
-        JOptionPane.showMessageDialog(
-                tela,
-                mensagem,
-                title,
-                JOptionPane.INFORMATION_MESSAGE
-        );
-    }
-
-    public void exibirMensagemSucesso(String title, String mensagem) {
-        JOptionPane.showMessageDialog(this,
-                mensagem,
-                title,
-                JOptionPane.PLAIN_MESSAGE
-        );
-    }
-
-    public void setStatusPedidoField(String status) {
-        cbStatus.setSelectedItem(status);
-    }
-
-    public void habilitarAlterarStatusPedido() {
-        alterarStatusDoPedidoButton.setEnabled(true);
+    public EnStatusPedido getStatusSelecionado() {
+        return (EnStatusPedido) cbStatus.getSelectedItem();
     }
 }

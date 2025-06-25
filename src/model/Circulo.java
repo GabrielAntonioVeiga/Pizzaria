@@ -45,4 +45,9 @@ public class Circulo extends Forma {
     public String getNomeForma() {
         return EnForma.CIRCULO.getNome();
     }
+
+    @Override
+    public Double getMedida() {
+        return this.raio;
+    }
 }

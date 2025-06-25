@@ -11,6 +11,8 @@ package model;
 
         public abstract String getNomeForma();
 
+        public abstract Double getMedida();
+
         @Override
         public String toString() {
             return getNomeForma();

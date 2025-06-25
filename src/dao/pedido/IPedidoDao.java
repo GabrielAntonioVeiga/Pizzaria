@@ -7,7 +7,7 @@ import model.Pedido;
 import java.util.List;
 
 public interface IPedidoDao {
-    void salvar (Pedido pedido);
+    Pedido salvar (Pedido pedido);
     void remover (Long id);
     void atualizar (Pedido pedido);
     List<Pedido> listar();

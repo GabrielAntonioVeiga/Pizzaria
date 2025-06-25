@@ -1,49 +1,39 @@
 package model;
 
 import enums.EnStatusPedido;
-
 import java.util.ArrayList;
 import java.util.List;
 
 public class Pedido {
-    private EnStatusPedido status = EnStatusPedido.ABERTO;
+    private EnStatusPedido status; 
     private List<Pizza> itens = new ArrayList<>();
-    private Double precoTotal=0.0;
     private Long id;
     private Cliente cliente;
 
-    public Pedido(Long id, Cliente cliente, EnStatusPedido status, Double precoTotal) {
+    private Double precoTotal;
+    public Pedido(Cliente cliente) {
+        this.cliente = cliente;
+        this.status = EnStatusPedido.ABERTO; 
+    }
+
+    public Pedido(Long id, Cliente cliente, EnStatusPedido status,  Double precoTotal) {
         this.id = id;
         this.cliente = cliente;
         this.status = status;
         this.precoTotal = precoTotal;
     }
 
-    public Pedido(List<Pizza> itens, Cliente cliente) {
-        this.itens = itens;
-        this.cliente = cliente;
+    public Double getPrecoTotal() {
+        if (this.itens == null) {
+            return 0.0;
+        }
+        return this.itens.stream()
+                .mapToDouble(Pizza::getPreco)
+                .sum();
     }
-
-
 
     public List<Pizza> getItens() {
         return itens;
-    }
-
-    public void setPrecoTotal(Double precoTotal) {
-        this.precoTotal = precoTotal;
-    }
-
-    public Double calculaPrecoTotal() {
-        Double precoTotal = 0.0;
-        for(Pizza pizza : itens){
-            precoTotal += pizza.getPreco();
-        }
-        return precoTotal;
-    }
-
-    public Double getPrecoTotal() {
-        return precoTotal;
     }
 
     public void setItens(List<Pizza> itens) {

@@ -1,7 +1,6 @@
 package dao.pizza;
 
 import enums.EnForma;
-import enums.EnStatusPedido;
 import factory.ConnectionFactory;
 import model.*;
 
@@ -82,18 +81,18 @@ public class PizzaDao implements IPizzaDao {
                 stmtPizzaSabor.executeBatch();
             }
 
-            conn.commit(); // Commit transaction
+            conn.commit(); 
 
         } catch (SQLException e) {
             try {
-                conn.rollback(); // Rollback transaction on error
+                conn.rollback(); 
             } catch (SQLException rollbackEx) {
                 System.err.println("Erro ao reverter transação: " + rollbackEx.getMessage());
             }
             throw new RuntimeException("Erro ao salvar pizza: " + e.getMessage(), e);
         } finally {
             try {
-                conn.setAutoCommit(true); // Reset auto-commit
+                conn.setAutoCommit(true); 
             } catch (SQLException autoCommitEx) {
                 System.err.println("Erro ao restaurar auto-commit: " + autoCommitEx.getMessage());
             }
@@ -114,11 +113,52 @@ public class PizzaDao implements IPizzaDao {
 
     @Override
     public void atualizar(Pizza pizza) {
+        String sql = "UPDATE pizza SET forma = ?, raio = ?, lado = ? WHERE id = ?";
+        try {
+            PreparedStatement stmt = conn.prepareStatement(sql);
 
+            stmt.setString(1, pizza.getForma().getNomeForma());
+
+            if(pizza.getForma() instanceof Circulo) {
+                stmt.setDouble(2, pizza.getForma().getMedida());
+                stmt.setNull(3, java.sql.Types.NUMERIC);
+            } else {
+                stmt.setNull(2, java.sql.Types.NUMERIC);
+                stmt.setDouble(3, pizza.getForma().getMedida());
+            }
+
+            stmt.setLong(4, pizza.getId());
+            stmt.executeUpdate();
+
+            atualizarSaboresDaPizza(conn, pizza);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void atualizarSaboresDaPizza(Connection conn, Pizza pizza) throws SQLException {
+
+        try (PreparedStatement stmtDelete = conn.prepareStatement(
+                "DELETE FROM pizza_sabor WHERE id_pizza = ?")) {
+            stmtDelete.setLong(1, pizza.getId());
+            stmtDelete.executeUpdate();
+        }
+
+        try (PreparedStatement stmtInsert = conn.prepareStatement(
+                "INSERT INTO pizza_sabor (id_pizza, id_sabor) VALUES (?, ?)")) {
+
+            for (SaborPizza sabor : pizza.getSabores()) {
+                stmtInsert.setLong(1, pizza.getId());
+                stmtInsert.setLong(2, sabor.getId());
+                stmtInsert.addBatch();
+            }
+            stmtInsert.executeBatch();
+        }
     }
 
     @Override
-    public Pizza listarPorId(int id) {
+    public Pizza listarPorId(long id) {
         return null;
     }
 
@@ -189,6 +229,50 @@ public class PizzaDao implements IPizzaDao {
         }
 
         return new ArrayList<>(pizzasMap.values());
+    }
+
+    @Override
+    public void removerDoPedido(Long idPedido, Long idPizza) {
+        String sqlDeletePizzaSabor = "DELETE FROM pizza_sabor WHERE id_pizza = ?";
+        String sqlDeletePizza = "DELETE FROM pizza WHERE id = ? AND id_pedido = ?";
+
+        try {
+            conn.setAutoCommit(false);
+
+            try (PreparedStatement stmtSabor = conn.prepareStatement(sqlDeletePizzaSabor)) {
+                stmtSabor.setLong(1, idPizza);
+                stmtSabor.executeUpdate();
+            }
+
+            try (PreparedStatement stmtPizza = conn.prepareStatement(sqlDeletePizza)) {
+                stmtPizza.setLong(1, idPizza);
+                stmtPizza.setLong(2, idPedido);
+
+                int affectedRows = stmtPizza.executeUpdate();
+
+                if (affectedRows == 0) {
+                    conn.rollback();
+                    throw new SQLException("Falha ao remover a pizza: Nenhuma pizza com id " + idPizza + " encontrada para o pedido " + idPedido);
+                }
+            }
+
+            conn.commit();
+
+        } catch (SQLException e) {
+            try {
+                conn.rollback();
+            } catch (SQLException rollbackEx) {
+                System.err.println("Erro crítico ao tentar reverter a transação de remoção: " + rollbackEx.getMessage());
+            }
+            throw new RuntimeException("Erro ao remover item do pedido: " + e.getMessage(), e);
+
+        } finally {
+            try {
+                conn.setAutoCommit(true);
+            } catch (SQLException e) {
+                System.err.println("Erro ao restaurar o auto-commit: " + e.getMessage());
+            }
+        }
     }
 }
 

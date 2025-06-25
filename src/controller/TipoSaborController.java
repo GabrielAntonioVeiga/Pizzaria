@@ -1,50 +1,66 @@
 package controller;
 
+import dao.sabor.ISaborDao;
 import dao.sabor.ITipoSaborDao;
-import enums.EnTipoSabor;
+import factory.DAOFactory;
 import model.TipoSabor;
 import view.AtualizarTipoSaborView;
+import view.MenuView;
 
 import javax.swing.*;
 import java.util.List;
 
 public class TipoSaborController {
-    private final ITipoSaborDao dao;
-    private final SaborController saborController = new SaborController();
+
     private AtualizarTipoSaborView view;
+    private ITipoSaborDao tipoSaborDao = DAOFactory.getTipoSaborDao();
+    private ISaborDao saborDao = DAOFactory.getSaborDao();
 
-    public TipoSaborController(ITipoSaborDao dao) {
-        this.dao = dao;
+    public TipoSaborController() {}
+
+    public void iniciar() {
+        this.view = new AtualizarTipoSaborView();
+        this.view.setController(this);
+
+        List<TipoSabor> tipos = tipoSaborDao.listar();
+        this.view.popularTiposDeSabor(tipos);
+
+        this.view.setVisible(true);
     }
 
-    public TipoSaborController(ITipoSaborDao dao, AtualizarTipoSaborView view) {
-        this.dao = dao;
-        this.view = view;
-    }
-
-    public void atualizarPreco(EnTipoSabor nomeTipoSabor, double novoPreco) {
-        TipoSabor tipoExistente = dao.buscarPorTipo(nomeTipoSabor.toString());
-        if(tipoExistente == null) {
-            view.exibirMensagemErro("Tipo não encontrado!");
+    public void atualizarPreco() {
+        TipoSabor tipoSaborSelecionado = view.getTipoSaborSelecionado();
+        if (tipoSaborSelecionado == null) {
+            view.exibirMensagem("Por favor, selecione um tipo de sabor.", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        dao.atualizar(new TipoSabor(nomeTipoSabor, novoPreco));
-        atualizarPrecoSabores(nomeTipoSabor.toString(), novoPreco);
-        view.exibirMensagemSucesso(
-                "Sucesso ao atualizar preço",
-                "Preço atualizado com sucesso!");
+        try {
+            double novoPreco = view.getNovoPreco();
+            if (novoPreco <= 0) {
+                view.exibirMensagem("O preço deve ser um número positivo.", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            TipoSabor tipoParaAtualizar = new TipoSabor(tipoSaborSelecionado.getNome(), novoPreco);
+
+            tipoSaborDao.atualizar(tipoParaAtualizar);
+
+            saborDao.atualizarPrecoSabores(tipoParaAtualizar.getNome().toString(), novoPreco);
+
+            view.exibirMensagem("Preço atualizado com sucesso!", JOptionPane.INFORMATION_MESSAGE);
+
+            view.popularTiposDeSabor(tipoSaborDao.listar());
+
+        } catch (NumberFormatException e) {
+            view.exibirMensagem("O preço informado é inválido. Use ponto (.) como separador decimal.", JOptionPane.ERROR_MESSAGE);
+        } catch (Exception e) {
+            view.exibirMensagem("Ocorreu um erro ao atualizar o preço: " + e.getMessage(), JOptionPane.ERROR_MESSAGE);
+        }
     }
 
-    public TipoSabor buscarPorTipo(String tipo) {
-        return dao.buscarPorTipo(tipo);
-    }
-
-    public List<TipoSabor> carregarTipoSabores() {
-        return dao.listar();
-    }
-
-    private void atualizarPrecoSabores(String tipo, Double preco) {
-        saborController.atualizarPrecoSabores(tipo, preco);
+    public void voltarParaMenu() {
+        view.dispose();
+        new MenuController().iniciar();
     }
 }
