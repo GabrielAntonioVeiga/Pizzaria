@@ -45,12 +45,14 @@ public class PedidosController {
     }
 
     public void buscarPedidosPorCliente() {
-        String telefone = view.getTelefoneBusca();
-        if (telefone == null || telefone.trim().isEmpty()) {
+        String telefoneView = view.getTelefoneBusca();
+        if (telefoneView == null || telefoneView.trim().isEmpty()) {
             view.exibirMensagem("Aviso", "Por favor, digite um telefone para buscar.", javax.swing.JOptionPane.WARNING_MESSAGE);
             view.renderizarItensNaTabela(carregarTodosPedidos());
             return;
         }
+
+        String telefone = telefoneView.replaceAll("[^\\d]", "");
 
         Cliente cliente = clienteDao.listarPorTelefone(telefone);
 
