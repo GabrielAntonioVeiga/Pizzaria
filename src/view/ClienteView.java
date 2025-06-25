@@ -1,7 +1,6 @@
 package view;
 
 import controller.ClienteController;
-import controller.PedidosController;
 import model.Cliente;
 
 import javax.swing.*;
@@ -25,6 +24,7 @@ public class ClienteView extends JFrame {
     private JButton btnEditar;
     private JTextField tfFiltro;
     private JButton btnIrParaPedido;
+    private JButton btnVoltar;
     private DefaultTableModel tableModel;
 
     private ClienteController clienteController;
@@ -111,6 +111,17 @@ public class ClienteView extends JFrame {
             }
         });
 
+        btnVoltar.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                voltar();
+            }
+        });
+    }
+
+    public void voltar() {
+        setVisible(false);
+        new MenuView();
     }
 
     private void updateTextField(String rawText, int caretPosition) {
