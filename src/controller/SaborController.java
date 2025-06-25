@@ -96,6 +96,14 @@ public class SaborController {
             return;
         }
 
+        int pizzasUsando = saborDao.contarPizzasComSabor(saborSelecionado.getId());
+
+        if (pizzasUsando > 0) {
+            String mensagem = "Não é possível excluir o sabor '" + saborSelecionado.getNome() +
+                    "', pois ele está sendo usado em " + pizzasUsando + " pizza(s) existente(s).";
+            view.exibirMensagem(mensagem, JOptionPane.ERROR_MESSAGE);
+            return;
+        }
         int confirm = JOptionPane.showConfirmDialog(view, "Tem certeza que deseja excluir o sabor '" + saborSelecionado.getNome() + "'?", "Excluir Sabor", JOptionPane.YES_NO_OPTION);
         if (confirm == JOptionPane.YES_OPTION) {
             saborDao.removerPorNome(saborSelecionado.getNome());

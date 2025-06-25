@@ -121,4 +121,22 @@ public class SaborDao implements ISaborDao {
             throw new RuntimeException("Erro ao atualizar preço dos sabores.", e);
         }
     }
+
+    @Override
+    public int contarPizzasComSabor(Long saborId) {
+        String sql = "SELECT COUNT(*) FROM pizza_sabor WHERE id_sabor = ?";
+
+        try (PreparedStatement stmt = con.prepareStatement(sql)) {
+            stmt.setLong(1, saborId);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao contar pizzas com o sabor.", e);
+        }
+        return 0;
+    }
 }
