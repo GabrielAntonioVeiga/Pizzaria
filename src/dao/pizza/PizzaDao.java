@@ -114,7 +114,48 @@ public class PizzaDao implements IPizzaDao {
 
     @Override
     public void atualizar(Pizza pizza) {
+        String sql = "UPDATE pizza SET forma = ?, raio = ?, lado = ? WHERE id = ?";
+        try {
+            PreparedStatement stmt = conn.prepareStatement(sql);
 
+            stmt.setString(1, pizza.getForma().getNomeForma());
+
+            if(pizza.getForma() instanceof Circulo) {
+                stmt.setDouble(2, pizza.getForma().getMedida());
+                stmt.setNull(3, java.sql.Types.NUMERIC);
+            } else {
+                stmt.setNull(2, java.sql.Types.NUMERIC);
+                stmt.setDouble(3, pizza.getForma().getMedida());
+            }
+
+            stmt.setLong(4, pizza.getId());
+            stmt.executeUpdate();
+
+            atualizarSaboresDaPizza(conn, pizza);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void atualizarSaboresDaPizza(Connection conn, Pizza pizza) throws SQLException {
+
+        try (PreparedStatement stmtDelete = conn.prepareStatement(
+                "DELETE FROM pizza_sabor WHERE id_pizza = ?")) {
+            stmtDelete.setLong(1, pizza.getId());
+            stmtDelete.executeUpdate();
+        }
+
+        try (PreparedStatement stmtInsert = conn.prepareStatement(
+                "INSERT INTO pizza_sabor (id_pizza, id_sabor) VALUES (?, ?)")) {
+
+            for (SaborPizza sabor : pizza.getSabores()) {
+                stmtInsert.setLong(1, pizza.getId());
+                stmtInsert.setLong(2, sabor.getId());
+                stmtInsert.addBatch();
+            }
+            stmtInsert.executeBatch();
+        }
     }
 
     @Override

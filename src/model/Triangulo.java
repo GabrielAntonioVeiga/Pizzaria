@@ -48,6 +48,13 @@ public class Triangulo extends Forma {
 
     @Override
     public String getNomeForma() {
-        return EnForma.TRIANGULO.toString();
+        return EnForma.TRIANGULO.getNome();
     }
+
+    @Override
+    public Double getMedida() {
+        return this.lado;
+    }
+
+
 }

@@ -23,6 +23,7 @@ public class ItemPedidoController {
 
         double novoPreco = pizza.calculaPreco();
         pizzaBanco.setPreco(novoPreco);
+        pizzaDao.atualizar(pizzaBanco);
     }
 
     public Pizza retornarItemPedido(Long idPedido, Long idItem) {

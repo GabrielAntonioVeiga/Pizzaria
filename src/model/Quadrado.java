@@ -54,4 +54,9 @@ public class Quadrado extends Forma {
         public String getNomeForma() {
             return EnForma.QUADRADO.getNome();
         }
+
+    @Override
+    public Double getMedida() {
+        return this.lado;
+    }
 }
