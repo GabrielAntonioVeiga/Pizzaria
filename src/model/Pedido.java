@@ -24,12 +24,13 @@ public class Pedido {
     }
 
     public Double getPrecoTotal() {
-        if (this.itens == null) {
-            return 0.0;
+        if (this.itens != null && !this.itens.isEmpty()) {
+            return this.itens.stream()
+                    .mapToDouble(Pizza::getPreco)
+                    .sum();
         }
-        return this.itens.stream()
-                .mapToDouble(Pizza::getPreco)
-                .sum();
+
+        return this.precoTotal;
     }
 
     public List<Pizza> getItens() {
