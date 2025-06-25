@@ -50,6 +50,7 @@ public class AtualizarTipoSaborView extends JFrame {
     public void popularTiposDeSabor(List<TipoSabor> tipos) {
         DefaultComboBoxModel<TipoSabor> model = new DefaultComboBoxModel<>(tipos.toArray(new TipoSabor[0]));
         cbTipoSabor.setModel(model);
+        cbTipoSabor.setSelectedIndex(-1);
         tfPreco.setText(""); 
     }
 
