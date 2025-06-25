@@ -163,7 +163,8 @@
           </grid>
         </constraints>
         <properties>
-          <text value="Pesquisar"/>
+          <text value=""/>
+          <toolTipText value="digite o nome que quer pesquisar"/>
         </properties>
       </component>
     </children>
