@@ -16,7 +16,8 @@ public class AtualizarTipoSaborView extends JFrame {
     private JTextField tfPreco;
     private JPanel tela;
     private JButton btnConfirmar;
-    private TipoSaborController tipoSaborController = new TipoSaborController(DAOFactory.getTipoSaborDao());
+    private JButton btnVoltar;
+    private TipoSaborController tipoSaborController = new TipoSaborController(DAOFactory.getTipoSaborDao(), this);
 
     public AtualizarTipoSaborView() {
         setContentPane(tela);
@@ -37,18 +38,21 @@ public class AtualizarTipoSaborView extends JFrame {
                 atualizarPreco();
             }
         });
+
+        btnVoltar.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                voltar();
+            }
+        });
     }
 
     public void atualizarPreco() {
         try {
             double novoPreco = Double.parseDouble(tfPreco.getText());
             TipoSabor tipoSaborEscolhido = (TipoSabor) cbTipoSabor.getSelectedItem();
-
             assert tipoSaborEscolhido != null;
             tipoSaborController.atualizarPreco(tipoSaborEscolhido.getNome(), novoPreco);
-            setVisible(false);
-            new MenuView();
-
         }
         catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(
@@ -58,5 +62,27 @@ public class AtualizarTipoSaborView extends JFrame {
                     JOptionPane.ERROR_MESSAGE
             );
         }
+    }
+
+    public void voltar() {
+        setVisible(false);
+        new MenuView();
+    }
+
+    public void exibirMensagemErro(String mensagem) {
+        JOptionPane.showMessageDialog(
+                this,
+                mensagem,
+                "Erro",
+                JOptionPane.ERROR_MESSAGE
+        );
+    }
+
+    public void exibirMensagemSucesso(String title, String mensagem) {
+        JOptionPane.showMessageDialog(this,
+                mensagem,
+                title,
+                JOptionPane.PLAIN_MESSAGE
+        );
     }
 }

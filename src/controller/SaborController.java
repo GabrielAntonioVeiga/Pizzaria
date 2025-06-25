@@ -3,12 +3,18 @@ package controller;
 import dao.sabor.ISaborDao;
 import factory.DAOFactory;
 import model.SaborPizza;
+import view.CadastrarSaborView;
 
 import javax.swing.*;
 import java.util.List;
 
 public class SaborController {
-    private final ISaborDao dao = DAOFactory.getSaborDao();
+    private ISaborDao dao = DAOFactory.getSaborDao();
+    private CadastrarSaborView view;
+
+    public SaborController(CadastrarSaborView view) {
+        this.view = view;
+    }
 
     public SaborController() {
     }
@@ -25,18 +31,14 @@ public class SaborController {
 
         if(ehEdicao) {
             if(selectedRow == -1){
-                JOptionPane.showMessageDialog(
-                        null,
-                        "Selecione um sabor para alterar!",
-                        "Erro",
-                        JOptionPane.ERROR_MESSAGE
-                );
+                view.exibirMensagemErro("Selecione um sabor para alterar!");
                 return;
             }
 
-            int confirm = JOptionPane.showConfirmDialog(null,
-                    "Deseja editar a pizza de sabor: " + sabor.getNome() + "?",
-                    "Confirmar Edição", JOptionPane.YES_NO_OPTION);
+            int confirm = view.exibirYesNoMessage(
+                    "Confirmar Edição",
+                    "Deseja editar a pizza de sabor: " + sabor.getNome() + "?"
+            );
 
             if (confirm != JOptionPane.YES_OPTION)
                 return;
@@ -45,12 +47,7 @@ public class SaborController {
         } else {
             SaborPizza saborExistente = dao.buscarPorNome(sabor.getNome());
             if(saborExistente != null) {
-                JOptionPane.showMessageDialog(
-                        null,
-                        "Um sabor com o nome" + saborExistente.getNome() + " já existe!",
-                        "Erro",
-                        JOptionPane.ERROR_MESSAGE
-                );
+                view.exibirMensagemErro("Um sabor com o nome" + saborExistente.getNome() + " já existe!");
                 return;
             }
             adicionarSabor(sabor);
@@ -59,9 +56,8 @@ public class SaborController {
 
     public void adicionarSabor(SaborPizza novoSabor) {
         dao.salvar(novoSabor);
-        JOptionPane.showMessageDialog(null,
-                "Sabor salvo com sucesso!",
-                "Sucesso!", JOptionPane.PLAIN_MESSAGE);
+        view.renderizarItensNaTabela();
+        view.exibirMensagemSucesso("Sucesso!", "Sabor salvo com sucesso!");
     }
 
     public void atualizarSabor(SaborPizza novoSabor, String nomeAtual) {
@@ -69,13 +65,15 @@ public class SaborController {
        sabor.setNome(novoSabor.getNome());
        sabor.setTipoSabor(novoSabor.getTipoSabor());
        dao.atualizar(sabor);
-    JOptionPane.showMessageDialog(null,
-            "Sabor atualizado com sucesso!",
-            "Sucesso!", JOptionPane.PLAIN_MESSAGE);
+       view.renderizarItensNaTabela();
+       view.exibirMensagemSucesso("Sucesso!", "Sabor salvo com sucesso!");
+
     }
 
     public void deletarSabor(String nome) {
         dao.removerPorNome(nome);
+        view.renderizarItensNaTabela();
+        view.exibirMensagemSucesso("Sucesso!", "Sabor removido com sucesso!");
     }
 
     public void atualizarPrecoSabores(String tipo, Double preco) {
