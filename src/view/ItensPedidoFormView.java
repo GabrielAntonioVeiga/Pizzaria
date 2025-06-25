@@ -6,6 +6,7 @@ import model.*;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,6 +27,9 @@ public class ItensPedidoFormView extends JFrame {
     private SaborPizza[] todosOsSabores; 
 
     private boolean isUpdatingSabores = false;
+
+    private ActionListener sabor1Listener;
+    private ActionListener sabor2Listener;
     public ItensPedidoFormView() {
         inicializarTela();
     }
@@ -47,7 +51,7 @@ public class ItensPedidoFormView extends JFrame {
     }
 
     private void adicionarListeners() {
-        btnConfirmar.addActionListener(e -> controller.confirmar());
+        btnConfirmar.addActionListener(e -> { if (controller != null) controller.confirmar(); });
 
         DocumentListener listenerDocumento = new DocumentListener() {
             public void insertUpdate(DocumentEvent e) { if (controller != null) controller.onFormChanged(); }
@@ -58,6 +62,7 @@ public class ItensPedidoFormView extends JFrame {
         tfDimensao.getDocument().addDocumentListener(listenerDocumento);
         cbForma.addActionListener(e -> { if (controller != null) controller.onFormChanged(); });
         cbxEhArea.addActionListener(e -> { if (controller != null) controller.onFormChanged(); });
+
         cbxDesativarSegundoSabor.addActionListener(e -> {
             cbSabor2.setEnabled(!cbxDesativarSegundoSabor.isSelected());
             if (cbxDesativarSegundoSabor.isSelected()) {
@@ -65,8 +70,12 @@ public class ItensPedidoFormView extends JFrame {
             }
             if (controller != null) controller.onFormChanged();
         });
-        cbSabor1.addActionListener(e -> { if (controller != null) controller.onFormChanged(); });
-        cbSabor2.addActionListener(e -> { if (controller != null) controller.onFormChanged(); });
+
+        sabor1Listener = e -> { if (controller != null) controller.onFormChanged(); };
+        sabor2Listener = e -> { if (controller != null) controller.onFormChanged(); };
+
+        cbSabor1.addActionListener(sabor1Listener);
+        cbSabor2.addActionListener(sabor2Listener);
     }
 
     public void setTitulo(String titulo) {
@@ -172,18 +181,26 @@ public class ItensPedidoFormView extends JFrame {
     }
 
     public void atualizarDisponibilidadeSabores() {
-      
-        if (isUpdatingSabores) {
-            return;
-        }
-        isUpdatingSabores = true;
+        cbSabor1.removeActionListener(sabor1Listener);
+        cbSabor2.removeActionListener(sabor2Listener);
 
         try {
             SaborPizza selecionado1 = (SaborPizza) cbSabor1.getSelectedItem();
             SaborPizza selecionado2 = (SaborPizza) cbSabor2.getSelectedItem();
 
-            DefaultComboBoxModel<SaborPizza> model1 = new DefaultComboBoxModel<>(todosOsSabores);
-            DefaultComboBoxModel<SaborPizza> model2 = new DefaultComboBoxModel<>(todosOsSabores);
+            if (todosOsSabores == null) return;
+
+            DefaultComboBoxModel<SaborPizza> model1 = new DefaultComboBoxModel<>();
+            DefaultComboBoxModel<SaborPizza> model2 = new DefaultComboBoxModel<>();
+
+            for (SaborPizza s : todosOsSabores) {
+                if (selecionado2 == null || !s.equals(selecionado2)) {
+                    model1.addElement(s);
+                }
+                if (selecionado1 == null || !s.equals(selecionado1)) {
+                    model2.addElement(s);
+                }
+            }
 
             cbSabor1.setModel(model1);
             cbSabor2.setModel(model2);
@@ -191,18 +208,9 @@ public class ItensPedidoFormView extends JFrame {
             cbSabor1.setSelectedItem(selecionado1);
             cbSabor2.setSelectedItem(selecionado2);
 
-            boolean segundoSaborHabilitado = !cbxDesativarSegundoSabor.isSelected();
-
-            if (segundoSaborHabilitado) {
-                if (selecionado1 != null) {
-                    model2.removeElement(selecionado1);
-                }
-                if (selecionado2 != null) {
-                    model1.removeElement(selecionado2);
-                }
-            }
         } finally {
-            isUpdatingSabores = false;
+            cbSabor1.addActionListener(sabor1Listener);
+            cbSabor2.addActionListener(sabor2Listener);
         }
     }
 
